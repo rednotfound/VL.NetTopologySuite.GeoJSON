@@ -1,0 +1,26 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Polygon", "coordinates": [[[0, 0], [2, 0], [2, 2], [0, 2], [0, 0]]] },
+      "properties": { "name": "unit square scaled", "area": 4, "kind": "simple" }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [[10, 10], [14, 10], [14, 14], [10, 14], [10, 10]],
+          [[11, 11], [11, 13], [13, 13], [13, 11], [11, 11]]
+        ]
+      },
+      "properties": { "name": "square with a hole", "area": 12, "kind": "with-hole" }
+    },
+    {
+      "type": "Feature",
+      "geometry": { "type": "LineString", "coordinates": [[0, 0], [1, 1], [2, 0], [3, 1]] },
+      "properties": { "name": "a zigzag", "kind": "line" }
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="%%doc%%" LanguageVersion="2025.7.4" Version="0.128">
+  <NugetDependency Id="%%dep_corelib%%" Location="VL.CoreLib" Version="2025.7.4" />
+  <Patch Id="%%patch%%">
+    <Canvas Id="%%canvas%%" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="%%app%%">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="%%app_patch%%">
+        <Canvas Id="%%app_canvas%%" CanvasType="Group">
+          <Pad Id="%%note%%" Bounds="700,60,460,620" ShowValueBox="true" isIOBox="true" Value="Two ways to reach a property&#xD;&#xA;&#xD;&#xA;  Split         EVERY property, as a Dictionary&#xD;&#xA;  GetProperty   THIS ONE, by name&#xD;&#xA;&#xD;&#xA;One name box feeds both. Type a name that is not there and both report it - neither throws. That matters: underneath, NetTopologySuite's table THROWS on a missing name, and a node doing that sixty times a second while you type would be useless.&#xD;&#xA;&#xD;&#xA;vvvv ships the same pair for XML - XElement (Split) for all the attributes, GetAttributeValue for one by name with a Success pin.&#xD;&#xA;&#xD;&#xA;What each JSON type arrives as&#xD;&#xA;&#xD;&#xA;  &quot;text&quot;       String&#xD;&#xA;  42           Int64&#xD;&#xA;  1.5          Float64&#xD;&#xA;  true/false   Boolean&#xD;&#xA;  null         reported as not found&#xD;&#xA;  { ... }      a nested table&#xD;&#xA;  [ ... ]      an array&#xD;&#xA;&#xD;&#xA;Whole numbers are Int64, not Float64, on purpose: an OpenStreetMap id is too big for a Float64 to hold exactly.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member becomes an ordinary property. Try typing id.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">12</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="%%pad_text%%" Comment="GeoJSON - edit me" Bounds="60,60,540,90" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;id&quot;:&quot;tokyo&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[139.6917,35.6895]},&quot;properties&quot;:{&quot;name&quot;:&quot;Tokyo&quot;,&quot;country&quot;:&quot;JP&quot;,&quot;population&quot;:13960000,&quot;area_km2&quot;:2194.07,&quot;capital&quot;:true,&quot;nickname&quot;:null}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[13.405,52.52]},&quot;properties&quot;:{&quot;name&quot;:&quot;Berlin&quot;,&quot;country&quot;:&quot;DE&quot;,&quot;population&quot;:3677472,&quot;area_km2&quot;:891.7,&quot;capital&quot;:true}}]}">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="60,180,110,26" Id="%%n_read%%">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+            </p:NodeReference>
+            <Pin Id="%%p_read_in%%" Name="GeoJSON" Kind="InputPin" />
+            <Pin Id="%%p_read_factory%%" Name="Factory" Kind="InputPin" />
+            <Pin Id="%%p_read_features%%" Name="Features" Kind="OutputPin" />
+            <Pin Id="%%p_read_success%%" Name="Success" Kind="OutputPin" />
+            <Pin Id="%%p_read_status%%" Name="Status" Kind="OutputPin" />
+            <Pin Id="%%p_read_parses%%" Name="Parses" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_status%%" Comment="status" Bounds="330,183,250,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,240,44,26" Id="%%n_count%%">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Count" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="%%p_count_in%%" Name="Input" Kind="StateInputPin" />
+            <Pin Id="%%p_count_out%%" Name="Count" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_count%%" Comment="features" Bounds="150,243,45,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,300,52,26" Id="%%n_getslice%%">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="GetSlice" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="%%p_gs_in%%" Name="Input" Kind="StateInputPin" />
+            <Pin Id="%%p_gs_default%%" Name="Default Value" Kind="InputPin" />
+            <Pin Id="%%p_gs_index%%" Name="Index" Kind="InputPin" />
+            <Pin Id="%%p_gs_result%%" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_index%%" Comment="which feature - try 1" Bounds="150,303,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="60,355,90,26" Id="%%n_splitf%%">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Split" />
+            </p:NodeReference>
+            <Pin Id="%%p_sf_in%%" Name="Feature" Kind="InputPin" />
+            <Pin Id="%%p_sf_geom%%" Name="Geometry" Kind="OutputPin" />
+            <Pin Id="%%p_sf_props%%" Name="Properties" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_geom%%" Comment="geometry - goes straight into VL.NetTopologySuite" Bounds="330,358,250,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="%%pad_props%%" Comment="every property at once" Bounds="60,400,250,15" ShowValueBox="true" isIOBox="true" />
+          <!--
+            ONE name box feeding both routes, so they can be compared directly. Try a name that
+            is not there: neither throws, both simply say false.
+          -->
+          <Pad Id="%%pad_key%%" Comment="property name - try population, capital, id, or a typo" Bounds="330,445,110,15" ShowValueBox="true" isIOBox="true" Value="name">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <!--
+            Route 1: take the whole Dictionary from Split, then use VL's OWN TryGetValue. This
+            package does not wrap that node, and never will - a node a patch can build from nodes
+            it already has is a help patch, not a node.
+          -->
+          <Node Bounds="60,490,90,26" Id="%%n_try%%">
+            <p:NodeReference LastCategoryFullName="Collections.Dictionary" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <CategoryReference Kind="RecordType" Name="Dictionary" />
+              <Choice Kind="OperationCallFlag" Name="TryGetValue" />
+            </p:NodeReference>
+            <Pin Id="%%p_try_in%%" Name="Input" Kind="StateInputPin" />
+            <Pin Id="%%p_try_key%%" Name="Key" Kind="InputPin" />
+            <Pin Id="%%p_try_result%%" Name="Result" Kind="OutputPin" />
+            <Pin Id="%%p_try_value%%" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_found1%%" Comment="found?" Bounds="60,535,45,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="%%pad_value1%%" Comment="the value" Bounds="60,570,250,15" ShowValueBox="true" isIOBox="true" />
+          <!--
+            Route 2: ask the feature directly. Same answer, one node instead of two, and it is
+            the shape vvvv uses for XML - a Get.. node always carries a Success pin and never
+            throws.
+          -->
+          <Node Bounds="440,490,100,26" Id="%%n_get%%">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="GetProperty" />
+            </p:NodeReference>
+            <Pin Id="%%p_get_feature%%" Name="Feature" Kind="InputPin" />
+            <Pin Id="%%p_get_name%%" Name="Name" Kind="InputPin" />
+            <Pin Id="%%p_get_result%%" Name="Result" Kind="OutputPin" />
+            <Pin Id="%%p_get_success%%" Name="Success" Kind="OutputPin" />
+          </Node>
+          <Pad Id="%%pad_found2%%" Comment="found?" Bounds="440,535,45,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="%%pad_value2%%" Comment="the same value" Bounds="440,570,250,15" ShowValueBox="true" isIOBox="true" />
+        </Canvas>
+        <Patch Id="%%create%%" Name="Create" />
+        <Patch Id="%%update%%" Name="Update" />
+        <ProcessDefinition Id="%%procdef%%">
+          <Fragment Id="%%frag_create%%" Patch="%%create%%" Enabled="true" />
+          <Fragment Id="%%frag_update%%" Patch="%%update%%" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="%%l1%%" Ids="%%pad_text%%,%%p_read_in%%" />
+        <Link Id="%%l2%%" Ids="%%p_read_status%%,%%pad_status%%" />
+        <Link Id="%%l3%%" Ids="%%p_read_features%%,%%p_count_in%%" />
+        <Link Id="%%l4%%" Ids="%%p_count_out%%,%%pad_count%%" />
+        <Link Id="%%l5%%" Ids="%%p_read_features%%,%%p_gs_in%%" />
+        <Link Id="%%l6%%" Ids="%%pad_index%%,%%p_gs_index%%" />
+        <Link Id="%%l7%%" Ids="%%p_gs_result%%,%%p_sf_in%%" />
+        <Link Id="%%l8%%" Ids="%%p_sf_geom%%,%%pad_geom%%" />
+        <Link Id="%%l9%%" Ids="%%p_sf_props%%,%%pad_props%%" />
+        <Link Id="%%l10%%" Ids="%%p_sf_props%%,%%p_try_in%%" />
+        <Link Id="%%l11%%" Ids="%%pad_key%%,%%p_try_key%%" />
+        <Link Id="%%l12%%" Ids="%%p_try_result%%,%%pad_found1%%" />
+        <Link Id="%%l13%%" Ids="%%p_try_value%%,%%pad_value1%%" />
+        <Link Id="%%l14%%" Ids="%%p_gs_result%%,%%p_get_feature%%" />
+        <Link Id="%%l15%%" Ids="%%pad_key%%,%%p_get_name%%" />
+        <Link Id="%%l16%%" Ids="%%p_get_success%%,%%pad_found2%%" />
+        <Link Id="%%l17%%" Ids="%%p_get_result%%,%%pad_value2%%" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="%%dep_geojson%%" Location="VL.GeoJSON" Version="0.0.0" />
+</Document>

@@ -1,0 +1,44 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "tokyo",
+      "geometry": { "type": "Point", "coordinates": [139.6917, 35.6895] },
+      "properties": { "name": "Tokyo", "country": "JP", "population": 13960000, "capital": true }
+    },
+    {
+      "type": "Feature",
+      "id": "berlin",
+      "geometry": { "type": "Point", "coordinates": [13.405, 52.52] },
+      "properties": { "name": "Berlin", "country": "DE", "population": 3677472, "capital": true }
+    },
+    {
+      "type": "Feature",
+      "id": "paris",
+      "geometry": { "type": "Point", "coordinates": [2.3522, 48.8566] },
+      "properties": { "name": "Paris", "country": "FR", "population": 2165423, "capital": true }
+    },
+    {
+      "type": "Feature",
+      "id": "osaka",
+      "geometry": { "type": "Point", "coordinates": [135.5023, 34.6937] },
+      "properties": { "name": "Osaka", "country": "JP", "population": 2691185, "capital": false }
+    },
+    {
+      "type": "Feature",
+      "id": "hamburg",
+      "geometry": { "type": "Point", "coordinates": [9.9937, 53.5511] },
+      "properties": { "name": "Hamburg", "country": "DE", "population": 1841179, "capital": false }
+    },
+    {
+      "type": "Feature",
+      "id": "kanto",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[138.9, 35.2], [140.3, 35.2], [140.3, 36.2], [138.9, 36.2], [138.9, 35.2]]]
+      },
+      "properties": { "name": "Kanto (rough box)", "country": "JP", "capital": false }
+    }
+  ]
+}

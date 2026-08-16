@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<!--
+	Ordering lives here, and nowhere else. The patch filenames deliberately carry no numbers:
+	the shipped convention across vvvv's own packs is the five prefixes - Explanation, HowTo,
+	Reference, Example, Tutorial - with Help.xml doing the sequencing. Numbering the files as
+	well means every gap looks like a broken install, which is exactly what "01 03 04 06" did
+	in the sibling repository.
+
+	So a new patch is appended to the right Topic here. It does not renumber anything.
+	tools\Test-VLPatch.ps1 checks this file against the patches on disk in both directions.
+
+	The Explanation patch comes first because it is the front door - one per library, which is
+	the convention across 57 of vvvv's own packs.
+-->
+<Pack>
+	<Topic title="Start here">
+		<VLDocument link="Explanation Overview of available nodes.vl" tags="geojson,overview,explanation,nodes,srid,introduction,gis" />
+	</Topic>
+	<Topic title="Text in, features out">
+		<VLDocument link="HowTo Read GeoJSON.vl" tags="geojson,read,parse,json,featurecollection,feature,properties,geometry,split,io" />
+		<VLDocument link="HowTo Read a GeoJSON file.vl" tags="geojson,file,filereader,path,read,disk,onopen,encoding,utf8,io" />
+	</Topic>
+	<Topic title="Working with what you read">
+		<VLDocument link="HowTo Access properties.vl" tags="geojson,properties,attributes,dictionary,trygetvalue,key,value,types,id" />
+	</Topic>
+	<Topic title="Features out, text in">
+		<VLDocument link="HowTo Write GeoJSON.vl" tags="geojson,write,serialize,roundtrip,ringorientation,winding,indent,srid,io" />
+	</Topic>
+	<Topic title="Real data">
+		<VLDocument link="HowTo Handle a large GeoJSON file.vl" tags="geojson,large,performance,parses,frames,processnode,memory,caching,scale" />
+	</Topic>
+</Pack>

@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="MIDoTdysYLcElmsGSFiM2e" LanguageVersion="2025.7.4" Version="0.128">
+  <NugetDependency Id="DUibkpBfjDekfO307DecZE" Location="VL.CoreLib" Version="2025.7.4" />
+  <Patch Id="PIM04RQlDrJndWFYkHxpVT">
+    <Canvas Id="E1YTsqUrSomosgDw9kyn1q" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="K51DbTFITOo2MqDXTjgIwU">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="KAgwYthZ2huojxWWteSu4O">
+        <Canvas Id="Sd1LQJidF9lXO7Nd5UyXo0" CanvasType="Group">
+          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1050,60,480,740" ShowValueBox="true" isIOBox="true" Value="The one that matters once your data is real&#xD;&#xA;&#xD;&#xA;Watch the two numbers on the left. Frames climbs sixty times a second. Parses sits at 1 and never moves.&#xD;&#xA;&#xD;&#xA;In vvvv, having a patch open means having it RUNNING - every node is evaluated every frame. If Read GeoJSON parsed its text each time, a real dataset would stop the patch dead.&#xD;&#xA;&#xD;&#xA;One parse, measured:&#xD;&#xA;&#xD;&#xA;     100 features     1.2 ms&#xD;&#xA;   1,000 features    12.9 ms   most of a frame&#xD;&#xA;  10,000 features     162 ms   about 10 frames&#xD;&#xA;  50,000 features     748 ms   about 45 frames&#xD;&#xA;&#xD;&#xA;A frame is 16.7 ms. So from about a thousand features on, one parse costs a whole frame - which is why this is a process node. It parses when the TEXT CHANGES.&#xD;&#xA;&#xD;&#xA;How to break it anyway&#xD;&#xA;&#xD;&#xA;Build the text fresh every frame and every frame is a new text, so every frame is a new parse. Parses climbs alongside Frames - that is your warning.&#xD;&#xA;&#xD;&#xA;The cost follows the NUMBER OF FEATURES, not the number of points: 10,000 simple polygons cost twice what 200 complicated ones do at the same coordinate count. Memory runs about 2.5x the text size.&#xD;&#xA;&#xD;&#xA;Full figures in docs/MEASUREMENTS.md.&#xD;&#xA;&#xD;&#xA;GeoJSON is one big JSON object, so all of it must be in memory before you get the first feature. For millions of features the answer is a different format - GeoParquet, FlatGeobuf, PMTiles - not a cleverer GeoJSON reader.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">11</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="QEjVqeCJmGGoAPBwqPSeMT" Comment="GeoJSON - paste a bigger document in here, or wire FileReader to it" Bounds="60,60,520,90" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[0,0],[1,0],[1,1],[0,1],[0,0]]]},&quot;properties&quot;:{&quot;id&quot;:1}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[2,0],[3,0],[3,1],[2,1],[2,0]]]},&quot;properties&quot;:{&quot;id&quot;:2}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[4,0],[5,0],[5,1],[4,1],[4,0]]]},&quot;properties&quot;:{&quot;id&quot;:3}}]}">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="60,185,110,26" Id="UbKHpJZINQo0A0O21TKNyK">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+            </p:NodeReference>
+            <Pin Id="GAYsmaRBTrGgLbSoXya2Rm" Name="GeoJSON" Kind="InputPin" />
+            <Pin Id="GyZGyzwcyFeWuCPRfCwvat" Name="Factory" Kind="InputPin" />
+            <Pin Id="SZRL34NA58dsAozVRP3O7S" Name="Features" Kind="OutputPin" />
+            <Pin Id="N2mOHUfMVd6vzamgxKUleM" Name="Success" Kind="OutputPin" />
+            <Pin Id="FOLyQpGLZrHgrxfIrc1RQ6" Name="Status" Kind="OutputPin" />
+            <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
+          </Node>
+          <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="PARSES - this is the number to watch. It stays at 1." Bounds="60,245,50,15" ShowValueBox="true" isIOBox="true" />
+          <!--
+            A frame counter next to it, so "it only parses once" is something you can SEE rather
+            than something this patch asserts. A rate is invisible unless something counts it.
+          -->
+          <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="60,300,40,20" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="60,345,81,19" Id="RI51wMPw5bnt9ONWXKUbqD">
+            <p:NodeReference LastCategoryFullName="Animation.FrameBased" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FrameCounter" />
+            </p:NodeReference>
+            <Pin Id="HVzyyS2cMRPUd7cTj5I9im" Name="Count" Kind="ApplyPin" />
+            <Pin Id="GxEUSjS9FSU9fGTTb3eAcH" Name="Reset" Kind="ApplyPin" />
+            <Pin Id="QKuJT08RzzLmuOOY7wQogi" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="60,390,60,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,445,44,26" Id="VhY1SynGqSzKXvDUczpksp">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Count" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="JRduor7o0G31QwI1eiLPC6" Name="Input" Kind="StateInputPin" />
+            <Pin Id="S7G105tsE2LkaP0KyDnKJF" Name="Count" Kind="OutputPin" />
+          </Node>
+          <Pad Id="LH4ebQNEbp8DWihC2ALOsC" Comment="features" Bounds="330,445,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="60,500,320,15" ShowValueBox="true" isIOBox="true" />
+        </Canvas>
+        <Patch Id="M7XBO0ly0fQe7Zxaw1tRns" Name="Create" />
+        <Patch Id="UVPx3Oa07kknucSIa8ZKdc" Name="Update" />
+        <ProcessDefinition Id="Iuv1N818lc8yH14RSLJkHa">
+          <Fragment Id="MO75PQWIVZzlgZ6PZ12Wye" Patch="M7XBO0ly0fQe7Zxaw1tRns" Enabled="true" />
+          <Fragment Id="Ra4bl0BfFh5pTYhc2bqu2A" Patch="UVPx3Oa07kknucSIa8ZKdc" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="V2D8jCemVObD9UPeHB5jeH" Ids="QEjVqeCJmGGoAPBwqPSeMT,GAYsmaRBTrGgLbSoXya2Rm" />
+        <Link Id="DyRSkhRT7OrNmlIpOH33fy" Ids="KhOLnsKtnkesCOWwAQjeN6,FofjZK5QupUMGDo7OiKD40" />
+        <Link Id="HyKANb4o90cqXo9eoKVAWR" Ids="V3RCPt1dkrJMucrisaD7To,HVzyyS2cMRPUd7cTj5I9im" />
+        <Link Id="O5V2gSVmrXiHeo2j2f3uIx" Ids="QKuJT08RzzLmuOOY7wQogi,RscSLOj3HjNKDj2G2VpHR8" />
+        <Link Id="Vv03T2ciyg5iKG6PLW3BdM" Ids="SZRL34NA58dsAozVRP3O7S,JRduor7o0G31QwI1eiLPC6" />
+        <Link Id="EhR6T8yl1IR8C68DO3Fv1m" Ids="S7G105tsE2LkaP0KyDnKJF,LH4ebQNEbp8DWihC2ALOsC" />
+        <Link Id="TF9f7Jv8lVns9nqpYBP7sU" Ids="FOLyQpGLZrHgrxfIrc1RQ6,PoAVCukwoghXUra2KJ9SoE" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="Ci6CVnxxsj4I0iK0jhdJUP" Location="VL.GeoJSON" Version="0.0.0" />
+</Document>

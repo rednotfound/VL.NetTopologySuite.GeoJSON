@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="LEFg6nVxu4pU9gLgQRrZmM" LanguageVersion="2024.6.7-0009-ga0a8422da0" Version="0.128">
+  <NugetDependency Id="IdkPbUtoMCQFBH06Gw6Pm7" Location="VL.CoreLib" Version="2025.7.2" />
+  <NugetDependency Id="D7uwoxzwBwSdHVF2QAocbw" Location="NetTopologySuite" Version="2.6.0" />
+  <NugetDependency Id="Lddsav8rwLEW6pRl1tKjnD" Location="NetTopologySuite.Features" Version="2.1.0" />
+  <NugetDependency Id="KFi9cMJOgIw4YeT3HeCBcW" Location="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+  <Patch Id="KDK29Nogj0emjEBXvOc4AU">
+    <Canvas Id="RRxUbRywlYWAgmHNdNBEJx" DefaultCategory="GeoJSON" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="IWrKUUx2wL3TA8Vg7Ih1ra">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <FullNameCategoryReference ID="Primitive" />
+      </p:NodeReference>
+      <Patch Id="BIqRR4llYvqvGVC7hNTjvL">
+        <Canvas Id="M6HZim2hFrBPOHo0FvaLM6" CanvasType="Group" />
+        <Patch Id="R0orGb1OrxJlFXCiHDCoEr" Name="Create" />
+        <Patch Id="CGnHofS9yDtITQvoUShoWk" Name="Update" />
+        <ProcessDefinition Id="PpBL0G5tu0OwQuhVRAkTT5">
+          <Fragment Id="D3VZM2sbh6LA8qUkUWqBOT" Patch="R0orGb1OrxJlFXCiHDCoEr" Enabled="true" />
+          <Fragment Id="T9KyTZ5rKjSc5iDALhDDde" Patch="CGnHofS9yDtITQvoUShoWk" Enabled="true" />
+        </ProcessDefinition>
+      </Patch>
+    </Node>
+  </Patch>
+  <PlatformDependency Id="C2tYviEUfFmGm7pRskVW1M" Location="./lib/net8.0/VL.GeoJSON.dll" IsForward="true" />
+</Document>

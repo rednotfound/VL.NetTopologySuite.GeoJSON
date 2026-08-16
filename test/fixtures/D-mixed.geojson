@@ -1,0 +1,24 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [1, 1] }, "properties": { "kind": "Point" } },
+    { "type": "Feature", "geometry": { "type": "MultiPoint", "coordinates": [[2, 2], [3, 3]] }, "properties": { "kind": "MultiPoint" } },
+    { "type": "Feature", "geometry": { "type": "LineString", "coordinates": [[0, 0], [1, 1]] }, "properties": { "kind": "LineString" } },
+    { "type": "Feature", "geometry": { "type": "MultiLineString", "coordinates": [[[0, 0], [1, 1]], [[2, 2], [3, 3]]] }, "properties": { "kind": "MultiLineString" } },
+    { "type": "Feature", "geometry": { "type": "Polygon", "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]] }, "properties": { "kind": "Polygon" } },
+    { "type": "Feature", "geometry": { "type": "MultiPolygon", "coordinates": [[[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]], [[[5, 5], [6, 5], [6, 6], [5, 6], [5, 5]]]] }, "properties": { "kind": "MultiPolygon" } },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "GeometryCollection",
+        "geometries": [
+          { "type": "Point", "coordinates": [9, 9] },
+          { "type": "LineString", "coordinates": [[7, 7], [8, 8]] }
+        ]
+      },
+      "properties": { "kind": "GeometryCollection" }
+    },
+    { "type": "Feature", "geometry": null, "properties": { "kind": "null geometry" } },
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [4, 4] } }
+  ]
+}

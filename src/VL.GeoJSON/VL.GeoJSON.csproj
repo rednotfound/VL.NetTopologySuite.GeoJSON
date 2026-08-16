@@ -1,0 +1,91 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>12.0</LangVersion>
+    <AssemblyName>VL.GeoJSON</AssemblyName>
+    <!--
+      The VL node category is derived from the NAMESPACE minus the "VL" prefix (see
+      AssemblyInfo.cs), so this yields categories under "GeoJSON". Assembly name and root
+      namespace happen to agree here, unlike in VL.NetTopologySuite where "NetTopologySuite"
+      had to be abbreviated to "NTS" to stay readable in the node browser. "GeoJSON" is
+      already short, so nothing needs decoupling - but the two are still set separately and
+      deliberately, because that is the rule both sibling repositories follow.
+    -->
+    <RootNamespace>VL.GeoJSON</RootNamespace>
+    <Version>0.0.1</Version>
+    <Authors>VL.GeoJSON Contributors</Authors>
+    <Description>GeoJSON as vvvv gamma nodes</Description>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!--
+      Put every NuGet dependency next to the built assembly. A class library does not do this
+      by default: it emits VL.GeoJSON.dll alone and leaves the host to resolve
+      NetTopologySuite from deps.json plus the NuGet cache.
+
+      vvvv does not resolve it that way through a ProjectDependency, and the failure is quiet.
+      It is also total for this package rather than partial: EVERY node here mentions an NTS
+      or NTS.Features type in its signature, so an unresolvable NetTopologySuite means every
+      node is greyed out - not red, not logged, no exception - and vvvvc still exits 0.
+    -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      VL.Core supplies [ImportAsIs], [Name], [SkipCategory] and [ProcessNode].
+
+      2025.7.2 is the floor, matching VL.NetTopologySuite: [Name] and [SkipCategory] arrived
+      in gamma 7.2. ExcludeAssets="runtime" because VL.Core ships inside vvvv; shipping our
+      copy is what every note in both sibling repositories warns against. Deliberately absent
+      from the nuspec for the same reason.
+    -->
+    <PackageReference Include="VL.Core" Version="2025.7.2" ExcludeAssets="runtime" />
+
+    <!--
+      2.6.0, the same version both sibling repositories pin. The whole NTS 2.x line carries
+      assembly version 2.0.0.0, so a vvvv loading VL.GeoJSON, VL.NetTopologySuite and
+      VL.Mapsui together sees ONE identity. That is load bearing rather than tidy: the reason
+      VL.Mapsui and VL.GIS could not coexist for months was a shared library resolving to two
+      incompatible versions in vvvv's flat, machine-wide %LOCALAPPDATA%\vvvv\gamma\nugets\.
+    -->
+    <PackageReference Include="NetTopologySuite" Version="2.6.0" />
+
+    <!--
+      The neutral feature model - NetTopologySuite.Features.Feature, FeatureCollection and
+      AttributesTable - rather than a VLFeature of our own.
+
+      2.1.0 is not a free choice: it is what NetTopologySuite.IO.GeoJSON4STJ 4.0.0 resolves
+      (measured 2026-08-15 with `dotnet list package`, transitive included) AND what
+      VL.Mapsui already declares. Naming the same number in all three places means the
+      hand-off needs no adapter and the loader sees one assembly.
+
+      Declared explicitly although GeoJSON4STJ drags it in anyway: VL needs an upstream
+      library to be a PACKAGE IN A PACKAGE REPOSITORY, not merely a restorable assembly.
+      Without that it cannot resolve the type, and a node whose signature mentions Feature is
+      built with no working pins while every link to it is dropped - vvvvc exits 0 and
+      nothing is red. build.ps1 installs what the .vl declares into deps\.
+    -->
+    <PackageReference Include="NetTopologySuite.Features" Version="2.1.0" />
+
+    <!--
+      GeoJSON4STJ rather than NetTopologySuite.IO.GeoJSON, and the reasons are measured
+      rather than stylistic (2026-08-15, both at 4.0.0):
+
+        - no Newtonsoft.Json dependency; System.Text.Json is in-box on net8.0
+        - HALF the retained memory: 49 MB vs 101 MB for 50,000 polygons, 13.6 vs 25.4 MB
+          for 10,000. Retained, not merely allocated - this is memory a patch holds for as
+          long as the data is on screen
+        - parse speed is a tie (122 ms vs 112 ms at 10,000 features; 629 vs 650 at 50,000)
+        - it is the only one of the two with RingOrientationOption, which is what makes an
+          exact polygon round trip possible at all
+
+      The cost, and it is a real one: this package returns internal StjFeature objects that
+      implement IFeature but are NOT NetTopologySuite.Features.Feature, behind an IMMUTABLE
+      JsonElementAttributesTable. Defaults.Normalise deals with that; see its remarks.
+    -->
+    <PackageReference Include="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
+  </ItemGroup>
+
+</Project>

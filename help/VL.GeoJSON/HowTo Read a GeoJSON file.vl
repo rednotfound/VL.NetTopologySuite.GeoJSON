@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Document xmlns:p="property" xmlns:r="reflection" Id="L7oEEs77eoiGSgPJJymrJw" LanguageVersion="2025.7.4" Version="0.128">
+  <NugetDependency Id="CIn05Qw7bpTaSAr58haLwx" Location="VL.CoreLib" Version="2025.7.4" />
+  <Patch Id="PkkfFJIopwTJAawRw3Atwg">
+    <Canvas Id="SAbjabFF5H0PMU0T5DLLZf" DefaultCategory="Main" BordersChecked="false" CanvasType="FullCategory" />
+    <!--
+
+    ************************ Application ************************
+
+-->
+    <Node Name="Application" Bounds="100,100" Id="Pg0Z5jWlrZxAVtfcSAB5aF">
+      <p:NodeReference>
+        <Choice Kind="ContainerDefinition" Name="Process" />
+        <CategoryReference Kind="Category" Name="Primitive" />
+      </p:NodeReference>
+      <Patch Id="KmxwLahEJBFwOODnRozjxe">
+        <Canvas Id="Q9Cy8Ibw7H7Bnc5Wj54LmE" CanvasType="Group">
+          <Pad Id="IBvLWOFUYN7Knnn3CPGsYW" Bounds="600,60,440,320" ShowValueBox="true" isIOBox="true" Value="Reading from a file&#xD;&#xA;&#xD;&#xA;There is no Read GeoJSON File node in this package, and that is on purpose.&#xD;&#xA;&#xD;&#xA;vvvv already has FileReader (String) [IO], and it is better than anything this package would have written: it has a Read pin, so YOU decide when the disk is touched. Here OnOpen bangs it once, when the document opens. Bang the Read box by hand to reload after editing the file.&#xD;&#xA;&#xD;&#xA;Wire it to Read GeoJSON and you are done. The same wire works for text from a web request, a text box, or anything else that produces a string - which a file-only node would not.">
+            <p:TypeAnnotation>
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:fontsize p:Type="Int32">11</p:fontsize>
+              <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="AhVnve2I9ThjYqPxDDEykm" Comment="File Path" Bounds="60,70,250,15" ShowValueBox="true" isIOBox="true" Value="Assets\cities.geojson">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <!--
+            A RELATIVE path, pointing at the file shipped beside this patch. Never wire an
+            EMPTY Path IOBox in a patch you hand to somebody: an empty value does not mean
+            "nothing", it means "this document's own folder", and that difference once wrote
+            444 stray files next to two repositories while every check reported success.
+          -->
+          <Pad Id="OP5b2cYxw6IyzZdkQzktIF" Comment="Encoding" Bounds="60,115,110,19" ShowValueBox="true" isIOBox="true" Value="UTF8">
+            <p:TypeAnnotation LastCategoryFullName="Text" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Encodings" />
+            </p:TypeAnnotation>
+          </Pad>
+          <!--
+            UTF-8 is not a guess: RFC 7946 requires GeoJSON to be UTF-8. Worth setting
+            explicitly rather than inheriting whatever the machine's default happens to be,
+            because the failure mode is mangled place names rather than an error.
+          -->
+          <Node Bounds="400,115,54,19" Id="U2Zlovo0L4dXFGJ4MPQ9kw">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="OnOpen" />
+            </p:NodeReference>
+            <Pin Id="MtLK9konv22egRUYklXJuu" Name="Simulate" Kind="InputPin" />
+            <Pin Id="NHP0FDneevfC92SlfvnOSn" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="60,175,110,19" Id="OSL9QVQ7me3CefEFV1KCyb">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FileReader (String)" />
+            </p:NodeReference>
+            <Pin Id="Kfxfl9WBRWItdFrSFMHN8P" Name="File Path" Kind="InputPin" />
+            <Pin Id="TaxI86w1k9hI8dxZYYCCyC" Name="Encoding" Kind="InputPin" />
+            <Pin Id="CAImvzZGHbwUkPnXxFvdtW" Name="Read" Kind="InputPin" />
+            <Pin Id="FImYg2JfcfICuYlvyxFI0Q" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="60,235,110,26" Id="EWQM8sIbu7Lfszy7PIby5n">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+            </p:NodeReference>
+            <Pin Id="LqaCU2gRyibWeoJFd5hJ2c" Name="GeoJSON" Kind="InputPin" />
+            <Pin Id="AtX3enoTmmqeOLhVUsyJ6t" Name="Factory" Kind="InputPin" />
+            <Pin Id="TnLV6RqtALvsaM9Ld6rO5V" Name="Features" Kind="OutputPin" />
+            <Pin Id="Rz2YNP9PY6UxaYP6ay4etY" Name="Success" Kind="OutputPin" />
+            <Pin Id="NVaDSDU64FU19Ut2YQop8B" Name="Status" Kind="OutputPin" />
+            <Pin Id="D343E2crYSsBrDHWGisi2C" Name="Parses" Kind="OutputPin" />
+          </Node>
+          <Pad Id="FsEvx7VtKT6U8eWmCuEy3G" Comment="parsed?" Bounds="60,290,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="QMsJksviRLojod7IiyAQLD" Comment="status" Bounds="60,325,320,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="HA9ER6X4bzDPukt0k6Oend" Comment="parses - the file is read once, not per frame" Bounds="60,360,50,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,420,44,26" Id="UTzWYRRbwbNssqlsoyoJOy">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Count" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="UGzRdnjr6g9tjoMCdfQb7J" Name="Input" Kind="StateInputPin" />
+            <Pin Id="KBDK7o1bs4RyWP3V9gnpZF" Name="Count" Kind="OutputPin" />
+          </Node>
+          <Pad Id="MKU1W71RJPpxA0d5wcUjb0" Comment="how many features - six, in cities.geojson" Bounds="60,475,50,15" ShowValueBox="true" isIOBox="true" />
+        </Canvas>
+        <Patch Id="JmvmDr3nYEvM3YFpXViQss" Name="Create" />
+        <Patch Id="BMkIewOwvpaWz82kt8L7z3" Name="Update" />
+        <ProcessDefinition Id="MhecMhAKshAMimIsUTQxNT">
+          <Fragment Id="DBccZkArA8t98Vy2e3dBoW" Patch="JmvmDr3nYEvM3YFpXViQss" Enabled="true" />
+          <Fragment Id="NZKwqukUxxwPFKVlQTEFXN" Patch="BMkIewOwvpaWz82kt8L7z3" Enabled="true" />
+        </ProcessDefinition>
+        <Link Id="ONqtcYF9wuBHFQKYPmaJow" Ids="AhVnve2I9ThjYqPxDDEykm,Kfxfl9WBRWItdFrSFMHN8P" />
+        <Link Id="QvSvKudYBsZ4sJSfSNxyHG" Ids="OP5b2cYxw6IyzZdkQzktIF,TaxI86w1k9hI8dxZYYCCyC" />
+        <Link Id="CqlvIWEH6mA8WiABfXB6g1" Ids="NHP0FDneevfC92SlfvnOSn,CAImvzZGHbwUkPnXxFvdtW" />
+        <Link Id="T702QqUovcOASnMgkOZsu1" Ids="FImYg2JfcfICuYlvyxFI0Q,LqaCU2gRyibWeoJFd5hJ2c" />
+        <Link Id="BYhb8K4WzQPb3YVsUGFdRU" Ids="TnLV6RqtALvsaM9Ld6rO5V,UGzRdnjr6g9tjoMCdfQb7J" />
+        <Link Id="TLaooeFgqNL3AMVbZut568" Ids="Rz2YNP9PY6UxaYP6ay4etY,FsEvx7VtKT6U8eWmCuEy3G" />
+        <Link Id="FDAjSZ3DqArNjv2GkiYSXP" Ids="NVaDSDU64FU19Ut2YQop8B,QMsJksviRLojod7IiyAQLD" />
+        <Link Id="JCkKuk1swfNi8cvEkc71hS" Ids="D343E2crYSsBrDHWGisi2C,HA9ER6X4bzDPukt0k6Oend" />
+        <Link Id="TYds518N1YQkwyWXYlJnb2" Ids="KBDK7o1bs4RyWP3V9gnpZF,MKU1W71RJPpxA0d5wcUjb0" />
+      </Patch>
+    </Node>
+  </Patch>
+  <NugetDependency Id="C55DcDuIDAf8sUsgq8heHu" Location="VL.GeoJSON" Version="0.0.0" />
+</Document>
