@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Text.Json;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -35,8 +35,7 @@ namespace VL.GeoJSON;
 /// <c>FileReader (String) [IO]</c>, which has an explicit <c>Read</c> trigger pin — so
 /// <c>FileReader → Read GeoJSON</c> is the whole story, and it composes with everything else that
 /// produces text. Adding <c>Read GeoJSON File</c> would duplicate a shipped node, hide where the
-/// file IO happens, and take on encoding and path semantics this package has no business owning.
-/// See <c>docs/ARCHITECTURE.md</c>.</para>
+/// file IO happens, and take on encoding and path semantics this package has no business owning.</para>
 /// </remarks>
 [ProcessNode(Name = "Read GeoJSON", Category = "GeoJSON")]
 public class ReadGeoJsonNode

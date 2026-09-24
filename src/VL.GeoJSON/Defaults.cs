@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.CompilerServices;
@@ -17,7 +17,7 @@ namespace VL.GeoJSON;
 /// </summary>
 /// <remarks>
 /// <para><b>Why normalisation exists at all.</b> <c>NetTopologySuite.IO.GeoJSON4STJ</c> does not
-/// hand back the mature public NTS types. Measured against 4.0.0 on 2026-08-15:</para>
+/// hand back the mature public NTS types. Measured against 4.0.0:</para>
 /// <list type="bullet">
 /// <item><description>A decoded feature is <c>NetTopologySuite.IO.Converters.StjFeature</c>, which
 /// is <b>internal</b>, implements <c>IFeature</c>, and is <b>not</b> a
@@ -62,7 +62,7 @@ internal static class Defaults
     /// Overriding it to 0 would be silently patching the library to make a number match, which
     /// is the thing not to do.</para>
     /// <para><b>The hazard, stated plainly because nothing else will state it:</b> NTS never
-    /// throws on mixed SRIDs (measured in the sibling repository — 4326 intersected with 0
+    /// throws on mixed SRIDs (measured — 4326 intersected with 0
     /// returns 4326 silently). A patch mixing <c>Read WKT</c> (SRID 0) with <c>Read GeoJSON</c>
     /// (SRID 4326) therefore gets a confident wrong answer that looks exactly like a right one.
     /// The <c>Factory</c> pin is how a patch makes the two agree, in whichever direction it
@@ -161,11 +161,11 @@ internal static class Defaults
     /// against <c>VL.CoreLib\VL.Xml.vl</c>, <c>XMLReader</c>, <c>Parse [XML]</c>, <c>JSONReader</c>
     /// and <c>ParseJSON</c> all end with <c>XDocument (Split) → Root</c> internally and hand a
     /// patch an <c>XElement</c>. A patch never holds a "document" type. <c>FeatureCollection</c> is
-    /// our <c>XDocument</c>, it crosses no package boundary — grepped: zero occurrences in either
-    /// sibling repository — and its only role was to be taken apart again immediately.</para>
+    /// our <c>XDocument</c>, it crosses no package boundary — and its only role was to be taken apart again
+    /// immediately.</para>
     /// <para><b>What this costs:</b> the collection's <c>bbox</c> member. It was never surfaced by
-    /// any node, and <c>docs/ROADMAP.md</c> already carried it as a "later" item; when something
-    /// needs it, it becomes an output pin on <c>Read GeoJSON</c> rather than a resurrected type.</para>
+    /// any node; when something needs it, it becomes an output pin on <c>Read GeoJSON</c>
+    /// rather than a resurrected type.</para>
     /// </remarks>
     internal static Spread<NetTopologySuite.Features.Feature> Normalise(FeatureCollection source)
     {
