@@ -26,7 +26,7 @@ Six help patches, in the order the help browser shows them:
 | **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `Read GeoJSON` for a small file, and when to reach for `GeoJSONReader (Reactive)` instead |
 | **HowTo Access properties** | `Split` and `GetAttribute` side by side, and what type each JSON value arrives as |
 | **HowTo Write GeoJSON** | a full round trip, and the ring-winding pin that decides whether it is exact |
-| **HowTo Handle a large GeoJSON file** | `GeoJSONReader (Reactive)` → `HoldLatest`, reading in the background, against a blocking read - with the longest frame measured in the patch |
+| **HowTo Handle a large GeoJSON file** | `GeoJSONReader (Reactive)` → `HoldLatest`, reading in the background, beside the blocking `FileReader` → `Read GeoJSON` |
 
 ```text
 GeoJSON text
