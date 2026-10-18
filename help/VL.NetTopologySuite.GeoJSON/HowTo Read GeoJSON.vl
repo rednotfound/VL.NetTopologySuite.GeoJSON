@@ -94,8 +94,8 @@
             <Pin Id="JUFUKrKaMwkOj7YOXGUgzF" Name="Geometry" Kind="OutputPin" />
             <Pin Id="AomkFeKLWiK5JRumjLxv9S" Name="Attributes" Kind="OutputPin" />
           </Node>
-          <Pad Id="P58SJ3hyk0C9anoQqsN2U2" Comment="geometry" Bounds="60,355,300,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="Sebj2V9km5LZ1zL7PGwSlF" Comment="all the properties at once" Bounds="60,390,300,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="P58SJ3hyk0C9anoQqsN2U2" Comment="geometry" Bounds="60,355,300,25" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Sebj2V9km5LZ1zL7PGwSlF" Comment="all the properties at once" Bounds="60,390,300,58" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="An6k3gqXTPdKai5a0SA1Ur" Name="Create" />
         <Patch Id="TfXROpMdwk84vPJ5VVRDAb" Name="Update" />

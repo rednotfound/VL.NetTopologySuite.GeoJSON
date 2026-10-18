@@ -17,8 +17,8 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
 **Current state (2026-10-18): 2 nodes, 60 tests + 4 load tests, 6 help patches. Static checks and a
-headless `vvvvc` compile of every patch are green; the GUI check is outstanding — including the
-category, which the rename moved.** Nothing is published to nuget.org, and **nothing can be until
+headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
+and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org, and **nothing can be until
 VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
 [Verification](#verification--be-precise-about-which-one-you-have).
 
@@ -152,13 +152,31 @@ These cost a full survey; do not re-derive them.
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
 | `tools\Compile-HelpPatches.ps1` | every node in every patch **resolved** — ours and VL.NetTopologySuite's | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
-| the vvvv **NodeBrowser** | **which category a node is in** — `NetTopologySuite.IO` is expected | ❌ **not yet checked** |
-| the vvvv **GUI, running** | the patch computes the right value | ❌ **not yet checked** |
+| a **category-constrained probe** (below) | **which category a node is in** | ✅ 2026-10-18: `NetTopologySuite.IO` resolves, the old `GeoJSON` gives `Not found` |
+| the vvvv **NodeBrowser** | the same, as a user sees it | ❌ not looked at — the probe is the stronger evidence |
+| the vvvv **GUI, running** | the patch computes the right value | ✅ 2026-10-18, vvvv 7.4: Access properties, Read GeoJSON, Write GeoJSON, Explanation — values read off PrintWindow captures (2 features, Parses 1, round trip 2 = 2, `TryGetValue` and `GetAttribute` both "Tokyo") |
+| **F1** on `Read GeoJSON` / `Write GeoJSON` | the node opens its help | ❌ not pressed |
 
 **The last three rows are three different claims, and this is where a false proof lives.**
 
 - **`LastCategoryFullName` in a `.vl` is a hint, not the truth.** A patch compiles fine with it set
   to nonsense. A green `vvvvc` proves a node *exists* and says **nothing** about its category.
+
+**The category can be proved headlessly, and that is new (2026-10-18).** A `<CategoryReference>`
+inside a node's `NodeReference` is NOT a hint: vvvvc enforces it (it is what broke VL.Overworld's
+Tutorial 1.1 after the `NTS` -> `NetTopologySuite` rename, "Not found: Point"). So a scratch copy of
+a patch whose `Read GeoJSON` / `Write GeoJSON` carry
+`<CategoryReference Kind="Category" Name="IO" NeedsToBeDirectParent="true"><p:OuterCategoryReference Kind="Category" Name="NetTopologySuite" NeedsToBeDirectParent="true" /></CategoryReference>`
+generates C# with both nodes in it, and the same copy constrained to the old flat `GeoJSON` fails
+with `Not found: Read GeoJSON` - positive and negative from one probe, no GUI. (Both exit non-zero
+afterwards, at the export's NuGet restore, because a scratch folder has no feed - the C# is already
+written by then.)
+
+**What the GUI round found that nothing static could** (2026-10-18): the Explanation's opening box
+held about 8 lines of a 12-line text and had been clipping since before the rename; one-line output
+boxes (15 high) cut their value off — `"Tokyo"`, `Point` — where 25 renders it; and VL.NetTopologySuite's
+`HowTo Attach attributes` still described the family as referencing nobody. All fixed the same day
+and photographed again.
 - **A green compile is still worth having, because it is byte-level evidence.** An unresolved node
   has its links dropped, `vvvvc` exits 0 and nothing is red — so **read the generated
   `*.vl.1.cs`**, not the exit code. Here it confirms the whole chain in `Update` *and* that

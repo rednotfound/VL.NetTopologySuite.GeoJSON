@@ -8,8 +8,8 @@ VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `
 
 > **EARLY — not ready for real work yet.** Nothing is published to nuget.org, and this package
 > cannot be until a VL.NetTopologySuite with `GetAttribute` (0.0.3-alpha) is. Every node resolves
-> in a headless `vvvvc` compile of all six help patches and 60 tests pass; the vvvv GUI check is
-> still outstanding. See [docs/ROADMAP.md](docs/ROADMAP.md#verified).
+> in a headless `vvvvc` compile of all six help patches and 60 tests pass; the category is proved
+> and the changed help patches were run in vvvv 7.4 (2026-10-18). F1 is not yet checked. See [docs/ROADMAP.md](docs/ROADMAP.md#verified).
 
 Until 2026-10-18 this was **VL.GeoJSON**, with four nodes of its own and no dependency on any
 sibling. Why it changed is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-package-boundary).

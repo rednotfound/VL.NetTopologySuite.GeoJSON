@@ -77,8 +77,8 @@
             <Pin Id="N225RosY0xJrunMTwlFaQ9" Name="Geometry" Kind="OutputPin" />
             <Pin Id="MAGf85aJs56ZDhXrVyKC8E" Name="Attributes" Kind="OutputPin" />
           </Node>
-          <Pad Id="NJj0Q9SjQJSCAE774W50cj" Comment="geometry - goes straight into VL.NetTopologySuite" Bounds="330,358,250,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="R2Q8pIcxJ9avA1y3TLR53k" Comment="every property at once" Bounds="60,400,250,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="NJj0Q9SjQJSCAE774W50cj" Comment="geometry - goes straight into VL.NetTopologySuite" Bounds="330,358,250,25" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="R2Q8pIcxJ9avA1y3TLR53k" Comment="every property at once" Bounds="60,400,250,40" ShowValueBox="true" isIOBox="true" />
           <!--
             ONE name box feeding both routes, so they can be compared directly. Try a name that
             is not there: neither throws, both simply say false.
@@ -105,7 +105,7 @@
             <Pin Id="BRpwyFZGjxP8xvd3nlH3PO" Name="Value" Kind="OutputPin" />
           </Node>
           <Pad Id="GfgcqgcypjweMmb50nU8D1" Comment="found?" Bounds="60,535,45,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="NYNUe7oZwYBstfKwsdniuZ" Comment="the value" Bounds="60,570,250,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="NYNUe7oZwYBstfKwsdniuZ" Comment="the value" Bounds="60,570,250,25" ShowValueBox="true" isIOBox="true" />
           <!--
             Route 2: ask the feature directly. Same answer, one node instead of two, and it is
             the shape vvvv uses for XML - a Get.. node always carries a Success pin and never
@@ -122,7 +122,7 @@
             <Pin Id="Iql7IW7e1eNoPg0mDobvbj" Name="Success" Kind="OutputPin" />
           </Node>
           <Pad Id="UfejMGXSC4eyq6bsPvykyw" Comment="found?" Bounds="440,535,45,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="Kiav7NaCaA0N1cccTLQnbO" Comment="the same value" Bounds="440,570,250,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Kiav7NaCaA0N1cccTLQnbO" Comment="the same value" Bounds="440,570,250,25" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="ExiSaIgZUWLdLgo2RAwMko" Name="Create" />
         <Patch Id="BTDLZ2zvo2675qNXOW8yeo" Name="Update" />

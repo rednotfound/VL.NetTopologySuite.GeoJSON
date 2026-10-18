@@ -58,12 +58,18 @@ where they get taught. **The
 ratio should keep moving toward more help rather than more nodes** — VL.Skia ships 4 C# nodes and
 98 help patches.
 
-**Not yet verified, and the distinction matters:**
+**Verified 2026-10-18, after the rename:**
 
-- **The NodeBrowser category.** `LastCategoryFullName` in a `.vl` is a hint — a patch compiles fine
-  with it set to nonsense. A green `vvvvc` proves a node *exists*; only the NodeBrowser proves
-  *where it appears*.
-- **That the patch computes the right value on screen.** Only running it proves that.
+- **The category, `NetTopologySuite.IO`** — by a probe vvvvc enforces: a scratch patch whose two
+  nodes carry a hard `CategoryReference` to `NetTopologySuite > IO` compiles, and to the old
+  `GeoJSON` fails with `Not found` (CLAUDE.md, Verification). Not looked at in the NodeBrowser.
+- **The help patches compute the right values on screen** — four opened in vvvv 7.4 and read off
+  PrintWindow captures; the round found three layout faults, fixed and photographed again.
+
+**Not yet verified:**
+
+- **F1** on `Read GeoJSON` / `Write GeoJSON`, and `HowTo Read a GeoJSON file` /
+  `HowTo Handle a large GeoJSON file` on screen (unchanged by the rename, never opened).
 - **Stages F, G, H of the brief's §13** — Mapsui feature conversion, layer construction, rendering.
   They need vvvv, and a console host would prove nothing about them.
 
@@ -75,7 +81,7 @@ In order, and each small.
 
 | | |
 |---|---|
-| **Open it in the vvvv GUI** | The unverified claims above, in one session across all six patches — **first of all that `Read GeoJSON` and `Write GeoJSON` appear under `NetTopologySuite.IO`**, which rests on `ImportAsIs(..., Category = ...)`, used nowhere else in the family. Check the layouts too — a Pad's `Comment` renders as a label to the RIGHT of the box, so an IOBox occupies far more width than its `Bounds` says, and every label collision in the siblings came from ignoring that. Launch, read the values, close — never leave it running. Then run `tools\Normalize-HelpPatches.ps1`. |
+| **Finish the GUI round** | Four of six patches done 2026-10-18 (category proved headlessly, values on screen). Left: the two file patches, and F1. Check the layouts too — a Pad's `Comment` renders as a label to the RIGHT of the box, so an IOBox occupies far more width than its `Bounds` says, and every label collision in the siblings came from ignoring that. Launch, read the values, close — never leave it running. Then run `tools\Normalize-HelpPatches.ps1`. |
 | **The cross-package example patch** | `GeoJSON → Read GeoJSON → Split → FeatureLayer → Map`, living **outside** these repositories, because neither this package nor VL.Mapsui depends on the other. Precedent: `vvvv-gis\examples\Example Map with data on it.vl`. **This is the real test of the architectural hypothesis**; the interop tests here only transcribe VL.Mapsui's signature. |
 | **`HowTo Handle mixed geometry`** | The one obvious gap left in the help: a document holding points, lines, polygons and a GeometryCollection at once, and how a patch sorts them out. `test\fixtures\D-mixed.geojson` is already the data for it. |
 | **A real-world fixture** | Fixtures A–F are synthetic or hand-written. Something from Natural Earth or a city open-data portal, licence permitting, would exercise property shapes nobody invents. Document large ones as optional external downloads rather than committing them. |
