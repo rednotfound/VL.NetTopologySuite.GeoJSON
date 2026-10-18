@@ -107,7 +107,7 @@ $env:VLGEOJSON_LOAD = '1'; dotnet test -c Release --filter LoadTests
 
 # open a help patch to read or adjust it: double-click Open-HelpPatch.cmd in the repository root
 # (a picker in Help.xml order, with Close my vvvv / Normalize / Check), or by name:
-.	ools\Open-HelpPatch.ps1 "Access"
+.\tools\Open-HelpPatch.ps1 "Access"
 
 # the only thing that proves where a node appears in the browser:
 & "C:\Program Files\vvvv\vvvv_gamma_7.4-win-x64\vvvv.exe" `

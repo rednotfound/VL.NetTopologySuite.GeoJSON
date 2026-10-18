@@ -211,7 +211,7 @@ rather than trusting an exit code. Four things it encodes, each of which cost a 
 **To open a help patch, use `Open-HelpPatch.cmd` (a picker) or `tools\Open-HelpPatch.ps1 "name"`**,
 carried from vl-nettopologysuite on 2026-10-18. It passes four package repositories - dist\ and
 deps\ here AND in vl-nettopologysuite, whose `Split` / `GetAttribute` the help uses - refuses if
-any is missing or a vvvv it did not start is running, writes `%TEMP%l-geojson-vvvv.pid`, and
+any is missing or a vvvv it did not start is running, writes `%TEMP%\vl-geojson-vvvv.pid`, and
 opens the REPOSITORY's help\ file. Here build.ps1 still COPIES help\ into dist\ (the siblings
 junction it), so an edit saved through F1 or the Help Browser lands in the dist copy and is lost
 on the next build - carry the junction before hand-editing that way.
