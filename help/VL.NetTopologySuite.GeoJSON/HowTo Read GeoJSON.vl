@@ -15,8 +15,8 @@
       </p:NodeReference>
       <Patch Id="BRT518VC14xmQN4b4LR1ZY">
         <Canvas Id="UxwUCWOXgx8XY6IqTGB9id" CanvasType="Group">
-          <Pad Id="Nyx8A3Bd4HazcoHOsxDx9w" Bounds="760,55,460,560" ShowValueBox="true" isIOBox="true" Value="Start here&#xD;&#xA;&#xD;&#xA;Edit the text and everything below follows. Then try breaking it on purpose:&#xD;&#xA;&#xD;&#xA;  delete a closing brace        Status says JsonException&#xD;&#xA;  change Point to Rhombus       Status names the type it did not know&#xD;&#xA;  remove a properties object    the feature still reads, with no properties&#xD;&#xA;  replace it all with {}        Success stays TRUE and you get 0 features&#xD;&#xA;&#xD;&#xA;That last one is worth dwelling on. Valid JSON that simply is not GeoJSON is not an error to the parser - so the COUNT is the only thing that tells you. Nothing throws either way: half-typed text is the normal state of a box somebody is editing.&#xD;&#xA;&#xD;&#xA;Read GeoJSON hands back the features directly. There is no collection object to open first, which is how vvvv's own XML and JSON readers work too - they never give a patch a &quot;document&quot; to unwrap.&#xD;&#xA;&#xD;&#xA;Because it is a Spread, everything VL already knows about spreads works on it: Count and GetSlice below are vvvv's own nodes, not ours.">
-            <p:TypeAnnotation>
+          <Pad Id="Nyx8A3Bd4HazcoHOsxDx9w" Bounds="760,55,582,503" ShowValueBox="true" isIOBox="true" Value="Start here&#xD;&#xA;&#xD;&#xA;Edit the text and everything below follows. Then try breaking it on purpose:&#xD;&#xA;&#xD;&#xA;  delete a closing brace        Status says JsonException&#xD;&#xA;  change Point to Rhombus       Status names the type it did not know&#xD;&#xA;  remove a properties object    the feature still reads, with no properties&#xD;&#xA;  replace it all with {}        Success stays TRUE and you get 0 features&#xD;&#xA;&#xD;&#xA;That last one is worth dwelling on. Valid JSON that simply is not GeoJSON is not an error to the parser - so the COUNT is the only thing that tells you. Nothing throws either way: half-typed text is the normal state of a box somebody is editing.&#xD;&#xA;&#xD;&#xA;Read GeoJSON hands back the features directly. There is no collection object to open first, which is how vvvv's own XML and JSON readers work too - they never give a patch a &quot;document&quot; to unwrap.&#xD;&#xA;&#xD;&#xA;Because it is a Spread, everything VL already knows about spreads works on it: Count and GetSlice below are vvvv's own nodes, not ours.">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -24,16 +24,11 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="Ie4D5xSuGEp6D0qPRNFASH" Comment="GeoJSON - edit me" Bounds="60,55,540,70" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[13.405,52.52]},&quot;properties&quot;:{&quot;name&quot;:&quot;Berlin&quot;,&quot;population&quot;:3677472}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]},&quot;properties&quot;:{&quot;name&quot;:&quot;a square&quot;}}]}">
+          <Pad Id="Ie4D5xSuGEp6D0qPRNFASH" Comment="GeoJSON - edit me" Bounds="62,41,484,70" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[13.405,52.52]},&quot;properties&quot;:{&quot;name&quot;:&quot;Berlin&quot;,&quot;population&quot;:3677472}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[0,0],[2,0],[2,2],[0,2],[0,0]]]},&quot;properties&quot;:{&quot;name&quot;:&quot;a square&quot;}}]}">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
           </Pad>
-          <!--
-            A PROCESS node, not an operation, and that is the whole design. Parsing 10,000
-            features takes about 160 ms against a frame budget of 16.7, so a node that re-parsed
-            every frame would be a patch that never draws again. Watch Parses settle at 1.
-          -->
           <Node Bounds="60,145,110,26" Id="Hp5yah52Q51HVw0PawB6mu">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -46,15 +41,10 @@
             <Pin Id="P0Hsj7do1sGg9owNvuTFjz" Name="Status" Kind="OutputPin" />
             <Pin Id="QRxErcFxjxDmhs3Ie2KI5X" Name="Parses" Kind="OutputPin" />
           </Node>
-          <Pad Id="CYKmtx99YQxdl7A9bk8zm2" Comment="parsed?" Bounds="400,148,45,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="Dmnn9Ek201loVLdFamvdOp" Comment="status" Bounds="400,183,220,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="E5dfrlVpDa74yRENngPGFf" Comment="parses - stays at 1" Bounds="400,218,45,15" ShowValueBox="true" isIOBox="true" />
-          <!--
-            Count is VL.CoreLib's own node for a Spread. This package does not provide one, and
-            that is deliberate: a node a patch can build from nodes it already has is a help
-            patch, not a node.
-          -->
-          <Node Bounds="60,200,44,26" Id="ArraVWC9JB4IXkrwmXDAP3">
+          <Pad Id="CYKmtx99YQxdl7A9bk8zm2" Comment="parsed?" Bounds="97,200,45,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Dmnn9Ek201loVLdFamvdOp" Comment="status" Bounds="132,230,71,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="E5dfrlVpDa74yRENngPGFf" Comment="parses - stays at 1" Bounds="167,261,45,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="283,320,44,26" Id="ArraVWC9JB4IXkrwmXDAP3">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Count" />
@@ -63,8 +53,8 @@
             <Pin Id="JzlsZXuBAj831DRoNln5Ci" Name="Input" Kind="StateInputPin" />
             <Pin Id="VxhSei5Bg4fP64XFqLdSEO" Name="Count" Kind="OutputPin" />
           </Node>
-          <Pad Id="IoFufoZam8qfKEWTcasg9M" Comment="features" Bounds="150,203,45,15" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="60,255,52,26" Id="MVw3SQshVAIzRdTiM9PTe8">
+          <Pad Id="IoFufoZam8qfKEWTcasg9M" Comment="features" Bounds="285,370,45,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,360,52,19" Id="MVw3SQshVAIzRdTiM9PTe8">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="GetSlice" />
@@ -75,17 +65,12 @@
             <Pin Id="UiV93B3d4Lp50wYMcr3R3q" Name="Index" Kind="InputPin" />
             <Pin Id="K23PNb96REMdktVkzvLRYm" Name="Result" Kind="OutputPin" />
           </Node>
-          <Pad Id="SIy0icukm7yPdyYe6S69Wt" Comment="which one - try 1" Bounds="150,258,35,15" ShowValueBox="true" isIOBox="true" Value="0">
+          <Pad Id="SIy0icukm7yPdyYe6S69Wt" Comment="which one - try 1" Bounds="109,330,35,15" ShowValueBox="true" isIOBox="true" Value="0">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Integer32" />
             </p:TypeAnnotation>
           </Pad>
-          <!--
-            Split takes ONE feature apart into its parts. Geometry is a native NetTopologySuite
-            Geometry, ready for VL.NetTopologySuite; Properties is a Dictionary, where VL's own
-            TryGetValue is waiting. See HowTo Access properties.
-          -->
-          <Node Bounds="60,310,90,26" Id="BHJGK55hy4VAPlVssWA45f">
+          <Node Bounds="60,415,90,19" Id="BHJGK55hy4VAPlVssWA45f">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Split" />
@@ -94,8 +79,8 @@
             <Pin Id="JUFUKrKaMwkOj7YOXGUgzF" Name="Geometry" Kind="OutputPin" />
             <Pin Id="AomkFeKLWiK5JRumjLxv9S" Name="Attributes" Kind="OutputPin" />
           </Node>
-          <Pad Id="P58SJ3hyk0C9anoQqsN2U2" Comment="geometry" Bounds="60,355,300,25" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="Sebj2V9km5LZ1zL7PGwSlF" Comment="all the properties at once" Bounds="60,390,300,58" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="P58SJ3hyk0C9anoQqsN2U2" Comment="geometry" Bounds="62,471,159,47" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Sebj2V9km5LZ1zL7PGwSlF" Comment="all the properties at once" Bounds="147,541,346,78" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="An6k3gqXTPdKai5a0SA1Ur" Name="Create" />
         <Patch Id="TfXROpMdwk84vPJ5VVRDAb" Name="Update" />

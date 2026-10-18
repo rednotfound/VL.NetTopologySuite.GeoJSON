@@ -16,7 +16,7 @@
       <Patch Id="AH69EQMw4OCVeKbHgY4mWw">
         <Canvas Id="G5nIfOQBtacZrnoKjmQmjN" CanvasType="Group">
           <Pad Id="CFhuoLqSovHW1j1fdZItZC" Bounds="800,60,470,650" ShowValueBox="true" isIOBox="true" Value="A round trip, and why it is the honest test&#xD;&#xA;&#xD;&#xA;This patch reads GeoJSON, writes it straight back out, and reads THAT. If both counts match, nothing was lost.&#xD;&#xA;&#xD;&#xA;Write GeoJSON takes any sequence of features, so the spread out of Read GeoJSON connects, and so does one you built yourself. Note there is no FeatureCollection anywhere - it is a detail of the file format, and this package keeps it there.&#xD;&#xA;&#xD;&#xA;Exact Round Trip - the pin worth understanding&#xD;&#xA;&#xD;&#xA;The standard says a polygon's outer ring winds counter-clockwise and its holes clockwise. With this pin OFF the writer rewinds your rings to obey that: the shape is unchanged, the coordinate ORDER is not. A polygon written and read back is then equal as a shape and unequal as a list of points - a maddening bug to chase. So the default is ON: write exactly what you have.&#xD;&#xA;&#xD;&#xA;What does NOT survive&#xD;&#xA;&#xD;&#xA;The SRID. GeoJSON has nowhere to put one - the format simply declares coordinates are longitude and latitude. Geometry projected into metres is written as if those metres were degrees, and nothing warns you. Convert before writing.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member arrives as an ordinary property called id, and goes back out as one.">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -24,7 +24,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="EmJvvsYsTmMzB6I0gP6hdy" Comment="GeoJSON in - edit me" Bounds="60,60,540,80" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[139.6917,35.6895]},&quot;properties&quot;:{&quot;name&quot;:&quot;Tokyo&quot;,&quot;population&quot;:13960000}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[0,0],[4,0],[4,4],[0,4],[0,0]],[[1,1],[1,2],[2,2],[2,1],[1,1]]]},&quot;properties&quot;:{&quot;name&quot;:&quot;a square with a hole&quot;}}]}">
+          <Pad Id="EmJvvsYsTmMzB6I0gP6hdy" Comment="GeoJSON in - edit me" Bounds="62,51,540,80" ShowValueBox="true" isIOBox="true" Value="{&quot;type&quot;:&quot;FeatureCollection&quot;,&quot;features&quot;:[{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Point&quot;,&quot;coordinates&quot;:[139.6917,35.6895]},&quot;properties&quot;:{&quot;name&quot;:&quot;Tokyo&quot;,&quot;population&quot;:13960000}},{&quot;type&quot;:&quot;Feature&quot;,&quot;geometry&quot;:{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[0,0],[4,0],[4,4],[0,4],[0,0]],[[1,1],[1,2],[2,2],[2,1],[1,1]]]},&quot;properties&quot;:{&quot;name&quot;:&quot;a square with a hole&quot;}}]}">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -50,13 +50,13 @@
             <Pin Id="N8LcnRgPZF4hkExpNBs3hY" Name="Input" Kind="StateInputPin" />
             <Pin Id="Q7sSVMkoH5k7r8VrinbPfI" Name="Count" Kind="OutputPin" />
           </Node>
-          <Pad Id="TMSVKo0QMbKoPhSLBn5nh8" Comment="features read in" Bounds="330,230,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="OpvAUg0qfhBqLVG43jEjAW" Comment="Exact Round Trip - switch it OFF and watch the hole's points reverse" Bounds="60,290,45,20" ShowValueBox="true" isIOBox="true" Value="True">
+          <Pad Id="TMSVKo0QMbKoPhSLBn5nh8" Comment="features read in" Bounds="82,290,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="OpvAUg0qfhBqLVG43jEjAW" Comment="Exact Round Trip - switch it OFF and watch the hole's points reverse" Bounds="114,320,45,20" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="E6YbuK3DfSKKXHVOCJWWRm" Comment="Indent - readable output, bigger file" Bounds="60,330,45,20" ShowValueBox="true" isIOBox="true" Value="True">
+          <Pad Id="E6YbuK3DfSKKXHVOCJWWRm" Comment="Indent - readable output, bigger file" Bounds="167,350,45,20" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
@@ -72,13 +72,9 @@
             <Pin Id="QOkZL6mfwvs9SfMgNVnBWm" Name="Result" Kind="OutputPin" />
             <Pin Id="AS2S0SUZiJeiKfxLTXPlrs" Name="Success" Kind="OutputPin" />
           </Node>
-          <Pad Id="Cvi1pAs1Yem9MNogLzgUNT" Comment="wrote ok?" Bounds="60,420,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="ClCGUbrSJzVEdbV7zPonvi" Comment="GeoJSON out" Bounds="60,460,540,90" ShowValueBox="true" isIOBox="true" />
-          <!--
-            The written text goes straight back into a second Read GeoJSON. If the counts at
-            the top and the bottom agree, the trip was clean.
-          -->
-          <Node Bounds="60,575,110,26" Id="IIAGnIc44NV9rFGgzeNyOO">
+          <Pad Id="Cvi1pAs1Yem9MNogLzgUNT" Comment="wrote ok?" Bounds="167,420,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="ClCGUbrSJzVEdbV7zPonvi" Comment="GeoJSON out" Bounds="62,460,196,150" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="55,694,110,19" Id="IIAGnIc44NV9rFGgzeNyOO">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
@@ -90,7 +86,7 @@
             <Pin Id="KSSxeqsZxGrsVYNTOEbTPU" Name="Status" Kind="OutputPin" />
             <Pin Id="Sl0l4Hx3wDOS2d6wIWryW9" Name="Parses" Kind="OutputPin" />
           </Node>
-          <Node Bounds="60,630,110,26" Id="HZtiCuqhi0ZGIi3ywGEHkj">
+          <Node Bounds="55,749,110,26" Id="HZtiCuqhi0ZGIi3ywGEHkj">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Count" />
@@ -99,7 +95,7 @@
             <Pin Id="AyzAjGrxt9XNLwQdY2gtBX" Name="Input" Kind="StateInputPin" />
             <Pin Id="R5ZqfwDWxSX7ouWxm5LlV8" Name="Count" Kind="OutputPin" />
           </Node>
-          <Pad Id="MeJLdaf9Yg7M4GILnJ4rzm" Comment="features read back - the same number, or something was lost" Bounds="330,630,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="MeJLdaf9Yg7M4GILnJ4rzm" Comment="features read back - the same number, or something was lost" Bounds="57,799,50,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="AYm9J4jI9rttfSX13a1kD7" Name="Create" />
         <Patch Id="TN1Prg6PJAL8nHfogMddBz" Name="Update" />

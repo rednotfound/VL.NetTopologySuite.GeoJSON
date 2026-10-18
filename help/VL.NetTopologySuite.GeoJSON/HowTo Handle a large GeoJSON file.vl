@@ -16,7 +16,7 @@
       <Patch Id="KAgwYthZ2huojxWWteSu4O">
         <Canvas Id="Sd1LQJidF9lXO7Nd5UyXo0" CanvasType="Group">
           <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1050,60,480,740" ShowValueBox="true" isIOBox="true" Value="The one that matters once your data is real&#xD;&#xA;&#xD;&#xA;Watch the two numbers on the left. Frames climbs sixty times a second. Parses sits at 1 and never moves.&#xD;&#xA;&#xD;&#xA;In vvvv, having a patch open means having it RUNNING - every node is evaluated every frame. If Read GeoJSON parsed its text each time, a real dataset would stop the patch dead.&#xD;&#xA;&#xD;&#xA;One parse, measured:&#xD;&#xA;&#xD;&#xA;     100 features     1.2 ms&#xD;&#xA;   1,000 features    12.9 ms   most of a frame&#xD;&#xA;  10,000 features     162 ms   about 10 frames&#xD;&#xA;  50,000 features     748 ms   about 45 frames&#xD;&#xA;&#xD;&#xA;A frame is 16.7 ms. So from about a thousand features on, one parse costs a whole frame - which is why this is a process node. It parses when the TEXT CHANGES.&#xD;&#xA;&#xD;&#xA;How to break it anyway&#xD;&#xA;&#xD;&#xA;Build the text fresh every frame and every frame is a new text, so every frame is a new parse. Parses climbs alongside Frames - that is your warning.&#xD;&#xA;&#xD;&#xA;The cost follows the NUMBER OF FEATURES, not the number of points: 10,000 simple polygons cost twice what 200 complicated ones do at the same coordinate count. Memory runs about 2.5x the text size.&#xD;&#xA;&#xD;&#xA;Full figures in docs/MEASUREMENTS.md.&#xD;&#xA;&#xD;&#xA;GeoJSON is one big JSON object, so all of it must be in memory before you get the first feature. For millions of features the answer is a different format - GeoParquet, FlatGeobuf, PMTiles - not a cleverer GeoJSON reader.">
-            <p:TypeAnnotation>
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
             <p:ValueBoxSettings>
@@ -41,26 +41,23 @@
             <Pin Id="FOLyQpGLZrHgrxfIrc1RQ6" Name="Status" Kind="OutputPin" />
             <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
           </Node>
-          <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="PARSES - this is the number to watch. It stays at 1." Bounds="60,245,50,15" ShowValueBox="true" isIOBox="true" />
-          <!--
-            A frame counter next to it, so "it only parses once" is something you can SEE rather
-            than something this patch asserts. A rate is invisible unless something counts it.
-          -->
-          <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="60,300,40,20" ShowValueBox="true" isIOBox="true" Value="True">
+          <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="PARSES - this is the number to watch. It stays at 1." Bounds="166,231,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="323,310,40,20" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="60,345,81,19" Id="RI51wMPw5bnt9ONWXKUbqD">
+          <Node Bounds="321,350,81,19" Id="RI51wMPw5bnt9ONWXKUbqD">
             <p:NodeReference LastCategoryFullName="Animation.FrameBased" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FrameCounter" />
             </p:NodeReference>
+            <Pin Id="JkjiAhBWyd0OQ5MB2Tzlx4" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="HVzyyS2cMRPUd7cTj5I9im" Name="Count" Kind="ApplyPin" />
             <Pin Id="GxEUSjS9FSU9fGTTb3eAcH" Name="Reset" Kind="ApplyPin" />
             <Pin Id="QKuJT08RzzLmuOOY7wQogi" Name="Value" Kind="OutputPin" />
           </Node>
-          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="60,390,60,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="323,410,60,15" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="60,445,44,26" Id="VhY1SynGqSzKXvDUczpksp">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -70,8 +67,8 @@
             <Pin Id="JRduor7o0G31QwI1eiLPC6" Name="Input" Kind="StateInputPin" />
             <Pin Id="S7G105tsE2LkaP0KyDnKJF" Name="Count" Kind="OutputPin" />
           </Node>
-          <Pad Id="LH4ebQNEbp8DWihC2ALOsC" Comment="features" Bounds="330,445,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="60,500,320,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="LH4ebQNEbp8DWihC2ALOsC" Comment="features" Bounds="62,500,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="132,261,99,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="M7XBO0ly0fQe7Zxaw1tRns" Name="Create" />
         <Patch Id="UVPx3Oa07kknucSIa8ZKdc" Name="Update" />
