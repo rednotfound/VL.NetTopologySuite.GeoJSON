@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
-    <id>VL.GeoJSON</id>
+    <id>VL.NetTopologySuite.GeoJSON</id>
     <version>0.0.1-alpha</version>
-    <title>VL.GeoJSON — GeoJSON nodes for vvvv gamma</title>
-    <authors>VL.GeoJSON Contributors</authors>
-    <owners>VL.GeoJSON Contributors</owners>
+    <title>VL.NetTopologySuite.GeoJSON — GeoJSON for NetTopologySuite in vvvv gamma</title>
+    <authors>VL.NetTopologySuite.GeoJSON Contributors</authors>
+    <owners>VL.NetTopologySuite.GeoJSON Contributors</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
-    <projectUrl>https://github.com/rednotfound/VL.GeoJSON</projectUrl>
+    <projectUrl>https://github.com/rednotfound/VL.NetTopologySuite.GeoJSON</projectUrl>
     <description>
       EARLY - not ready for real work yet.
 
@@ -29,13 +29,13 @@
     <releaseNotes>
       0.0.1-alpha - First package. Not published.
     </releaseNotes>
-    <copyright>Copyright 2026 VL.GeoJSON Contributors</copyright>
+    <copyright>Copyright 2026 VL.NetTopologySuite.GeoJSON Contributors</copyright>
     <!-- The "VL" tag is what makes the pack discoverable at https://vvvv.org/packs -->
     <tags>VL vvvv gamma geojson gis json geometry feature nts nettopologysuite spatial</tags>
-    <repository type="git" url="https://github.com/rednotfound/VL.GeoJSON" />
+    <repository type="git" url="https://github.com/rednotfound/VL.NetTopologySuite.GeoJSON" />
 
     <!--
-      Must match the NugetDependency lines in VL.GeoJSON.vl. The .vl is what teaches VL the
+      Must match the NugetDependency lines in VL.NetTopologySuite.GeoJSON.vl. The .vl is what teaches VL the
       types; the nuspec is what makes the package resolvable for a consumer. Both are needed and
       neither is sufficient alone.
 
@@ -61,13 +61,13 @@
 
   <files>
     <!-- Entry point. Must sit at the package root, no subfolder. -->
-    <file src="VL.GeoJSON.vl" target="" />
+    <file src="VL.NetTopologySuite.GeoJSON.vl" target="" />
 
-    <file src="src\VL.GeoJSON\bin\Release\net8.0\VL.GeoJSON.dll" target="lib\net8.0\" />
-    <file src="src\VL.GeoJSON\bin\Release\net8.0\VL.GeoJSON.xml" target="lib\net8.0\" />
+    <file src="src\VL.NetTopologySuite.GeoJSON\bin\Release\net8.0\VL.NetTopologySuite.GeoJSON.dll" target="lib\net8.0\" />
+    <file src="src\VL.NetTopologySuite.GeoJSON\bin\Release\net8.0\VL.NetTopologySuite.GeoJSON.xml" target="lib\net8.0\" />
 
     <!-- This package's own help patches. target stays help\ because that is where vvvv looks. -->
-    <file src="help\VL.GeoJSON\*.vl" target="help\" />
+    <file src="help\VL.NetTopologySuite.GeoJSON\*.vl" target="help\" />
 
     <!--
       The sample data "HowTo Read a GeoJSON file" points at, with a RELATIVE path. It has to ship,
@@ -77,14 +77,14 @@
       Its own line rather than a glob over help\**, because the glob above deliberately takes .vl
       and nothing else.
     -->
-    <file src="help\VL.GeoJSON\Assets\*.geojson" target="help\Assets\" />
+    <file src="help\VL.NetTopologySuite.GeoJSON\Assets\*.geojson" target="help\Assets\" />
 
     <!--
       Help.xml orders the help patches in the browser and carries their search tags. It needs its
       own line: the glob above takes .vl and nothing else, so leaving this out would ship the
       patches unordered and untagged with no warning anywhere.
     -->
-    <file src="help\VL.GeoJSON\Help.xml" target="help\" />
+    <file src="help\VL.NetTopologySuite.GeoJSON\Help.xml" target="help\" />
 
     <file src="README.md" target="docs\" />
     <file src="docs\ARCHITECTURE.md" target="docs\" />

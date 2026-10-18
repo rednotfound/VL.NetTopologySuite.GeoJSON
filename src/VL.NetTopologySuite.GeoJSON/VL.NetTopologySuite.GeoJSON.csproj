@@ -4,7 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>12.0</LangVersion>
-    <AssemblyName>VL.GeoJSON</AssemblyName>
+    <AssemblyName>VL.NetTopologySuite.GeoJSON</AssemblyName>
     <!--
       The VL node category is derived from the NAMESPACE minus the "VL" prefix (see
       AssemblyInfo.cs), so this yields categories under "GeoJSON". Assembly name and root
@@ -15,13 +15,13 @@
     -->
     <RootNamespace>VL.GeoJSON</RootNamespace>
     <Version>0.0.1</Version>
-    <Authors>VL.GeoJSON Contributors</Authors>
+    <Authors>VL.NetTopologySuite.GeoJSON Contributors</Authors>
     <Description>GeoJSON as vvvv gamma nodes</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <!--
       Put every NuGet dependency next to the built assembly. A class library does not do this
-      by default: it emits VL.GeoJSON.dll alone and leaves the host to resolve
+      by default: it emits VL.NetTopologySuite.GeoJSON.dll alone and leaves the host to resolve
       NetTopologySuite from deps.json plus the NuGet cache.
 
       vvvv does not resolve it that way through a ProjectDependency, and the failure is quiet.
@@ -45,7 +45,7 @@
 
     <!--
       2.6.0, the same version both sibling repositories pin. The whole NTS 2.x line carries
-      assembly version 2.0.0.0, so a vvvv loading VL.GeoJSON, VL.NetTopologySuite and
+      assembly version 2.0.0.0, so a vvvv loading VL.NetTopologySuite.GeoJSON, VL.NetTopologySuite and
       VL.Mapsui together sees ONE identity. That is load bearing rather than tidy: the reason
       VL.Mapsui and VL.GIS could not coexist for months was a shared library resolving to two
       incompatible versions in vvvv's flat, machine-wide %LOCALAPPDATA%\vvvv\gamma\nugets\.

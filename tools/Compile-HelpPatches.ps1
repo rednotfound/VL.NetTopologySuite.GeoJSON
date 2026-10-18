@@ -14,12 +14,12 @@
 
     TWO THINGS HAVE TO LINE UP, and this was carried from vl-mapsui rather than rediscovered:
 
-      1. `--package-repositories` - how vvvv finds a *package folder*, i.e. dist\VL.GeoJSON\.
-         Point it at dist\, not dist\feed\, or vvvvc says "Missing package: VL.GeoJSON".
+      1. `--package-repositories` - how vvvv finds a *package folder*, i.e. dist\VL.NetTopologySuite.GeoJSON\.
+         Point it at dist\, not dist\feed\, or vvvvc says "Missing package: VL.NetTopologySuite.GeoJSON".
 
       2. a NuGet source carrying the *nupkg* - because vvvvc then generates a .csproj with a
          PackageReference and runs a normal restore. Point that at dist\feed\, or restore says
-         "NU1101: package VL.GeoJSON not found" while listing nuget.org and friends.
+         "NU1101: package VL.NetTopologySuite.GeoJSON not found" while listing nuget.org and friends.
 
     An earlier version of this script supplied only (1) and documented the resulting NU1101 as
     "expected, because it is the export stage after codegen". That was wrong in a way worth
@@ -62,6 +62,14 @@ $Dist     = Join-Path $RepoRoot 'dist'
 $Deps     = Join-Path $RepoRoot 'deps'
 $Feed     = Join-Path $RepoRoot 'dist\feed'
 $NtsRepo  = 'D:\2026_Projects\vl-nettopologysuite'
+
+# Discovered the way build.ps1 and pack.ps1 discover it - a .vl at the root with a .nuspec of the
+# same name - because this name anchors every node check below. It was hardcoded as "VL.GeoJSON"
+# until the package was renamed (2026-10-18), and a stale anchor does not fail: it matches
+# nothing, every patch reports "uses no node of ours", and the run is green.
+$PackageName = @(Get-ChildItem $RepoRoot -Filter '*.vl' -File |
+    Where-Object { Test-Path (Join-Path $RepoRoot "$($_.BaseName).nuspec") }).BaseName
+if (@($PackageName).Count -ne 1) { throw "expected exactly one .vl with a matching .nuspec at $RepoRoot" }
 
 if (-not (Test-Path $Dist)) { throw "dist\ not found. Run .\build.ps1 first." }
 if (-not (Get-ChildItem $Feed -Filter '*.nupkg' -ErrorAction SilentlyContinue)) {
@@ -127,6 +135,7 @@ $OurPins = @{
 }
 
 $failures = New-Object System.Collections.Generic.List[string]
+$nodesChecked = 0
 
 foreach ($p in $patches) {
     Write-Host "`ncompiling $($p.Name)" -ForegroundColor Cyan
@@ -163,13 +172,32 @@ foreach ($p in $patches) {
     $csharp = ($generated | ForEach-Object { Get-Content $_.FullName -Raw }) -join "`n"
     $patchXml = Get-Content $p.FullName -Raw
 
+    # Every node the patch takes from THIS package, by name. A name missing from $OurNodes is a
+    # failure, so a node added to the package and forgotten in the table shows up the first time a
+    # patch uses it instead of going unchecked.
+    $ourAnchor = 'LastDependency="' + [regex]::Escape("$PackageName.vl") + '">'
+    $claimed = @([regex]::Matches($patchXml,
+            $ourAnchor + '\s*(?:<[^>]+>\s*)*?<Choice Kind="(?:OperationCallFlag|ProcessAppFlag|ProcessNodeFlag|OperationFlag)" Name="([^"]+)"') |
+        ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+    foreach ($name in $claimed) {
+        if (-not $OurNodes.ContainsKey($name)) {
+            $failures.Add("$($p.Name): uses '$name' from $PackageName, which the node table does not know")
+            Write-Host "  FAIL  '$name' is not in the node table" -ForegroundColor Red
+        }
+    }
+    # The patch names our package but no node of it was recognised: the anchor is stale.
+    if ($patchXml -match $ourAnchor -and $claimed.Count -eq 0) {
+        $failures.Add("$($p.Name): references $PackageName.vl but no node of it was recognised - the anchor is stale")
+        Write-Host "  FAIL  references $PackageName.vl, recognised no node" -ForegroundColor Red
+    }
+
     $checked = 0
     foreach ($nodeName in $OurNodes.Keys) {
         # Does the patch claim to use this node, against OUR dependency rather than someone else's?
         # "Split" in particular is a name several libraries use.
         $claims = [regex]::IsMatch(
             $patchXml,
-            'LastDependency="VL\.GeoJSON\.vl">\s*(?:<[^>]+>\s*)*?<Choice Kind="\w+Flag" Name="' + [regex]::Escape($nodeName) + '"')
+            $ourAnchor + '\s*(?:<[^>]+>\s*)*?<Choice Kind="\w+Flag" Name="' + [regex]::Escape($nodeName) + '"')
         if (-not $claims) { continue }
 
         $checked++
@@ -193,7 +221,8 @@ foreach ($p in $patches) {
         }
     }
 
-    if ($checked -eq 0) { Write-Host "  ok    compiled (uses no VL.GeoJSON node)" -ForegroundColor DarkGray }
+    $nodesChecked += $checked
+    if ($checked -eq 0) { Write-Host "  ok    compiled (uses no $PackageName node)" -ForegroundColor DarkGray }
 
     # A process node built in Update instead of Create is the expensive mistake in this ecosystem.
     if ($csharp -match 'new\s+\w*\.?ReadGeoJsonNode\(\)') {
@@ -215,6 +244,12 @@ foreach ($p in $patches) {
     }
 }
 
+# A run that checked no node of ours at all proves nothing, however green: every patch would
+# say "uses no node" if the patches named the package by a name this script does not match.
+if ($nodesChecked -eq 0) {
+    $failures.Add("no patch was found using any $PackageName node - the dependency name in the patches and the package disagree")
+}
+
 if (-not $KeepOutput -and (Test-Path $OutputDirectory)) { Remove-Item $OutputDirectory -Recurse -Force }
 
 Write-Host ""
@@ -224,7 +259,7 @@ if ($failures.Count -gt 0) {
     exit 1
 }
 
-Write-Host "PASS - $($patches.Count) patch(es) compiled, every VL.GeoJSON node resolved, no NU1101." -ForegroundColor Green
+Write-Host "PASS - $($patches.Count) patch(es) compiled, every $PackageName node resolved, no NU1101." -ForegroundColor Green
 Write-Host @"
 Note: this proves the nodes RESOLVE. It does not prove which CATEGORY they appear under - only
 the NodeBrowser does - nor that the patch computes the right value, which only running it does.

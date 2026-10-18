@@ -30,7 +30,7 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,180,110,26" Id="MPvsjde0q1SdMXLPEzIlAs">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
             </p:NodeReference>
@@ -69,7 +69,7 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,355,90,26" Id="TKk6PjbIg6PSzr909wvX7F">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Split" />
             </p:NodeReference>
@@ -112,7 +112,7 @@
             throws.
           -->
           <Node Bounds="440,490,100,26" Id="Lt1YTag1xVWh6xyQL3m92n">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="GetProperty" />
             </p:NodeReference>
@@ -150,5 +150,5 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="NqhGdYpr6flaHKsqHSMRuX" Location="VL.GeoJSON" Version="0.0.0" />
+  <NugetDependency Id="NqhGdYpr6flaHKsqHSMRuX" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
 </Document>

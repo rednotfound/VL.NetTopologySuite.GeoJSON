@@ -27,5 +27,5 @@
       </Patch>
     </Node>
   </Patch>
-  <PlatformDependency Id="C2tYviEUfFmGm7pRskVW1M" Location="./lib/net8.0/VL.GeoJSON.dll" IsForward="true" />
+  <PlatformDependency Id="C2tYviEUfFmGm7pRskVW1M" Location="./lib/net8.0/VL.NetTopologySuite.GeoJSON.dll" IsForward="true" />
 </Document>

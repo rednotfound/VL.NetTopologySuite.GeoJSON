@@ -3,7 +3,7 @@ using VL.Core.Import;
 
 // The normalisation helpers the tests assert on are internal: they exist to catch a regression,
 // not to be part of the node surface.
-[assembly: InternalsVisibleTo("VL.GeoJSON.Tests")]
+[assembly: InternalsVisibleTo("VL.NetTopologySuite.GeoJSON.Tests")]
 
 // Without this every public static method is demoted to a raw .NET reflection node, which the
 // NodeBrowser hides. The package still loads, compiles and packs with zero warnings, so the

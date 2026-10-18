@@ -18,7 +18,7 @@
 
     So this script:
 
-      1. resolves VL.GeoJSON from dist\feed (plus nuget.org) into a throwaway folder, with NuGet
+      1. resolves VL.NetTopologySuite.GeoJSON from dist\feed (plus nuget.org) into a throwaway folder, with NuGet
          doing the dependency graph - the same resolution a user's install performs;
       2. reports whether each expected dependency actually landed;
       3. compiles every help patch **from inside the installed package**, with that folder as the

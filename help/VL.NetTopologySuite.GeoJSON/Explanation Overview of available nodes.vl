@@ -61,5 +61,5 @@
       </Patch>
     </Node>
   </Patch>
-  <NugetDependency Id="JuwkkAztPrGPhJyRiVHgbg" Location="VL.GeoJSON" Version="0.0.0" />
+  <NugetDependency Id="JuwkkAztPrGPhJyRiVHgbg" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
 </Document>
