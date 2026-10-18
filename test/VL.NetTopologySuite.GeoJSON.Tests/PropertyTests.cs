@@ -1,6 +1,11 @@
+using System;
+using System.IO;
 using System.Linq;
 using NetTopologySuite.Features;
+using VL.Lib.Collections;
 using Xunit;
+
+using NtsFeature = NetTopologySuite.Features.Feature;
 
 namespace VL.NetTopologySuite.GeoJSON.Tests;
 
@@ -124,6 +129,61 @@ public class PropertyTests
         var properties = PropertiesOf(Fixtures.Points, "Paris");
 
         Assert.False(properties.Exists("id"));
+    }
+
+    const string WithBoundingBox = """
+        {"type":"FeatureCollection","features":[
+          {"type":"Feature","bbox":[1,2,3,4],"geometry":{"type":"LineString","coordinates":[[1,2],[3,4]]},"properties":{"a":1}},
+          {"type":"Feature","geometry":{"type":"Point","coordinates":[5,6]},"properties":{"a":2}}]}
+        """;
+
+    [Fact]
+    public void A_features_bbox_is_kept()
+    {
+        // The serializer reads a feature's bbox into IFeature.BoundingBox; normalising into a new
+        // Feature used to leave it behind without a word.
+        var features = new ReadGeoJsonNode().Update(out _, out _, out _, WithBoundingBox);
+
+        Assert.Equal(new global::NetTopologySuite.Geometries.Envelope(1, 3, 2, 4), features[0].BoundingBox);
+        Assert.Null(features[1].BoundingBox);
+    }
+
+    [Fact]
+    public void A_features_bbox_is_not_written_back()
+    {
+        // Upstream writes a feature's bbox only with writeGeometryBBox, which also puts a bbox on
+        // every geometry. Write GeoJSON keeps that off, so the bbox is read but not written. This
+        // pins the limitation down: if it changes, the docs saying so must change with it.
+        var features = new ReadGeoJsonNode().Update(out _, out _, out _, WithBoundingBox);
+
+        var written = WriteNodes.WriteGeoJson(features, out var ok);
+
+        Assert.True(ok);
+        Assert.DoesNotContain("bbox", written);
+    }
+
+    [Fact]
+    public void A_features_bbox_is_kept_by_the_file_reader_too()
+    {
+        var path = Path.Combine(Path.GetTempPath(), $"vlgeojson-{Guid.NewGuid():N}.geojson");
+        File.WriteAllText(path, WithBoundingBox);
+        try
+        {
+            using var node = new GeoJsonReaderReactiveNode();
+            Spread<NtsFeature>? received = null;
+            using var subscription = node.Update(out _, out _, out _, out _, out _).Subscribe(s => received = s);
+            node.Update(out _, out _, out _, out _, out _, new VL.Lib.IO.Path(path), read: true);
+            var clock = System.Diagnostics.Stopwatch.StartNew();
+            while (received is null && clock.Elapsed < TimeSpan.FromSeconds(10))
+                System.Threading.Thread.Sleep(5);
+
+            Assert.NotNull(received);
+            Assert.Equal(new global::NetTopologySuite.Geometries.Envelope(1, 3, 2, 4), received![0].BoundingBox);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     [Fact]

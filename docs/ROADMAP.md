@@ -10,7 +10,7 @@ because the serializer has the option.
 ## Now — 0.0.1-alpha, unpublished
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
-**Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 83 tests, 4 load tests, six help
+**Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 86 tests, 4 load tests, six help
 patches.** Depends on VL.NetTopologySuite **0.0.4-alpha**, on nuget.org since 2026-10-18 (0.0.3-alpha
 was the first with `GetAttribute`; 0.0.4-alpha has the short tooltips).
 
@@ -99,7 +99,7 @@ In order, and each small.
 |---|---|
 | **`Read GeoJSON (Bytes)`** | Measured: `byte[]` parses in 101 ms where `string` takes 140 ms on 5.4 MB, because the string path transcodes UTF-8 to UTF-16 and back. Worth it once someone reads files big enough to care. |
 | **Writing a bare geometry** | `Write GeoJSON (Geometry)` emitting a GeoJSON *Geometry* object rather than a FeatureCollection. One method; left out to keep the first surface small. |
-| **`bbox` support** | A feature's `bbox` is read into `IFeature.BoundingBox`; the collection's is dropped along with the collection type, and `writeGeometryBBox` is an unsurfaced serializer option. Waiting for a use case, since NTS's `Envelope` has no representation in a patch (VL.NetTopologySuite returns four floats instead, and that is the precedent to copy). If it arrives, it is an output pin on `Read GeoJSON` — not a resurrected `FeatureCollection`. |
+| **`bbox` support** | A feature's `bbox` is read into `IFeature.BoundingBox` and kept through normalisation (until 2026-10-18 it was silently dropped there) but not written back - upstream writes it only with `writeGeometryBBox`, which also puts a bbox on every geometry; the collection's is dropped along with the collection type, and `writeGeometryBBox` is an unsurfaced serializer option. Waiting for a use case, since NTS's `Envelope` has no representation in a patch (VL.NetTopologySuite returns four floats instead, and that is the precedent to copy). If it arrives, it is an output pin on `Read GeoJSON` — not a resurrected `FeatureCollection`. |
 | **The `id` member proper** | It currently becomes an ordinary `"id"` property, matching the Newtonsoft reader. Round-tripping it back out *as* a GeoJSON `id` member would need `IUnique`, which the concrete `Feature` does not implement. Documented asymmetry, not a bug. |
 | **Property type helpers** | Nested objects arrive as `AttributesTable` and arrays as `object[]`. Reachable raw. If anyone actually hits this, the node belongs beside VL.NetTopologySuite's `Split`, not here. |
 | **Streaming** | Measured **not supported** upstream: `Deserialize<FeatureCollection>` materialises everything, and GeoJSON's `features` array is nested inside an object so `DeserializeAsyncEnumerable` cannot reach it. `GeoJSONReader (Reactive)` now walks the array with `Utf8JsonReader` one feature at a time — but still builds the whole Spread before publishing. Publishing in chunks, or a spatial filter while reading, waits for a use case; past a few hundred MB the right answer is a different format (FlatGeobuf has an NTS reader with a bbox filter), not a cleverer GeoJSON reader. |

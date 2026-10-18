@@ -179,7 +179,7 @@ internal static class Defaults
 
     /// <summary>Copy one decoded feature into a concrete <see cref="global::NetTopologySuite.Features.Feature"/>.</summary>
     /// <remarks>
-    /// <para>Two things are carried across that a naive copy would drop.</para>
+    /// <para>Three things are carried across that a naive copy would drop.</para>
     /// <para><b>The GeoJSON <c>id</c> member.</b> It arrives on <c>IUnique.Id</c>, and the concrete
     /// <c>Feature</c> does not implement <c>IUnique</c> (measured), so copying only the attributes
     /// would silently lose it. It becomes an ordinary <c>"id"</c> property — which is exactly what
@@ -189,6 +189,10 @@ internal static class Defaults
     /// <c>properties</c> member yields <c>Attributes == null</c> (measured), and a patch cannot
     /// tell that apart from a feature with no properties — there is nothing to distinguish. An
     /// empty table means no downstream node has to null-check.</para>
+    /// <para><b>The feature's <c>bbox</c> member</b>, which the serializer reads into
+    /// <c>IFeature.BoundingBox</c>. Until 2026-10-18 the copy left it behind and nothing said so.
+    /// It is read, not written back: upstream writes a feature's bbox only with
+    /// <c>writeGeometryBBox</c>, which also puts one on every geometry, and that stays off.</para>
     /// </remarks>
     internal static global::NetTopologySuite.Features.Feature Normalise(IFeature feature)
         => Normalise(feature, new NameCache());
@@ -205,7 +209,7 @@ internal static class Defaults
         if (feature is IUnique { Id: { } id } && !table.Exists("id"))
             table.Add("id", NormaliseValue(id));
 
-        return new global::NetTopologySuite.Features.Feature(feature.Geometry!, table);
+        return new global::NetTopologySuite.Features.Feature(feature.Geometry!, table) { BoundingBox = feature.BoundingBox };
     }
 
     /// <summary>

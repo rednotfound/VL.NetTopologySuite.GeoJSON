@@ -16,7 +16,7 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
-**Current state (2026-10-18): 3 nodes, 83 tests + 4 load tests, 6 help patches. Static checks and a
+**Current state (2026-10-18): 3 nodes, 86 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
 and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org yet. It depends on
 VL.NetTopologySuite **0.0.4-alpha** (on nuget.org since 2026-10-18; 0.0.3-alpha was the first with
@@ -161,7 +161,7 @@ These cost a full survey; do not re-derive them.
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the semantics are right | ✅ 83 tests, ~2 s, no network |
+| `dotnet test` | the semantics are right | ✅ 86 tests, ~2 s, no network |
 | the negative tests | those checks can actually go red | ✅ 10 red with the raw table, 6 with raw values, 4 without the cache (2026-10-18) |
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
@@ -259,7 +259,7 @@ vl-geojson/
 │   ├── ReactiveNodes.cs           # [ProcessNode] GeoJSONReader (Reactive) - a file, in the background
 │   ├── GeoJsonFile.cs             # its parse: one feature at a time, cancellable, no string
 │   └── WriteNodes.cs              # Write GeoJSON
-├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 83 xunit tests + 4 opt-in load tests, no network, no vvvv
+├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 86 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
 ├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
 │   └── Assets/cities.geojson      # what "HowTo Read a GeoJSON file" points at, RELATIVELY
