@@ -144,3 +144,8 @@ MIT. See [LICENSE](LICENSE).
 This package wraps [NetTopologySuite](https://github.com/NetTopologySuite/NetTopologySuite) and
 [NetTopologySuite.IO.GeoJSON4STJ](https://github.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON),
 both BSD-3-Clause, and declares them as NuGet dependencies rather than redistributing them.
+
+`help\VL.NetTopologySuite.GeoJSON\Assets\ne_10m_populated_places_simple.geojson` - 7,342 cities, used
+by `HowTo Handle a large GeoJSON file` - is [Natural Earth](https://www.naturalearthdata.com)'s 1:10m
+populated places, **public domain**, taken unmodified from
+[nvkelso/natural-earth-vector](https://github.com/nvkelso/natural-earth-vector) on 2026-10-18.

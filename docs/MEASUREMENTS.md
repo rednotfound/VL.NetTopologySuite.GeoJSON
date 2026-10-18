@@ -127,6 +127,26 @@ complex ones holding the same number of coordinates — the attributes table and
 not the coordinates. Worth knowing before optimising the wrong thing: simplifying geometry will not
 help a document that is slow because it has a lot of *features*.
 
+### Real open data — and properties cost too (2026-10-18)
+
+The synthetic fixture carries 3 properties per feature. Real files carry 26-41, and that shows:
+`Read GeoJSON`, Release build, median of three after a warm-up, same machine:
+
+| file | features | properties each | size | parse ms | frames at 60 fps |
+|---|---:|---:|---:|---:|---:|
+| USGS earthquakes, past week | 1,858 | 26 | 1.3 MB | 160 | 9.6 |
+| Natural Earth lakes 1:10m (polygons) | 1,355 | 41 | 4.8 MB | 148 | 8.9 |
+| **Natural Earth populated places 1:10m** | **7,342** | 31 | 4.7 MB | **220** | 13 |
+| USGS earthquakes, past month | 10,120 | 26 | 6.8 MB | 275 | 16.5 |
+| Natural Earth roads 1:10m | 56,600 | 31 | 48.1 MB | 1,982 | 119 |
+
+10,000 synthetic features parse in 148-162 ms; 10,120 real ones in 275. **Cost follows features
+AND their properties, not coordinates** — every property is normalised (`Defaults.NormaliseValue`)
+into a fresh `AttributesTable`. The populated places file ships in
+`help\...\Assets\` for `HowTo Handle a large GeoJSON file` (0.5 MB deflated in the nupkg); the
+roads are the "try a bigger one" download named in that patch. All Natural Earth and USGS data is
+public domain.
+
 ### The cached path
 
 600 frames over an unchanged 10,000-feature document: **0.0 ms total, 1 parse.** Reference equality

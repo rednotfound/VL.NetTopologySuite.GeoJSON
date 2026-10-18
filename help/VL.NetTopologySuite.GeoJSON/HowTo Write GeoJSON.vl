@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="AH69EQMw4OCVeKbHgY4mWw">
         <Canvas Id="G5nIfOQBtacZrnoKjmQmjN" CanvasType="Group">
-          <Pad Id="CFhuoLqSovHW1j1fdZItZC" Bounds="800,60,470,650" ShowValueBox="true" isIOBox="true" Value="A round trip, and why it is the honest test&#xD;&#xA;&#xD;&#xA;This patch reads GeoJSON, writes it straight back out, and reads THAT. If both counts match, nothing was lost.&#xD;&#xA;&#xD;&#xA;Write GeoJSON takes any sequence of features, so the spread out of Read GeoJSON connects, and so does one you built yourself. Note there is no FeatureCollection anywhere - it is a detail of the file format, and this package keeps it there.&#xD;&#xA;&#xD;&#xA;Exact Round Trip - the pin worth understanding&#xD;&#xA;&#xD;&#xA;The standard says a polygon's outer ring winds counter-clockwise and its holes clockwise. With this pin OFF the writer rewinds your rings to obey that: the shape is unchanged, the coordinate ORDER is not. A polygon written and read back is then equal as a shape and unequal as a list of points - a maddening bug to chase. So the default is ON: write exactly what you have.&#xD;&#xA;&#xD;&#xA;What does NOT survive&#xD;&#xA;&#xD;&#xA;The SRID. GeoJSON has nowhere to put one - the format simply declares coordinates are longitude and latitude. Geometry projected into metres is written as if those metres were degrees, and nothing warns you. Convert before writing.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member arrives as an ordinary property called id, and goes back out as one.">
+          <Pad Id="CFhuoLqSovHW1j1fdZItZC" Bounds="800,60,470,650" ShowValueBox="true" isIOBox="true" Value="A round trip, and why it is the honest test&#xD;&#xA;&#xD;&#xA;This patch reads GeoJSON, writes it straight back out, and reads THAT. If both counts match, nothing was lost.&#xD;&#xA;&#xD;&#xA;Write GeoJSON takes any sequence of features, so the spread out of Read GeoJSON connects, and so does one you built yourself. Note there is no FeatureCollection anywhere - it is a detail of the file format, and this package keeps it there.&#xD;&#xA;&#xD;&#xA;Exact Round Trip - the pin worth understanding&#xD;&#xA;&#xD;&#xA;The standard says a polygon's outer ring winds counter-clockwise and its holes clockwise. With this pin OFF the writer rewinds your rings to obey that: the shape is unchanged, the coordinate ORDER is not. A polygon written and read back is then equal as a shape and unequal as a list of points - a maddening bug to chase. So the default is ON: write exactly what you have.&#xD;&#xA;&#xD;&#xA;What does NOT survive&#xD;&#xA;&#xD;&#xA;The SRID. GeoJSON has nowhere to put one - the format simply declares coordinates are longitude and latitude. Geometry projected into metres is written as if those metres were degrees, and nothing warns you. Convert before writing.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member arrives as an ordinary property called id, and goes back out as one.&#xD;&#xA;&#xD;&#xA;Saving it to a file&#xD;&#xA;&#xD;&#xA;Write GeoJSON makes text; FileWriter (String) [IO] puts text on disk. Press SAVE and the GeoJSON out text is written to File Path. Nothing is written until you press it - a FileWriter whose Write pin were simply true would rewrite the file sixty times a second.&#xD;&#xA;&#xD;&#xA;Then press READ IT BACK: FileReader reads the file, Read GeoJSON parses it, and the count on the right should match the one at the top. Two buttons on purpose - one press for both would race, and you could read the old file.&#xD;&#xA;&#xD;&#xA;written.geojson is a path RELATIVE TO THIS PATCH, so the file lands beside it. Type a full path to put it elsewhere. Never leave File Path empty: an empty path is not nothing, it means this patch's own folder.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -96,6 +96,78 @@
             <Pin Id="R5ZqfwDWxSX7ouWxm5LlV8" Name="Count" Kind="OutputPin" />
           </Node>
           <Pad Id="MeJLdaf9Yg7M4GILnJ4rzm" Comment="features read back - the same number, or something was lost" Bounds="57,799,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="DkJoJUL7akjaMRm4nKZoX1" Comment="File Path - written next to this patch" Bounds="390,470,150,15" ShowValueBox="true" isIOBox="true" Value="written.geojson">
+            <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Path" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="Dp0qUDBrjJrUju9rEE5egg" Comment="SAVE - writes the file" Bounds="390,505,40,30" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="NFwONzMci0bKvxwI8sQ9U0" Comment="Encoding" Bounds="480,540,110,19" ShowValueBox="true" isIOBox="true" Value="UTF8">
+            <p:TypeAnnotation LastCategoryFullName="Text" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Encodings" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="360,575,85,19" Id="NaIEZwocKX3STLIhxnO8OK">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FileWriter (String)" />
+            </p:NodeReference>
+            <Pin Id="Cu88R3lPQSlLGGJO6XwE8R" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="QPdY3Pv9fItbdn027Uu8sw" Name="File Path" Kind="InputPin" />
+            <Pin Id="M32zaslirpO0fLKmuU940e" Name="Data" Kind="InputPin" />
+            <Pin Id="PQW2QiKNeXyAgeYpo6OjZm" Name="Encoding" Kind="InputPin" />
+            <Pin Id="AWOmidmzD4JunQKa9ipNVI" Name="Append" Kind="InputPin" />
+            <Pin Id="S9yAFxKMVfx1EC2vWRNQcQ" Name="Write" Kind="InputPin" />
+          </Node>
+          <Pad Id="SPhMOTKmKrMR8MKKIIYIFU" Comment="READ IT BACK - after saving" Bounds="390,615,40,30" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="360,665,110,19" Id="VHZ21Qn33DXGQH4eGKEoup">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FileReader (String)" />
+            </p:NodeReference>
+            <Pin Id="MoaeZIJnYSGj4leSGsIvCa" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <Pin Id="K8ZUPRaFjAT0LE4aRM1WuN" Name="File Path" Kind="InputPin" />
+            <Pin Id="PUrrdZOq0cmgRyozJ1hAZd" Name="Encoding" Kind="InputPin" />
+            <Pin Id="UvQt2WrwFv87Mt8Tsq4sK4" Name="Read" Kind="InputPin" />
+            <Pin Id="EpeJZG4WnPjGUWXYlwFx5f" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="360,715,110,19" Id="V9z3gKHUSvTLLvJgPc4fzt">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+            </p:NodeReference>
+            <Pin Id="H9vPZIpD2W9Cgav3aP2ZEd" Name="GeoJSON" Kind="InputPin" />
+            <Pin Id="GG4QAOtWxKRSYhOae5Tybn" Name="Factory" Kind="InputPin" />
+            <Pin Id="GfGx62v63T1CEjfoAL2zoe" Name="Features" Kind="OutputPin" />
+            <Pin Id="QRzVOOzp3GhvHcrxupimBo" Name="Success" Kind="OutputPin" />
+            <Pin Id="AZbufVYsfMGa3Dh6f0csMu" Name="Status" Kind="OutputPin" />
+            <Pin Id="ADTlCI6ZINTojSuGm32j8c" Name="Parses" Kind="OutputPin" />
+          </Node>
+          <Pad Id="LQaDu01D7WaRpPhqMd0Y5t" Comment="status of the file read back" Bounds="500,745,180,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="360,770,110,26" Id="DB5KpF2IsGbdqZG6x5qo5Z">
+            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Count" />
+              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="VLtCq526PcKI4FXs43LjDS" Name="Input" Kind="StateInputPin" />
+            <Pin Id="NakgfXY6qkztpCJKHrA21j" Name="Count" Kind="OutputPin" />
+          </Node>
+          <Pad Id="Ug4fGyYrPn3M49kdLpEZVP" Comment="features read back FROM THE FILE" Bounds="362,820,50,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="AYm9J4jI9rttfSX13a1kD7" Name="Create" />
         <Patch Id="TN1Prg6PJAL8nHfogMddBz" Name="Update" />
@@ -114,6 +186,17 @@
         <Link Id="Ja9zrzwYSyPIVzNjj01ShX" Ids="ClCGUbrSJzVEdbV7zPonvi,C8AoWneCBVqJRHBEVzNOl0" />
         <Link Id="ILqCcuOZhw2DnLeFepnhoS" Ids="Nz5XqyLGR3QTXylLMeRluI,AyzAjGrxt9XNLwQdY2gtBX" />
         <Link Id="SRCBswOFT0PXR0FDSDNeS5" Ids="R5ZqfwDWxSX7ouWxm5LlV8,MeJLdaf9Yg7M4GILnJ4rzm" />
+        <Link Id="Hywdle2d2eXENUYNNncWbD" Ids="ClCGUbrSJzVEdbV7zPonvi,M32zaslirpO0fLKmuU940e" />
+        <Link Id="T19OW4C1KxHscNvEhIdOEz" Ids="DkJoJUL7akjaMRm4nKZoX1,QPdY3Pv9fItbdn027Uu8sw" />
+        <Link Id="OuFm46o7aKq298bnBk0xYC" Ids="NFwONzMci0bKvxwI8sQ9U0,PQW2QiKNeXyAgeYpo6OjZm" />
+        <Link Id="VrLStuh2qZVYWmjGxbYLHr" Ids="Dp0qUDBrjJrUju9rEE5egg,S9yAFxKMVfx1EC2vWRNQcQ" />
+        <Link Id="FDbSRVMFp7e2PBRtZVyaKQ" Ids="DkJoJUL7akjaMRm4nKZoX1,K8ZUPRaFjAT0LE4aRM1WuN" />
+        <Link Id="L9so8ruM0dvLpG8jjVaOUb" Ids="NFwONzMci0bKvxwI8sQ9U0,PUrrdZOq0cmgRyozJ1hAZd" />
+        <Link Id="BllahYfZHQtgSpmBBqa2aP" Ids="SPhMOTKmKrMR8MKKIIYIFU,UvQt2WrwFv87Mt8Tsq4sK4" />
+        <Link Id="Qw0m1Xp5L92bykEQS54YEA" Ids="EpeJZG4WnPjGUWXYlwFx5f,H9vPZIpD2W9Cgav3aP2ZEd" />
+        <Link Id="NOIaraEtvZCmzvHfFzIbua" Ids="GfGx62v63T1CEjfoAL2zoe,VLtCq526PcKI4FXs43LjDS" />
+        <Link Id="EJFaJgrgUJuo6N4mbTK3xw" Ids="NakgfXY6qkztpCJKHrA21j,Ug4fGyYrPn3M49kdLpEZVP" />
+        <Link Id="OvFm8NFyLGtFoCYv4dIyOs" Ids="AZbufVYsfMGa3Dh6f0csMu,LQaDu01D7WaRpPhqMd0Y5t" />
       </Patch>
     </Node>
   </Patch>

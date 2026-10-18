@@ -16,6 +16,10 @@ dist/
 .nuget/packages/
 packages/
 
+# What HowTo Write GeoJSON writes when SAVE is pressed - next to the patch, never packed (the
+# nuspec takes help\*.vl and help\Assets\*.geojson only)
+help/VL.NetTopologySuite.GeoJSON/written.geojson
+
 # vvvv runtime files
 *.cache
 cache/
