@@ -76,15 +76,26 @@ foreach ($file in $targets) {
     $dupes = @($allIds | Group-Object | Where-Object Count -gt 1 | ForEach-Object Name)
     if ($dupes.Count) { $problems.Add("duplicate IDs: $($dupes -join ', ')") }
 
-    # Pins and Pads are the only things a Link may join.
+    # Pins, Pads and ControlPoints are the only things a Link's path may name. Carried from
+    # vl-nettopologysuite on 2026-10-18, when the maintainer put a ForEach region into HowTo Handle a
+    # large GeoJSON file and this check reported its border control points as broken endpoints -
+    # vvvvc compiled the patch, and the generated C# held the loop. Two blind spots, both fixed there
+    # first: region border points and link waypoints are ControlPoint elements, and a link bent in
+    # the GUI is written Ids="src,waypoint,sink" - a PATH, not a pair.
     $endpoints = @(
         ([regex]'<Pin Id="([^"]+)"').Matches($raw)  | ForEach-Object { $_.Groups[1].Value }
         ([regex]'<Pad Id="([^"]+)"').Matches($raw)  | ForEach-Object { $_.Groups[1].Value }
+        ([regex]'<ControlPoint Id="([^"]+)"').Matches($raw) | ForEach-Object { $_.Groups[1].Value }
     )
-    $linkMatches = ([regex]'<Link Id="[^"]+" Ids="([^,]+),([^"]+)"').Matches($raw)
-    foreach ($m in $linkMatches) {
-        foreach ($e in @($m.Groups[1].Value, $m.Groups[2].Value)) {
-            if ($endpoints -notcontains $e) { $problems.Add("link endpoint $e is neither a Pin nor a Pad") }
+    # $ids, not $path: this script has a [string]$Path parameter and PowerShell names are
+    # case-insensitive, so assigning the split to $path would turn it back into one string.
+    $linkMatches = @([regex]::Matches($raw, '<Link Id="([^"]+)" Ids="([^"]+)"') | ForEach-Object {
+        $ids = $_.Groups[2].Value -split ','
+        [pscustomobject]@{ Id = $_.Groups[1].Value; Path = $ids; Source = $ids[0]; Sink = $ids[$ids.Count - 1] }
+    })
+    foreach ($l in $linkMatches) {
+        foreach ($e in $l.Path) {
+            if ($endpoints -notcontains $e) { $problems.Add("link endpoint $e is neither a Pin, a Pad nor a ControlPoint") }
         }
     }
 
@@ -148,7 +159,7 @@ foreach ($file in $targets) {
     #
     # A Pad carrying both is a constant feeding something, and an unwired one still gets flagged -
     # deliberately, since that is a link somebody forgot.
-    $linked = @($linkMatches | ForEach-Object { $_.Groups[1].Value; $_.Groups[2].Value })
+    $linked = @($linkMatches | ForEach-Object { $_.Path })
     foreach ($m in ([regex]'<Pad Id="([^"]+)"([^>]*)>').Matches($raw)) {
         $pad = $m.Groups[1].Value
         if ($linked -contains $pad) { continue }
