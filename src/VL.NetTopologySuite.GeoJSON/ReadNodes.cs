@@ -9,33 +9,37 @@ using NtsFeature = NetTopologySuite.Features.Feature;
 
 namespace VL.NetTopologySuite.GeoJSON;
 
+// The /// text below is what vvvv shows on hover and in the NodeBrowser - user-facing, short, one
+// sentence per line (a line break in the source is a line break in the tooltip). The reasoning
+// lives here.
+//
+// THIS IS A PROCESS NODE, AND THAT IS THE WHOLE POINT OF IT. A public static method in VL is a node
+// evaluated sixty times a second from the moment the document opens. Parsing 10,000 polygons takes
+// 122 ms (measured, 5.4 MB) against a 16.7 ms frame, so a static Read GeoJSON would not be slow - it
+// would be a patch that never draws a frame again. So the text is parsed when it CHANGES, and the
+// same Spread instance is returned on every frame in between. Returning the same instance matters
+// as much as skipping the parse: object identity is the only "has this changed" signal VL has, so
+// an unchanged spread lets VL.NetTopologySuite's Split and VL.Mapsui's FeatureLayer skip their own
+// work too.
+//
+// The features come out directly, with no FeatureCollection to open first: vvvv's own document
+// readers never hand a patch a document type (see Defaults.Normalise). A Spread is what VL patches
+// with, so GetSlice, Count and ForEach work on it with no node of ours in between, and it satisfies
+// VL.Mapsui's IEnumerable<Feature> pin unchanged.
+//
+// Parses is a pin because "this only runs once" is not a claim anyone should take on trust - the
+// reasoning behind VL.Mapsui's Layers Built.
+//
+// For a small file compose FileReader (String) -> Read GeoJSON. For a big file use
+// GeoJsonReaderReactiveNode: this node parses on the main loop, and the 7,342 cities shipped with
+// this package freeze vvvv for 0.56 s (measured in vvvv 7.4).
+
 /// <summary>
-/// Parse GeoJSON text into a spread of features. Reports failure instead of throwing.
+/// Parses GeoJSON text into a spread of features.
 /// </summary>
 /// <remarks>
-/// <para><b>This is a process node, and that is the whole point of it.</b> A <c>public static</c>
-/// method in VL is a node evaluated sixty times a second from the moment the document opens.
-/// Parsing 10,000 polygons takes <b>122 ms</b> (measured, 5.4 MB of GeoJSON) against a frame budget
-/// of 16.7 ms, so a static <c>Read GeoJSON</c> would not be slow — it would be a patch that never
-/// draws a frame again. 50,000 features take 629 ms.</para>
-/// <para>So the text is parsed when it <i>changes</i>, and the same <c>Spread</c> instance is
-/// returned on every frame in between. Returning the same instance matters as much as skipping the
-/// parse: object identity is the only "has this changed" signal VL has, so an unchanged spread lets
-/// everything downstream — VL.NetTopologySuite's <c>Split</c>, and VL.Mapsui's <c>FeatureLayer</c> — skip its
-/// own work too.</para>
-/// <para><b>The features come out directly; there is no <c>FeatureCollection</c> to open first.</b>
-/// That follows vvvv's own document readers, which never hand a patch a document type — see
-/// <see cref="Defaults.Normalise(FeatureCollection)"/>. A <c>Spread</c> is what VL patches with, so
-/// <c>GetSlice</c>, <c>Count</c> and a <c>ForEach</c> region all work on this output with no node
-/// of ours in between, and it satisfies VL.Mapsui's <c>IEnumerable&lt;Feature&gt;</c> pin unchanged.</para>
-/// <para><b>Watch the <c>Parses</c> pin.</b> It should reach 1 and stay there. "This only runs once"
-/// is not a claim anyone should take on trust, and a rate is invisible unless something counts it —
-/// the same reasoning behind VL.Mapsui's <c>Layers Built</c>.</para>
-/// <para><b>For a small file, compose.</b> VL.CoreLib ships <c>FileReader (String) [IO]</c>, with
-/// an explicit <c>Read</c> trigger pin, and <c>FileReader → Read GeoJSON</c> works with anything
-/// else that produces text too. <b>For a big file, use <see cref="GeoJsonReaderReactiveNode"/>.</b>
-/// This node parses on the main loop, and while it parses vvvv stops: measured in vvvv 7.4, the
-/// 7,342 cities shipped with this package freeze it for 0.56 s.</para>
+/// Parses only when the text changes; Parses counts how often that happened.
+/// For a big file use GeoJSONReader (Reactive), which reads in the background.
 /// </remarks>
 [ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]
 public class ReadGeoJsonNode
@@ -51,33 +55,26 @@ public class ReadGeoJsonNode
     /// </summary>
     internal int Parses { get; private set; }
 
+    // Every GeoJSON geometry type survives intact and native, Z included ([1,2,300] reads back as
+    // POINT Z(1 2 300)).
+    //
+    // SRID is 4326 unless Factory says otherwise: RFC 7946 §4 mandates WGS84 lon/lat and the
+    // upstream library stamps it unaided. VL.NetTopologySuite's Read WKT gives 0, and mixing SRIDs
+    // never throws in NTS, so Factory is how a patch makes them agree. An SRID is a label, not a
+    // reprojection. A legacy crs member is accepted and ignored (measured); bbox is read.
+    //
+    // Failure is a pin, not an exception: half-typed text is the normal state of an IOBox somebody
+    // is editing. And valid JSON that is not GeoJSON - {"hello":"world"} - parses to zero features
+    // with no error (measured), which is why Status says "0 features".
+
     /// <summary>
-    /// Parse GeoJSON text. Uses NetTopologySuite.IO.GeoJSON4STJ.
+    /// Parses the text when it changes.
     /// </summary>
-    /// <remarks>
-    /// <para>Accepts a whole GeoJSON <c>FeatureCollection</c> document and hands back the features
-    /// inside it. Every GeoJSON geometry type
-    /// survives intact and native — <c>Point</c>, <c>MultiPoint</c>, <c>LineString</c>,
-    /// <c>MultiLineString</c>, <c>Polygon</c>, <c>MultiPolygon</c> and <c>GeometryCollection</c> —
-    /// as is a third ordinate, so <c>[1,2,300]</c> reads back as <c>POINT Z(1 2 300)</c>.</para>
-    /// <para><b>SRID is 4326 unless the <c>Factory</c> pin says otherwise</b>, because RFC 7946 §4
-    /// mandates WGS84 longitude and latitude and the upstream library stamps it unaided. Note that
-    /// this differs from VL.NetTopologySuite's <c>Read WKT</c>, which gives 0 — WKT carries no CRS
-    /// semantics and GeoJSON does. <b>Mixing SRIDs never throws in NTS</b>, so if a patch combines
-    /// geometry from both, make them agree through this pin. Setting an SRID is a label, not a
-    /// reprojection, and nothing in this package reprojects anything.</para>
-    /// <para><b>A legacy <c>crs</c> member is accepted and ignored</b> (measured) — RFC 7946
-    /// removed it, and the SRID still comes from the <c>Factory</c> pin. A <c>bbox</c> member is
-    /// read.</para>
-    /// <para><b>Failure is a pin, not an exception.</b> Half-typed text is the normal state of an
-    /// IOBox somebody is editing, and a node that throws sixty times a second while they type is
-    /// not a diagnostic. <c>Success</c> goes false, <c>Status</c> says what happened, and the
-    /// result is an empty collection.</para>
-    /// <para><b>One failure is not a failure and is worth knowing about:</b> valid JSON that is
-    /// not GeoJSON — <c>{"hello":"world"}</c> — parses to <b>zero features</b> with no error
-    /// (measured). Nothing upstream objects, so <c>Status</c> says "0 features" and a patch author
-    /// who expected data has the count to look at.</para>
-    /// </remarks>
+    /// <param name="success">False when the text is not GeoJSON.</param>
+    /// <param name="status">The number of features, or what went wrong.</param>
+    /// <param name="parses">How many times the text was actually parsed. It should stay at 1.</param>
+    /// <param name="geoJson">A GeoJSON FeatureCollection, as text.</param>
+    /// <param name="factory">Sets the SRID. Unconnected gives 4326, which GeoJSON mandates.</param>
     [return: Pin(Name = "Features")]
     public Spread<NtsFeature> Update(
         out bool success,

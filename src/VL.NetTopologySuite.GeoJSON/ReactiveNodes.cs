@@ -11,30 +11,32 @@ using VLPath = VL.Lib.IO.Path;
 
 namespace VL.NetTopologySuite.GeoJSON;
 
+// The /// text below is what vvvv shows on hover - user-facing, short, one sentence per line. The
+// reasoning lives here.
+//
+// Why this exists beside FileReader -> Read GeoJSON: Read GeoJSON parses on the main loop, and
+// while it parses nothing else in vvvv runs. Measured in vvvv 7.4: the 7,342 shipped cities freeze
+// it for 0.56 s, 1.2 million building footprints for 12.9 s.
+//
+// Shaped like vvvv's own JSONReader (Reactive) and FileReader (String Reactive) - File Path and
+// Read in; Output observable, Progress, In Progress, On Completed out - following The Gray Book's
+// rule that anything asynchronous is handed out as an observable. Success and Status are added
+// because a file can be wrong; they mean what Read GeoJSON's pins of the same names mean.
+//
+// What the background buys besides the frame rate (measured 2026-10-18): the file is never made a
+// string, so a 340 MB file does not also sit in memory as a 680 MB text; a new Read cancels the
+// read in progress between two features, within a millisecond; and progress is real.
+//
+// The result arrives frames later, on the parsing thread; HoldLatest brings it in. A failed or
+// superseded read publishes nothing, so the last good result stays. Encoding is not a pin:
+// RFC 7946 requires UTF-8, and a byte order mark is skipped.
+
 /// <summary>
-/// Read a GeoJSON file in the background. The features arrive on an observable; take them into
-/// the main loop with <c>HoldLatest</c>.
+/// Reads a GeoJSON file in the background, so vvvv keeps running while it parses.
 /// </summary>
 /// <remarks>
-/// <para><b>Why this exists beside <c>FileReader → Read GeoJSON</c>.</b> <c>Read GeoJSON</c> parses
-/// on the main loop, and while it parses nothing else in vvvv runs. Measured in vvvv 7.4: the
-/// 7,342 cities this package ships freeze it for 0.56 s, 1.2 million building footprints for
-/// 12.9 s. This node reads and parses on another thread, so vvvv keeps drawing.</para>
-/// <para><b>Shaped like vvvv's own <c>JSONReader (Reactive)</c> and
-/// <c>FileReader (String Reactive)</c></b> — the same <c>File Path</c> and <c>Read</c> in, the same
-/// <c>Output</c> observable, <c>Progress</c>, <c>In Progress</c> and <c>On Completed</c> out — and
-/// The Gray Book's rule for node authors: anything asynchronous is handed to the user as an
-/// observable. <c>Success</c> and <c>Status</c> are added because a file can be wrong, and they
-/// say what <c>Read GeoJSON</c>'s pins of the same names say.</para>
-/// <para><b>What the background buys besides the frame rate</b> (measured 2026-10-18): the file is
-/// never turned into a string — the bytes go straight to the parser — so a 340 MB file does not
-/// also sit in memory as a 680 MB text; a new <c>Read</c> cancels the read in progress between two
-/// features, within a millisecond; and progress is real, bytes parsed over file length.</para>
-/// <para><b>The result arrives some frames after <c>Read</c></b>, on the thread that parsed it.
-/// <c>HoldLatest</c> brings it into the main loop and keeps the previous result until then. A read
-/// that fails or is superseded publishes nothing, so the last good result stays.</para>
-/// <para><b>Encoding is not a pin.</b> RFC 7946 requires UTF-8, and the bytes are parsed as UTF-8;
-/// a byte order mark is skipped.</para>
+/// The features arrive on Output some frames after Read. Connect HoldLatest to bring them into the main loop.
+/// A new Read cancels the one in progress.
 /// </remarks>
 [ProcessNode(Name = "GeoJSONReader (Reactive)", Category = "NetTopologySuite.IO")]
 public sealed class GeoJsonReaderReactiveNode : IDisposable
@@ -56,18 +58,22 @@ public sealed class GeoJsonReaderReactiveNode : IDisposable
     readonly object _publish = new();
     bool _disposed;
 
+    // Read is a bang: every frame it is true starts a new read and cancels the one before, so held
+    // true it never finishes. SRID follows the same rule, and gives the same features, as
+    // Read GeoJSON. On Completed fires for a failure too; Success says which.
+
     /// <summary>
-    /// Read a GeoJSON file on another thread when <c>Read</c> is true.
+    /// Starts a read when Read is true.
     /// </summary>
-    /// <remarks>
-    /// <para><b><c>Read</c> is a bang.</b> Every frame it is true starts a new read and cancels the
-    /// one before, so held true it never finishes. Connect <c>OnOpen</c> to read once when the
-    /// document opens, or a Bang IOBox.</para>
-    /// <para><b>SRID is 4326 unless the <c>Factory</c> pin says otherwise</b> — the same rule, and
-    /// the same features, as <c>Read GeoJSON</c>.</para>
-    /// <para><b><c>On Completed</c></b> is true for one frame when a read has finished — with
-    /// features or with a failure; <c>Success</c> says which.</para>
-    /// </remarks>
+    /// <param name="progress">How much of the file is parsed, from 0 to 1.</param>
+    /// <param name="inProgress">True while a read is running.</param>
+    /// <param name="onCompleted">True for one frame when a read has finished, with features or with a failure.</param>
+    /// <param name="success">False when the last read failed.</param>
+    /// <param name="status">The number of features, or what went wrong.</param>
+    /// <param name="filePath">The GeoJSON file.</param>
+    /// <param name="read">A bang. Held true, it restarts the read every frame and never finishes.</param>
+    /// <param name="factory">Sets the SRID. Unconnected gives 4326, which GeoJSON mandates.</param>
+    /// <returns>The features of each finished read. Connect HoldLatest.</returns>
     [return: Pin(Name = "Output")]
     public IObservable<Spread<NtsFeature>> Update(
         out float progress,
@@ -170,7 +176,7 @@ public sealed class GeoJsonReaderReactiveNode : IDisposable
             _progress = 1;
     }
 
-    /// <summary>Cancel a read in progress; nothing is published afterwards.</summary>
+    /// <summary>Cancels a read in progress; nothing is published afterwards.</summary>
     public void Dispose()
     {
         lock (_gate)

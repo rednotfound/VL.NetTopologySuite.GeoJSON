@@ -16,7 +16,7 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
-**Current state (2026-10-18): 3 nodes, 82 tests + 4 load tests, 6 help patches. Static checks and a
+**Current state (2026-10-18): 3 nodes, 83 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
 and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org, and **nothing can be until
 VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
@@ -160,7 +160,7 @@ These cost a full survey; do not re-derive them.
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the semantics are right | ✅ 82 tests, ~2 s, no network |
+| `dotnet test` | the semantics are right | ✅ 83 tests, ~2 s, no network |
 | the negative tests | those checks can actually go red | ✅ 10 red with the raw table, 6 with raw values, 4 without the cache (2026-10-18) |
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
@@ -258,7 +258,7 @@ vl-geojson/
 │   ├── ReactiveNodes.cs           # [ProcessNode] GeoJSONReader (Reactive) - a file, in the background
 │   ├── GeoJsonFile.cs             # its parse: one feature at a time, cancellable, no string
 │   └── WriteNodes.cs              # Write GeoJSON
-├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 82 xunit tests + 4 opt-in load tests, no network, no vvvv
+├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 83 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
 ├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
 │   └── Assets/cities.geojson      # what "HowTo Read a GeoJSON file" points at, RELATIVELY
@@ -314,6 +314,24 @@ Namespace and RootNamespace equal the assembly name, as in VL.NetTopologySuite. 
 namespace a bare `NetTopologySuite` means `VL.NetTopologySuite`**, so a fully qualified upstream
 name in code or in a `cref` needs `global::` — it broke four references and two crefs on the day
 of the rename.
+
+## Node documentation is a tooltip
+
+**Every `///` on a public member is shown to the user** — on hover in the patch and in the
+NodeBrowser (The Gray Book, *writing-nodes*: summary "a one-liner", remarks "usage instructions,
+warnings", param/returns "short info"). Until 2026-10-18 the family wrote design rationale there,
+and a hover on `GetAttribute` showed a 1,500-character essay. Seen on that hover: `<see cref>`
+renders as **nothing**, `<para>`s run together without a space, and **a line break in the source
+is a line break on screen**.
+
+So: `<summary>` one line; `<remarks>` one or two sentences a user needs; `<param>` / `<returns>`
+one short line per pin; plain text, one sentence per source line. **The reasoning moves to `//`
+comments above the `///` block**, where it stays next to the code and never reaches a tooltip.
+vvvv's own CoreLib measures summary median 68 characters, remarks median 50.
+
+`NodeDocsTests` enforces it on the built XML for every public member (summary 200, remarks 300,
+pins 200 characters; no `see`/`para`/`list`/`code`; no break inside a sentence). It went red with
+20 findings on the old docs. The same file is in VL.NetTopologySuite and VL.Mapsui.
 
 ## Adding a node
 

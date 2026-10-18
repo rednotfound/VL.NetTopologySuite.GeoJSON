@@ -10,7 +10,7 @@ because the serializer has the option.
 ## Now — 0.0.1-alpha, unpublished
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
-**Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 82 tests, 4 load tests, six help
+**Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 83 tests, 4 load tests, six help
 patches.** Depends on VL.NetTopologySuite **0.0.3-alpha**, the first with `GetAttribute` — **so it
 cannot be published before that version is.**
 
