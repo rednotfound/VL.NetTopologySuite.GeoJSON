@@ -73,8 +73,9 @@ Answer these first. If any answer is thin, it is a **help patch**, not a node.
 - **Can a patch reach the same result by wiring existing nodes?** Then it is a help patch. There is
   no `Count` node here because the output is a `Spread` and `Count [Collections.Spread]` already
   works on it.
-- **Does VL or VL.CoreLib already ship it?** There is no `Read GeoJSON File` because
-  `FileReader (String) [IO]` exists and has a `Read` trigger pin.
+- **Does VL or VL.CoreLib already ship it?** There is no blocking file node because
+  `FileReader (String) [IO]` → `Read GeoJSON` is one. `GeoJSONReader (Reactive)` exists because
+  what it adds — cancelling, progress, not holding the text — needs the parse itself.
 - **Does it hold a resource, or is it expensive?** Then `[ProcessNode]`, never a static method. A
   `public static` method is a node evaluated **sixty times a second from the moment the document
   opens**.

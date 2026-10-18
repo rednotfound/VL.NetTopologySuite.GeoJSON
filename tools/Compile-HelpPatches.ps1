@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Compiles every help patch headlessly with vvvvc and checks that this package's nodes RESOLVED.
 
@@ -122,6 +122,7 @@ if ($patches.Count -eq 0) { throw "No help patch matches -Patch '$Patch'" }
 $OurNodes = @{
     'Read GeoJSON'  = 'ReadGeoJsonNode'
     'Write GeoJSON' = 'WriteNodes.WriteGeoJson'
+    'GeoJSONReader (Reactive)' = 'GeoJsonReaderReactiveNode'
 }
 
 # VL.NetTopologySuite's nodes the help opens a feature with. Not ours, but a help patch that uses

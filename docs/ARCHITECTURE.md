@@ -165,20 +165,40 @@ The cache compares by reference first (a string in a pad or from `FileReader` is
 every frame, so this is free) and falls back to value equality (comparing 27 MB costs a few
 milliseconds against 748 ms to re-parse it).
 
-### There is no `Read GeoJSON File`
+### `GeoJSONReader (Reactive)` — the one file node (2026-10-18)
 
-**VL.CoreLib already ships `FileReader (String) [IO]`**, with an explicit `Read` trigger pin. So
-`FileReader → Read GeoJSON` is the whole story, and it composes with anything else that produces
-text — a web response, a string built in the patch, a text IOBox.
+Until this date the package had no file node, on the argument that `FileReader (String) [IO]` →
+`Read GeoJSON` composes. **For a small file that is still the answer, and the help still teaches
+it.** What changed is a measurement, made in vvvv 7.4 with an in-patch frame meter: that chain
+parses on the main loop, and **the 7,342 cities this package ships freeze vvvv for 0.56 s,
+1.2 million building footprints for 12.9 s.** See `docs/MEASUREMENTS.md`, "Large files inside vvvv".
 
-Adding a file node would duplicate a shipped one, hide where the IO happens, and take on encoding
-and path semantics this package has no business owning. **A path pin is also the single most
-expensive mistake in this ecosystem** — an empty Path IOBox is not empty, and it cost 444 stray
-files in a sibling. Not having one is the best way not to make it.
+vvvv's own answer exists and works with the old node — `FileReader (String Reactive)` →
+`ForEach [Reactive]` around `Read GeoJSON` → `HoldLatest`, The Gray Book's recipe for JSON. It held
+60 fps. Three things it cannot do, and only this package can, because they need the parse itself:
 
-The measured cost of composing rather than specialising: reading via `string` is 140 ms against
-101 ms for `byte[]` on a 5.4 MB document. Worth a `Read GeoJSON (Bytes)` overload one day; not
-worth a file node.
+- **cancel.** `DeserializeAsync` honours a token only while buffering; the parse runs to the end.
+  Reading one feature at a time and checking between features stops within a millisecond.
+- **report progress** — bytes parsed over file length.
+- **not hold the text.** The bytes go straight to `Utf8JsonReader`; a string is twice the file and
+  `Read GeoJSON` keeps it for its cache. Connecticut (340 MB): **1.9 GB in vvvv against 3.8 GB.**
+
+**The shape is measured, not invented.** vvvv ships `JSONReader (Reactive)` and
+`FileReader (String Reactive)` with `File Path`, `Read` → `Output` (an observable), `Progress`,
+`In Progress`, `On Completed`, and The Gray Book tells node authors to hand anything asynchronous
+out as an observable. `GeoJSONReader (Reactive)` has exactly those pins, plus `Factory`, and
+`Success` / `Status` because a file can be wrong — the same two pins `Read GeoJSON` has. The
+maintainer chose the observable over a FileTexture-style direct output on 2026-10-18.
+
+**There is still no blocking `GeoJSONReader`.** `FileReader → Read GeoJSON` is one.
+
+**The path hazard is handled, not avoided.** The pin is a `VL.Lib.IO.Path`, as in VL.Mapsui's
+`TileCache`. An empty path reports `no file path` and touches nothing — never "the document's
+folder", the mistake that wrote 444 stray files in a sibling.
+
+The one-feature-at-a-time loop (`GeoJsonFile`) must not drift from
+`Deserialize<FeatureCollection>`: every fixture is read both ways in the tests and compared
+feature by feature, geometry exactly and every attribute by type and value.
 
 ### There is no `FeatureCollection`
 

@@ -211,6 +211,21 @@ read off a capture. An idle patch's longest frame was 0.02 s. vvvv working set 0
 - Delaware has 6× the roads' features but froze only 1.6× as long: it carries **2 properties per
   feature to the roads' 31.** Cost follows properties.
 
+**Through `GeoJSONReader (Reactive)`**, the package's own background reader (same meter, read at
+frame 1800, the patch's per-frame `ForEach` unplugged):
+
+| file | features | longest frame | vvvv working set after |
+|---|---:|---:|---:|
+| Natural Earth roads 1:10m | 56,600 | 0.03 s | 0.8 GB |
+| Connecticut building footprints | 1,215,624 | 0.04 s | **1.9 GB** — against 3.8 GB through `FileReader` + `Read GeoJSON` |
+
+`Progress` read 0.90 on a capture taken mid-read. The halved memory is the text that is never made
+and never kept.
+
+**A per-frame `ForEach` over every feature is the patch's own cost, not the reader's.** With the
+help patch's `ForEach { GetAttribute name }` left plugged in, 1.2 million features dropped vvvv to
+about 4 fps after they arrived (42 frames in 10 s). 7,342 of them do not show.
+
 **The instrument, because the first one was blind.** An external probe timing `WM_NULL` round
 trips to the editor window every 4 ms saw **no stall at all** during the 2.5 s blocking parse:
 vvvv's main loop does not run on the editor's UI thread. The blocking row is the negative control

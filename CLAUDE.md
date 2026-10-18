@@ -16,7 +16,7 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
-**Current state (2026-10-18): 2 nodes, 61 tests + 4 load tests, 6 help patches. Static checks and a
+**Current state (2026-10-18): 3 nodes, 82 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
 and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org, and **nothing can be until
 VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
@@ -25,7 +25,7 @@ VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
 **Help is the teaching surface here, not a fatter node.** Two things a user needs are deliberately
 *not* nodes of this package — reading a file (`FileReader`) and opening a feature
 (VL.NetTopologySuite's `Split` / `GetAttribute`) — so the help patches are where those get taught.
-That is why there are six patches against two nodes, and why the ratio should keep going up
+That is why there are six patches against three nodes, and why the ratio should keep going up
 rather than the node count.
 
 The sibling repositories:
@@ -160,7 +160,7 @@ These cost a full survey; do not re-derive them.
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the semantics are right | ✅ 61 tests, ~100 ms, no network |
+| `dotnet test` | the semantics are right | ✅ 82 tests, ~2 s, no network |
 | the negative tests | those checks can actually go red | ✅ 10 red with the raw table, 6 with raw values, 4 without the cache (2026-10-18) |
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
@@ -255,8 +255,10 @@ vl-geojson/
 │   ├── AssemblyInfo.cs            # ImportAsIs(..., Category = "NetTopologySuite.IO")
 │   ├── Defaults.cs                # ⭐ the factory, the cached options, and Normalise
 │   ├── ReadNodes.cs               # [ProcessNode] Read GeoJSON - the lifetime-critical one
+│   ├── ReactiveNodes.cs           # [ProcessNode] GeoJSONReader (Reactive) - a file, in the background
+│   ├── GeoJsonFile.cs             # its parse: one feature at a time, cancellable, no string
 │   └── WriteNodes.cs              # Write GeoJSON
-├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 61 xunit tests + 4 opt-in load tests, no network, no vvvv
+├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 82 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
 ├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
 │   └── Assets/cities.geojson      # what "HowTo Read a GeoJSON file" points at, RELATIVELY
@@ -302,7 +304,10 @@ public API** and must stay in the test project.
 The namespace is stripped whole and the category named outright — the form `VL.Core.Commands`
 ships (`Namespace = "VL.Core", Category = "System"`), found by scanning the 7.4 pack assemblies.
 `[SkipCategory]` keeps `WriteNodes` from becoming a level of its own;
-`[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]` places the process node.
+`[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]` places the process node,
+and `[ProcessNode(Name = "GeoJSONReader (Reactive)", ...)]` the other — the version in parentheses
+is written into the name, and vvvvc resolves `Name="GeoJSONReader (Reactive)"` from a patch
+(checked 2026-10-18).
 Not yet seen in the NodeBrowser — the generated C# carries no category, so nothing else proves it.
 
 Namespace and RootNamespace equal the assembly name, as in VL.NetTopologySuite. **Inside that
@@ -317,9 +322,11 @@ Answer these before writing it. If any answer is thin, it is a help patch rather
 - **Can a patch reach the same result by wiring existing nodes?** Then it is a help patch. A
   `Count` node is absent for exactly this reason — the output is a `Spread`, so
   `Count [Collections.Spread]` already works on it.
-- **Does VL or VL.CoreLib already ship it?** `Read GeoJSON File` is absent because
-  `FileReader (String) [IO]` exists and has a `Read` trigger pin. (Weakest of the omissions: vvvv
-  ships **both** a file reader and a string parser for XML and for JSON. See `docs/ROADMAP.md`.)
+- **Does VL or VL.CoreLib already ship it?** A blocking file node is absent because
+  `FileReader (String) [IO]` → `Read GeoJSON` is one. `GeoJSONReader (Reactive)` exists because what
+  it adds needs the parse itself — the reasoning is in `docs/ARCHITECTURE.md`, and it is the
+  pattern for the next "should this be a node" question: measure what the composition costs in
+  vvvv, then ask what only this package can do about it.
 - **But do not mistake an implementation detail for a design conclusion.** `GetProperty` was left
   out at first because `IAttributesTable`'s indexer throws — and vvvv's own answer to exactly that
   is a `Success` pin, not a missing node. Ask what the shipped packs *do* before concluding a node

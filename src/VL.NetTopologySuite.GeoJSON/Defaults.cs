@@ -193,7 +193,7 @@ internal static class Defaults
     internal static global::NetTopologySuite.Features.Feature Normalise(IFeature feature)
         => Normalise(feature, new NameCache());
 
-    private static global::NetTopologySuite.Features.Feature Normalise(IFeature feature, NameCache names)
+    internal static global::NetTopologySuite.Features.Feature Normalise(IFeature feature, NameCache names)
     {
         var table = feature.Attributes switch
         {
@@ -329,10 +329,11 @@ internal static class Defaults
     /// in the same order, so the name at the same position as last time is compared first
     /// (<c>NameEquals</c> compares the UTF-8 bytes, no allocation); only a miss allocates, and
     /// the dictionary folds that back onto the one copy.</para>
-    /// <para>Local to one <see cref="Normalise(FeatureCollection)"/> call, so nothing is shared
-    /// between threads and nothing outlives the document.</para>
+    /// <para>Local to one document's read — one <see cref="Normalise(FeatureCollection)"/> call,
+    /// or one <see cref="GeoJsonFile.Read"/> — so nothing is shared between threads and nothing
+    /// outlives the document.</para>
     /// </remarks>
-    private sealed class NameCache
+    internal sealed class NameCache
     {
         private string[] _byPosition = new string[32];
         private readonly Dictionary<string, string> _all = new(StringComparer.Ordinal);

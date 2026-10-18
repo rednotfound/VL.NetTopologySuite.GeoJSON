@@ -10,12 +10,14 @@ because the serializer has the option.
 ## Now — 0.0.1-alpha, unpublished
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
-**Two nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 61 tests, 4 load tests, six help
+**Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 82 tests, 4 load tests, six help
 patches.** Depends on VL.NetTopologySuite **0.0.3-alpha**, the first with `GetAttribute` — **so it
 cannot be published before that version is.**
 
 ```text
 Read GeoJSON        [ProcessNode]  text + Factory -> Features (Spread), Success, Status, Parses
+GeoJSONReader (Reactive)  [ProcessNode]  File Path + Read + Factory -> Output (observable),
+                    Progress, In Progress, On Completed, Success, Status
 Write GeoJSON       features + Exact Round Trip + Indent -> text, Success
 ```
 
@@ -96,13 +98,11 @@ In order, and each small.
 | | |
 |---|---|
 | **`Read GeoJSON (Bytes)`** | Measured: `byte[]` parses in 101 ms where `string` takes 140 ms on 5.4 MB, because the string path transcodes UTF-8 to UTF-16 and back. Worth it once someone reads files big enough to care. |
-| **`GeoJSONReader`, a file entry point** | Measured: vvvv ships **both** a file reader and a string parser for the same format — `XMLReader` (pins `File Path`, `Encoding`, `Read`) beside `Parse [XML]`, and `JSONReader` beside `ParseJSON`. This package has only the string half, and the argument used to omit the file half ("`FileReader (String)` composes") is weaker than that precedent. Held back because it introduces a `Path` pin, which is this ecosystem's most expensive documented mistake. `HowTo Read a GeoJSON file` teaches the composition in the meantime. |
 | **Writing a bare geometry** | `Write GeoJSON (Geometry)` emitting a GeoJSON *Geometry* object rather than a FeatureCollection. One method; left out to keep the first surface small. |
 | **`bbox` support** | A feature's `bbox` is read into `IFeature.BoundingBox`; the collection's is dropped along with the collection type, and `writeGeometryBBox` is an unsurfaced serializer option. Waiting for a use case, since NTS's `Envelope` has no representation in a patch (VL.NetTopologySuite returns four floats instead, and that is the precedent to copy). If it arrives, it is an output pin on `Read GeoJSON` — not a resurrected `FeatureCollection`. |
 | **The `id` member proper** | It currently becomes an ordinary `"id"` property, matching the Newtonsoft reader. Round-tripping it back out *as* a GeoJSON `id` member would need `IUnique`, which the concrete `Feature` does not implement. Documented asymmetry, not a bug. |
 | **Property type helpers** | Nested objects arrive as `AttributesTable` and arrays as `object[]`. Reachable raw. If anyone actually hits this, the node belongs beside VL.NetTopologySuite's `Split`, not here. |
-| **Streaming** | Measured **not supported** upstream: `Deserialize<FeatureCollection>` materialises everything, and GeoJSON's `features` array is nested inside an object so `DeserializeAsyncEnumerable` cannot reach it. A custom `Utf8JsonReader` walk is possible. **Do not build it until measurement demands it** — and note that at that point the right answer is probably a different format, not a cleverer GeoJSON reader. |
-| **Async / non-blocking read** | 748 ms for 50,000 features blocks the vvvv thread. `[ProcessNode]` returning progress, or an `IObservable`, is the shape. **Never `.Result` or `.Wait()`** — vvvv's runtime thread owns a `SynchronizationContext` and sync-over-async deadlocks it. |
+| **Streaming** | Measured **not supported** upstream: `Deserialize<FeatureCollection>` materialises everything, and GeoJSON's `features` array is nested inside an object so `DeserializeAsyncEnumerable` cannot reach it. `GeoJSONReader (Reactive)` now walks the array with `Utf8JsonReader` one feature at a time — but still builds the whole Spread before publishing. Publishing in chunks, or a spatial filter while reading, waits for a use case; past a few hundred MB the right answer is a different format (FlatGeobuf has an NTS reader with a bbox filter), not a cleverer GeoJSON reader. |
 
 ---
 

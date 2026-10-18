@@ -31,11 +31,11 @@ namespace VL.NetTopologySuite.GeoJSON;
 /// <para><b>Watch the <c>Parses</c> pin.</b> It should reach 1 and stay there. "This only runs once"
 /// is not a claim anyone should take on trust, and a rate is invisible unless something counts it —
 /// the same reasoning behind VL.Mapsui's <c>Layers Built</c>.</para>
-/// <para><b>Reading a file needs no node here.</b> VL.CoreLib already ships
-/// <c>FileReader (String) [IO]</c>, which has an explicit <c>Read</c> trigger pin — so
-/// <c>FileReader → Read GeoJSON</c> is the whole story, and it composes with everything else that
-/// produces text. Adding <c>Read GeoJSON File</c> would duplicate a shipped node, hide where the
-/// file IO happens, and take on encoding and path semantics this package has no business owning.</para>
+/// <para><b>For a small file, compose.</b> VL.CoreLib ships <c>FileReader (String) [IO]</c>, with
+/// an explicit <c>Read</c> trigger pin, and <c>FileReader → Read GeoJSON</c> works with anything
+/// else that produces text too. <b>For a big file, use <see cref="GeoJsonReaderReactiveNode"/>.</b>
+/// This node parses on the main loop, and while it parses vvvv stops: measured in vvvv 7.4, the
+/// 7,342 cities shipped with this package freeze it for 0.56 s.</para>
 /// </remarks>
 [ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]
 public class ReadGeoJsonNode

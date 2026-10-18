@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="KAgwYthZ2huojxWWteSu4O">
         <Canvas Id="Sd1LQJidF9lXO7Nd5UyXo0" CanvasType="Group">
-          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1300,60,480,740" ShowValueBox="true" isIOBox="true" Value="Reading a big file without freezing vvvv&#xD;&#xA;&#xD;&#xA;Read GeoJSON parses on the main loop, and while it parses NOTHING else in vvvv runs - not your patch, not the renderer, not the editor. Measured in vvvv 7.4, longest frame:&#xD;&#xA;&#xD;&#xA;      7,342 cities (this file)              0.56 s&#xD;&#xA;     56,600 roads (Natural Earth)           2.5 s&#xD;&#xA;    357,534 buildings (Delaware)            4.0 s&#xD;&#xA;  1,215,624 buildings (Connecticut)        12.9 s&#xD;&#xA;&#xD;&#xA;So read in the BACKGROUND, as on the left: FileReader (String Reactive) reads the file on another thread, ForEach [Reactive] runs Read GeoJSON on that thread too, and HoldLatest hands the result to the main loop. The same node - nothing else to install. For the same four files the longest frame stayed at 0.02 - 0.04 s.&#xD;&#xA;&#xD;&#xA;The result arrives some frames after you ask for it. LOADING is true until then, and HoldLatest keeps the previous result in the meantime.&#xD;&#xA;&#xD;&#xA;Try it: press READ IN BACKGROUND and watch LONGEST FRAME - it stays near 0.02. Then press READ BLOCKING: it jumps to about half a second, and FRAMES stops while it parses.&#xD;&#xA;&#xD;&#xA;Memory is the real limit: about ten times the file. Connecticut (340 MB) took vvvv to 3.8 GB. Beyond that the answer is a different format - FlatGeobuf, GeoParquet - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
+          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1300,60,480,740" ShowValueBox="true" isIOBox="true" Value="Reading a big file without freezing vvvv&#xD;&#xA;&#xD;&#xA;Read GeoJSON parses on the main loop, and while it parses NOTHING else in vvvv runs - not your patch, not the renderer, not the editor. Measured in vvvv 7.4, longest frame:&#xD;&#xA;&#xD;&#xA;      7,342 cities (this file)              0.56 s&#xD;&#xA;     56,600 roads (Natural Earth)           2.5 s&#xD;&#xA;    357,534 buildings (Delaware)            4.0 s&#xD;&#xA;  1,215,624 buildings (Connecticut)        12.9 s&#xD;&#xA;&#xD;&#xA;So read in the BACKGROUND, as on the left: GeoJSONReader (Reactive) reads and parses the file on another thread and hands the features out as an observable; HoldLatest brings them into the main loop. For the same four files the longest frame stayed at 0.02 - 0.04 s. It never turns the file into a string, a new Read cancels the read in progress, and progress counts the bytes parsed.&#xD;&#xA;&#xD;&#xA;GeoJSON that is not in a file - typed, downloaded, built - goes the same way with vvvv's own nodes: put Read GeoJSON inside a ForEach [Reactive] region and HoldLatest its result.&#xD;&#xA;&#xD;&#xA;The result arrives some frames after you ask for it. LOADING is true until then, and HoldLatest keeps the previous result in the meantime.&#xD;&#xA;&#xD;&#xA;Try it: press READ IN BACKGROUND and watch LONGEST FRAME - it stays near 0.02. Then press READ BLOCKING: it jumps to about half a second, and FRAMES stops while it parses.&#xD;&#xA;&#xD;&#xA;Memory is the real limit: several times the file. Connecticut (340 MB) took vvvv to 3.8 GB through FileReader and Read GeoJSON. Beyond that the answer is a different format - FlatGeobuf, GeoParquet - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -44,18 +44,20 @@
             <Pin Id="DcgL6BvckJsloUbUn6a9Dc" Name="Output" Kind="OutputPin" />
           </Node>
           <Node Bounds="60,135,150,19" Id="FjFdQVU13eNeF1ePdUwr8w">
-            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="FileReader (String Reactive)" />
+              <Choice Kind="ProcessAppFlag" Name="GeoJSONReader (Reactive)" />
             </p:NodeReference>
-            <Pin Id="TVHGg5cGqc2uWMdcM3ByeY" Name="Node Context" Kind="InputPin" IsHidden="true" />
+            <p:HelpFocus p:Assembly="VL.Lang" p:Type="VL.Model.HelpPriority">High</p:HelpFocus>
             <Pin Id="ILlP30Hm276VLTvEZ3DrBp" Name="File Path" Kind="InputPin" />
-            <Pin Id="U3ip3exzsSqaGabuwedsam" Name="Encoding" Kind="InputPin" />
             <Pin Id="RN1ZSNlLOqcNCJYo0lQcAD" Name="Read" Kind="InputPin" />
+            <Pin Id="JrFYnxqhVAzygwUwvFKTj5" Name="Factory" Kind="InputPin" />
             <Pin Id="UIeJeRb1cZU8uLKrL0ISYx" Name="Output" Kind="OutputPin" />
             <Pin Id="DKpYIyZ5CVx2slbEcTyDOq" Name="Progress" Kind="OutputPin" />
             <Pin Id="TX5WYTQpNeKo9enfJrR7Qp" Name="In Progress" Kind="OutputPin" />
             <Pin Id="PVwXcwPdf24tN6OCrVoCQc" Name="On Completed" Kind="OutputPin" />
+            <Pin Id="KfY8SuhEzyWhnmf7rP9Xs6" Name="Success" Kind="OutputPin" />
+            <Pin Id="E7QnVeWABaTwgFjGmdqdmP" Name="Status" Kind="OutputPin" />
           </Node>
           <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="parses - one per press: each read is a new text" Bounds="806,231,50,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="544,200,40,20" ShowValueBox="true" isIOBox="true" Value="True">
@@ -74,37 +76,6 @@
             <Pin Id="QKuJT08RzzLmuOOY7wQogi" Name="Value" Kind="OutputPin" />
           </Node>
           <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbs sixty a second, and stops dead while READ BLOCKING parses" Bounds="544,300,60,15" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="60,185,200,85" Id="UCNhiwS5wmvh0c3dVVWrZQ">
-            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.Reactive.vl">
-              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="ForEach" />
-              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
-            </p:NodeReference>
-            <Pin Id="VILuWJBq7yxudBoTnSVRhw" Name="Messages" Kind="InputPin" />
-            <Pin Id="NtZCL3FPKGe9dhju4R346C" Name="Reset" Kind="InputPin" />
-            <Pin Id="PA9sdcPYBPMtv9gg2dNU74" Name="Result" Kind="OutputPin" />
-            <Patch Id="J9QwE1SILRrWjhG125ubxw" ManuallySortedPins="true">
-              <Patch Id="UmjA4wiOCCWLD9knhRUqh5" Name="Create" ManuallySortedPins="true" />
-              <Patch Id="Rq1gCv4Qy2ySNI8dwxuv0D" Name="Update" ManuallySortedPins="true">
-                <Pin Id="NNhod21TpVazi5dNVyAiFy" Name="Input 1" Kind="InputPin" />
-                <Pin Id="UOWFPc2tJZsrXMPs7HeQWu" Name="Output" Kind="OutputPin" />
-              </Patch>
-              <ControlPoint Id="VfZT7Wk7Vn0PmstaSzlW0C" Bounds="64,193" />
-              <ControlPoint Id="HA2XvhbJVpRlEyTKQfAAws" Bounds="84,263" />
-              <Node Bounds="80,222,110,19" Id="UbKHpJZINQo0A0O21TKNyK">
-                <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
-                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-                  <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
-                </p:NodeReference>
-                <Pin Id="GAYsmaRBTrGgLbSoXya2Rm" Name="GeoJSON" Kind="InputPin" />
-                <Pin Id="GyZGyzwcyFeWuCPRfCwvat" Name="Factory" Kind="InputPin" />
-                <Pin Id="SZRL34NA58dsAozVRP3O7S" Name="Features" Kind="OutputPin" />
-                <Pin Id="N2mOHUfMVd6vzamgxKUleM" Name="Success" Kind="OutputPin" />
-                <Pin Id="FOLyQpGLZrHgrxfIrc1RQ6" Name="Status" Kind="OutputPin" />
-                <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
-              </Node>
-            </Patch>
-          </Node>
           <Node Bounds="60,300,65,19" Id="QZ5uwB50R9QMFdJmkzaW9M">
             <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.Reactive.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -117,6 +88,8 @@
             <Pin Id="U02VsaNxbZvSW0OlKKWSY5" Name="Value" Kind="OutputPin" />
             <Pin Id="UPT54XCfcmYLKzkOrO2xG1" Name="On Data" Kind="OutputPin" />
           </Node>
+          <Pad Id="Qwi8nDXtxHYvuvxrbbb1KI" Comment="progress" Bounds="160,190,40,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Bsjf5fizT5KJKRnzBxoK89" Comment="status" Bounds="160,215,110,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="QJZHj4YgJTXsHm0OGtC0Cv" Comment="LOADING - true while the file is read and parsed in the background" Bounds="230,160,40,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="GSR2JJIVyZHOPi8Mk0AbkY" Comment="READ IN BACKGROUND" Bounds="420,95,35,35" ShowValueBox="true" isIOBox="true" Value="False">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
@@ -290,18 +263,11 @@
         <Link Id="O5V2gSVmrXiHeo2j2f3uIx" Ids="QKuJT08RzzLmuOOY7wQogi,RscSLOj3HjNKDj2G2VpHR8" />
         <Link Id="EhR6T8yl1IR8C68DO3Fv1m" Ids="S7G105tsE2LkaP0KyDnKJF,LH4ebQNEbp8DWihC2ALOsC" />
         <Link Id="TX3tKPMMxJvgqBvZmTlCFd" Ids="DZyWbq65vYkzkpCqXXj02v,ILlP30Hm276VLTvEZ3DrBp" />
-        <Link Id="Qzc4n39oeLdSITBPf1XUDu" Ids="FyE3hfZjvyBAJQmp0lu7aI,U3ip3exzsSqaGabuwedsam" />
         <Link Id="BTH2qw0xoVhsth0pbdJ5qr" Ids="DcgL6BvckJsloUbUn6a9Dc,RN1ZSNlLOqcNCJYo0lQcAD" />
         <Link Id="JbTLLKPnq1PPgOWJqUwC3M" Ids="HsDbeyca2kBMPmpw6HfKrz,OLd7GgqWoC5PZHAooihI3u" />
         <Link Id="DqEoopKpuu2Mmst1aB4laV" Ids="UAAvwZ9z09SMuEXVYj9G4b,IJ5I09qarKHMygGbXt0cim" />
         <Link Id="U0zNeqE0e7gPYXg6nDz3VK" Ids="N6iIRArlPqcM7JvOux0yRg,B1t5N0cS4pGMMOP8AxLGJP" />
         <Link Id="A5MXwXwRr3sQGPK0uAQ3yI" Ids="B1t5N0cS4pGMMOP8AxLGJP,MDlfneG0bjmLU4FeXyE6gF" />
-        <Link Id="PvMDiBVXpfk3KzwdHt8HHe" Ids="UIeJeRb1cZU8uLKrL0ISYx,VILuWJBq7yxudBoTnSVRhw" />
-        <Link Id="UDU0pXKb1IVS6757jydA8O" Ids="NNhod21TpVazi5dNVyAiFy,VfZT7Wk7Vn0PmstaSzlW0C" IsHidden="true" />
-        <Link Id="BfPMv9hb7RYzFT0ew05NbQ" Ids="HA2XvhbJVpRlEyTKQfAAws,UOWFPc2tJZsrXMPs7HeQWu" IsHidden="true" />
-        <Link Id="ARR1QRZLPGK5NigCgmpkbJ" Ids="VfZT7Wk7Vn0PmstaSzlW0C,GAYsmaRBTrGgLbSoXya2Rm" />
-        <Link Id="G606UYOX1HymPP9W934bo9" Ids="SZRL34NA58dsAozVRP3O7S,HA2XvhbJVpRlEyTKQfAAws" />
-        <Link Id="OElQTeyoHuYnIUgFszbHpL" Ids="PA9sdcPYBPMtv9gg2dNU74,BHSgoE9WJCtYbwVqbiZAJ9" />
         <Link Id="RT26Jm5ofvloUAzJbp68c9" Ids="U02VsaNxbZvSW0OlKKWSY5,JRduor7o0G31QwI1eiLPC6" />
         <Link Id="TtwnNuUGlDnquyKIE062w6" Ids="U02VsaNxbZvSW0OlKKWSY5,HsDbeyca2kBMPmpw6HfKrz" />
         <Link Id="KRtqdm8mjHupLhnXTYvMHA" Ids="TX5WYTQpNeKo9enfJrR7Qp,QJZHj4YgJTXsHm0OGtC0Cv" />
@@ -325,6 +291,9 @@
         <Link Id="RFNqJAtgjGcnTaSeSALVrJ" Ids="O1moup3syhFgCykbwy7Yx1,H9i4kTSYHB6r01f9N2A0iO" />
         <Link Id="QRrFpDBAktVxeoel3ZiCeF" Ids="V82WNEBAK9Js5R0suWX6CF,RsKPKkab6Zv4nPjY5DEUn2" />
         <Link Id="QjIFsQUogT4BjHp5O78zX5" Ids="V82WNEBAK9Js5R0suWX6CF,JwxCLNeQWXqDdJ7PyAJtgk" />
+        <Link Id="Ad9YMfk2jqMF3pdilVKWtr" Ids="UIeJeRb1cZU8uLKrL0ISYx,BHSgoE9WJCtYbwVqbiZAJ9" />
+        <Link Id="K3tqREWaxS97XxKXLQBMot" Ids="DKpYIyZ5CVx2slbEcTyDOq,Qwi8nDXtxHYvuvxrbbb1KI" />
+        <Link Id="Ij1iKeqLlNwV03BcnQElXz" Ids="E7QnVeWABaTwgFjGmdqdmP,Bsjf5fizT5KJKRnzBxoK89" />
       </Patch>
     </Node>
   </Patch>

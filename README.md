@@ -3,7 +3,7 @@
 **GeoJSON for [VL.NetTopologySuite](https://github.com/rednotfound/VL.NetTopologySuite), as nodes
 for [vvvv gamma](https://vvvv.org).**
 
-Read a GeoJSON document into NetTopologySuite features, and write features back out. Two nodes, in
+Read a GeoJSON document into NetTopologySuite features, and write features back out. Three nodes, in
 VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `Write WKT`.
 
 > **Status: `0.0.1-alpha`, the first release — a prerelease, early.** It needs VL.NetTopologySuite
@@ -21,12 +21,12 @@ Six help patches, in the order the help browser shows them:
 
 | | |
 |---|---|
-| **Explanation Overview of available nodes** | the front door — what the package is, and the two nodes it deliberately does not have |
+| **Explanation Overview of available nodes** | the front door — what the package is, its three nodes, and what it deliberately does not have |
 | **HowTo Read GeoJSON** | text in one box, features out. Break the text on purpose and watch `Status` |
-| **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `Read GeoJSON`, and why there is no file node here |
+| **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `Read GeoJSON` for a small file, and when to reach for `GeoJSONReader (Reactive)` instead |
 | **HowTo Access properties** | `Split` and `GetAttribute` side by side, and what type each JSON value arrives as |
 | **HowTo Write GeoJSON** | a full round trip, and the ring-winding pin that decides whether it is exact |
-| **HowTo Handle a large GeoJSON file** | reading in the background - `FileReader (String Reactive)`, `ForEach [Reactive]`, `HoldLatest` - against a blocking read, with the longest frame measured in the patch |
+| **HowTo Handle a large GeoJSON file** | `GeoJSONReader (Reactive)` → `HoldLatest`, reading in the background, against a blocking read - with the longest frame measured in the patch |
 
 ```text
 GeoJSON text
@@ -49,6 +49,7 @@ calls the same table *attributes*, and the nodes that open it use NetTopologySui
 | | |
 |---|---|
 | `Read GeoJSON` | text + `Factory` → `Features` (a Spread), `Success`, `Status`, `Parses` |
+| `GeoJSONReader (Reactive)` | `File Path` + `Read` + `Factory` → `Output` (an observable of the features; `HoldLatest` it), `Progress`, `In Progress`, `On Completed`, `Success`, `Status`. Reads and parses on another thread: a big file does not freeze vvvv |
 | `Write GeoJSON` | features + `Exact Round Trip` + `Indent` → text, `Success` |
 
 A feature is opened with **VL.NetTopologySuite's** `Split` (→ `Geometry`, `Attributes`) and
@@ -61,10 +62,9 @@ Deliberately absent, each for a reason worth reading:
   document. [Why](docs/ARCHITECTURE.md#there-is-no-featurecollection).
 - **`Count`** — the result is a `Spread`, so `Count [Collections.Spread]` already works on it, as do
   `GetSlice` and a `ForEach` region.
-- **`Read GeoJSON File`** — VL.CoreLib already ships `FileReader (String) [IO]` with a `Read`
-  trigger. `FileReader → Read GeoJSON` composes, and this package stays out of path semantics.
-  (vvvv itself ships both halves for XML and JSON, so this one is a genuine open question — see
-  [docs/ROADMAP.md](docs/ROADMAP.md).)
+- **A blocking file node** — `FileReader (String) [IO]` → `Read GeoJSON` is one. The one file node
+  here reads in the background, because a big file must not freeze vvvv.
+  [Why](docs/ARCHITECTURE.md#geojsonreader-reactive--the-one-file-node-2026-10-18).
 
 ## Two things to know before using it
 

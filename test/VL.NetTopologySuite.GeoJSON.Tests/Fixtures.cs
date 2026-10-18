@@ -23,6 +23,8 @@ internal static class Fixtures
 
     internal static string Read(string name) => File.ReadAllText(Path.Combine(Dir, name));
 
+    internal static string PathOf(string name) => Path.Combine(Dir, name);
+
     /// <summary>
     /// Look a property up without throwing when it is not there.
     /// </summary>

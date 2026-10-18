@@ -17,8 +17,9 @@
       EARLY - not ready for real work yet.
 
       GeoJSON for VL.NetTopologySuite. Read GeoJSON turns GeoJSON text into a spread of
-      NetTopologySuite features; Write GeoJSON turns features back into text. Both sit in
-      NetTopologySuite.IO, beside Read WKT and Write WKT.
+      NetTopologySuite features; Write GeoJSON turns features back into text. GeoJSONReader
+      (Reactive) reads a file on another thread, with progress and cancellation, so a big file
+      does not freeze vvvv. All three sit in NetTopologySuite.IO, beside Read WKT and Write WKT.
 
       The features are NetTopologySuite's own Feature type, not a wrapper. VL.NetTopologySuite
       (installed with this package) opens them with Split and GetAttribute and operates on their
@@ -31,7 +32,8 @@
     </description>
     <summary>GeoJSON reading and writing for VL.NetTopologySuite, as nodes for vvvv gamma.</summary>
     <releaseNotes>
-      0.0.1-alpha - First release. Read GeoJSON and Write GeoJSON, in NetTopologySuite.IO.
+      0.0.1-alpha - First release. Read GeoJSON, GeoJSONReader (Reactive) - a file read and
+      parsed in the background - and Write GeoJSON, in NetTopologySuite.IO.
       Developed as VL.GeoJSON until 2026-10-18. Requires VL.NetTopologySuite 0.0.3-alpha, which
       opens the features (Split, GetAttribute) and is installed with this package.
     </releaseNotes>
