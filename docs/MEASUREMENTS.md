@@ -117,9 +117,27 @@ slow read is not "JSON is slow", it is object construction.
 | `Deserialize` | 56 ms | 863 ms |
 | normalisation (D) | **114 ms (67%)** | **860 ms (50%)** |
 
-The deserializer leaves properties as undecoded `JsonElement`s, so the per-property work lands in
-`Normalise` — enumerating names, the indexer, a fresh `AttributesTable`, number conversion. On real
-files **normalisation is the larger half of the parse**, and it is our code, not upstream's.
+**That split misleads, and the reason is worth keeping.** Timed in isolation over a collection
+that had already been promoted, every part of normalising the cities — enumerating, names,
+values, building the tables — added up to about **25 ms**, not 114. The rest was the GC tracing
+and promoting the objects the deserializer had *just* allocated, billed to the next code that
+allocated. A stage split of a .NET pipeline measures who triggered the collection, not who
+caused it.
+
+What did help, through `Read GeoJSON` itself, one file per process, median of 10 after a warm-up,
+SHA-256 fingerprint of every feature's geometry and attributes **identical before and after**:
+
+| file | before | after | retained before | retained after |
+|---|---:|---:|---:|---:|
+| cities, 7,342 × 31 properties | 156 ms | **115 ms** (−26%) | 23.9 MB | **15.4 MB** (−36%) |
+| roads, 56,600 × 31 properties | 1,689 ms | **1,303 ms** (−23%) | 196 MB | **132 MB** (−33%) |
+| Delaware, 357,534 × 2 properties | 3,121 ms | 2,861 ms (−8%) | 307 MB | 271 MB (−12%) |
+
+Two changes in `Defaults`: walk the JSON object once instead of reading the upstream table by name
+(its indexer is a linear `TryGetProperty` per name, so per feature it was quadratic in the property
+count), and **share one string per property name across the document** — `JsonProperty.Name`
+allocates a fresh one per call, and the tables keep them: 1.75 million copies of 31 names for the
+roads. Retained figures exclude the text itself.
 
 Reading path also matters: `byte[]` 101 ms < `string` 140 ms < `FileStream` 168 ms.
 

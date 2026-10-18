@@ -125,4 +125,32 @@ public class PropertyTests
 
         Assert.False(properties.Exists("id"));
     }
+
+    [Fact]
+    public void Properties_listed_in_a_different_order_keep_their_own_values()
+    {
+        // Normalisation shares one string per property name across a document, guessing that the
+        // name at the same position as in the last feature is the same one. This is the case the
+        // guess gets wrong: same names, other order, a name that is new, and one that is missing.
+        const string shuffled = """
+            {"type":"FeatureCollection","features":[
+              {"type":"Feature","geometry":{"type":"Point","coordinates":[0,0]},
+               "properties":{"name":"first","kind":"a","rank":1}},
+              {"type":"Feature","geometry":{"type":"Point","coordinates":[1,1]},
+               "properties":{"rank":2,"name":"second","extra":true}},
+              {"type":"Feature","geometry":{"type":"Point","coordinates":[2,2]},
+               "properties":{"kind":"c","name":"third","rank":3}}]}
+            """;
+
+        var features = new ReadGeoJsonNode().Update(out _, out _, out _, shuffled);
+
+        Assert.Equal(["name", "kind", "rank"], features[0].Attributes.GetNames());
+        Assert.Equal(["rank", "name", "extra"], features[1].Attributes.GetNames());
+        Assert.Equal(["kind", "name", "rank"], features[2].Attributes.GetNames());
+        Assert.Equal("second", features[1].Attributes["name"]);
+        Assert.Equal(true, features[1].Attributes["extra"]);
+        Assert.Equal("c", features[2].Attributes["kind"]);
+        Assert.Equal(3L, features[2].Attributes["rank"]);
+        Assert.False(features[1].Attributes.Exists("kind"));
+    }
 }

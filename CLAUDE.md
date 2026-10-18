@@ -16,7 +16,7 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
-**Current state (2026-10-18): 2 nodes, 60 tests + 4 load tests, 6 help patches. Static checks and a
+**Current state (2026-10-18): 2 nodes, 61 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
 and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org, and **nothing can be until
 VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
@@ -95,12 +95,15 @@ Measured against GeoJSON4STJ 4.0.0:
 
 **VL.Mapsui's `FeatureLayer` takes `IEnumerable<NetTopologySuite.Features.Feature>` — the concrete
 class.** So without `Defaults.Normalise` the pipeline this package exists to prove does not
-compile. It costs **22 ms per 10,000 features, 12% of the parse — on the synthetic fixture with
-3 properties. On real files (26–41 properties) it is 50–67% of the parse**, the larger half, and
-the obvious place to make reading faster (2026-10-18). It is **negative-tested**:
-putting the raw table into the `Feature` turns **10 of 60 tests red**, 2 of them interop; making
-only `NormaliseValue` return the raw value turns **6** red (2026-10-18; it was 47 of 69 before the
-feature nodes moved out).
+compile. It costs **22 ms per 10,000 features, 12% of the parse** on the 3-property synthetic
+fixture. On real files a stage split blamed it for 50–67% — but most of that was the GC
+collecting what the *deserializer* had just allocated, billed to whoever allocated next (the
+normalising work itself is ~25 ms of the cities' 111). Since 2026-10-18 it walks the JSON object
+once (`FromJson`) instead of reading the upstream table by name, and shares one string per
+property name across the document (`NameCache`): **23–26% faster and 33–36% less retained memory**
+on real files, byte-identical output. It is **negative-tested**: putting the raw table into the
+`Feature` turns **11 of 61 tests red**, 2 of them interop; leaving numbers as `decimal` on the fast
+path turns **6** red; breaking the name cache's check turns 2 red.
 
 Do not "simplify" this away.
 
@@ -157,7 +160,7 @@ These cost a full survey; do not re-derive them.
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the semantics are right | ✅ 60 tests, ~100 ms, no network |
+| `dotnet test` | the semantics are right | ✅ 61 tests, ~100 ms, no network |
 | the negative tests | those checks can actually go red | ✅ 10 red with the raw table, 6 with raw values, 4 without the cache (2026-10-18) |
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
@@ -253,7 +256,7 @@ vl-geojson/
 │   ├── Defaults.cs                # ⭐ the factory, the cached options, and Normalise
 │   ├── ReadNodes.cs               # [ProcessNode] Read GeoJSON - the lifetime-critical one
 │   └── WriteNodes.cs              # Write GeoJSON
-├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 60 xunit tests + 4 opt-in load tests, no network, no vvvv
+├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 61 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
 ├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
 │   └── Assets/cities.geojson      # what "HowTo Read a GeoJSON file" points at, RELATIVELY

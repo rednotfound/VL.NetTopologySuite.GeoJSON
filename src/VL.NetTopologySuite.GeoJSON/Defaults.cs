@@ -42,8 +42,9 @@ namespace VL.NetTopologySuite.GeoJSON;
 /// so if VL.Mapsui later widens its signature this normalisation stays valid and merely becomes
 /// optional. The reverse — emitting <c>IFeature</c> now — would require editing a sibling
 /// repository before anything renders.</para>
-/// <para><b>Measured cost: 9 ms per 10,000 features</b>, against 122 ms to parse them. 7%, for
-/// types a patch can actually use.</para>
+/// <para><b>Measured cost</b>: 9 ms per 10,000 features on a 3-property synthetic fixture — but
+/// 50–67% of the whole parse on real files, until <see cref="FromJson"/> stopped reading the
+/// table by name. See <c>docs/MEASUREMENTS.md</c>.</para>
 /// </remarks>
 internal static class Defaults
 {
@@ -170,8 +171,9 @@ internal static class Defaults
     internal static Spread<global::NetTopologySuite.Features.Feature> Normalise(FeatureCollection source)
     {
         var builder = new SpreadBuilder<global::NetTopologySuite.Features.Feature>(source.Count);
+        var names = new NameCache();
         foreach (var feature in source)
-            builder.Add(Normalise(feature));
+            builder.Add(Normalise(feature, names));
         return builder.ToSpread();
     }
 
@@ -189,12 +191,16 @@ internal static class Defaults
     /// empty table means no downstream node has to null-check.</para>
     /// </remarks>
     internal static global::NetTopologySuite.Features.Feature Normalise(IFeature feature)
-    {
-        var table = new AttributesTable();
+        => Normalise(feature, new NameCache());
 
-        if (feature.Attributes is { } source)
-            foreach (var name in source.GetNames())
-                table.Add(name, NormaliseValue(source[name]));
+    private static global::NetTopologySuite.Features.Feature Normalise(IFeature feature, NameCache names)
+    {
+        var table = feature.Attributes switch
+        {
+            JsonElementAttributesTable json => FromJson(json.RootElement, names),
+            { } source => NormaliseTable(source),
+            null => new AttributesTable(),
+        };
 
         if (feature is IUnique { Id: { } id } && !table.Exists("id"))
             table.Add("id", NormaliseValue(id));
@@ -262,6 +268,91 @@ internal static class Defaults
         foreach (var name in source.GetNames())
             table.Add(name, NormaliseValue(source[name]));
         return table;
+    }
+
+    /// <summary>
+    /// The fast path for what the serializer actually hands back: walk the JSON object once.
+    /// </summary>
+    /// <remarks>
+    /// <para><b>Half of a real parse used to be spent here, going through the table's own API.</b>
+    /// <c>JsonElementAttributesTable</c>'s indexer is <c>RootElement.TryGetProperty(name)</c> — a
+    /// linear scan of the object — followed by boxing the value as a <c>decimal</c>, so reading
+    /// every property by name is quadratic in the property count. Real files carry 26–41
+    /// properties per feature (measured 2026-10-18: normalisation was 50–67% of the parse there,
+    /// against 12% on a 3-property synthetic fixture).</para>
+    /// <para>The values must come out <b>identical</b> to the slow path's, so numbers go through
+    /// <c>TryGetDecimal</c> and then <see cref="NormaliseValue"/> exactly as the table would have
+    /// boxed them — <c>GetDouble</c> would round some fractions differently from
+    /// <c>Convert.ToDouble(decimal)</c>. A number <c>decimal</c> cannot hold throws the same
+    /// <see cref="NotSupportedException"/> the table throws, so a document fails the same way
+    /// on either path.</para>
+    /// </remarks>
+    private static AttributesTable FromJson(JsonElement objectElement, NameCache names)
+    {
+        var table = new AttributesTable();
+        var position = 0;
+        foreach (var property in objectElement.EnumerateObject())
+            table.Add(names.Get(property, position++), FromJsonValue(property.Value, names));
+        return table;
+    }
+
+    private static object? FromJsonValue(JsonElement value, NameCache names) => value.ValueKind switch
+    {
+        JsonValueKind.Null or JsonValueKind.Undefined => null,
+        JsonValueKind.True => true,
+        JsonValueKind.False => false,
+        JsonValueKind.String => value.GetString(),
+        JsonValueKind.Number => value.TryGetDecimal(out var d)
+            ? NormaliseValue(d)
+            : throw new NotSupportedException("Number value cannot be boxed as a decimal: " + value.GetRawText()),
+        JsonValueKind.Object => FromJson(value, names),
+        JsonValueKind.Array => FromJsonArray(value, names),
+        _ => throw new NotSupportedException("Unrecognized JsonValueKind: " + value.ValueKind),
+    };
+
+    private static object[] FromJsonArray(JsonElement array, NameCache names)
+    {
+        var copy = new object[array.GetArrayLength()];
+        var i = 0;
+        foreach (var element in array.EnumerateArray())
+            copy[i++] = FromJsonValue(element, names)!;
+        return copy;
+    }
+
+    /// <summary>
+    /// One string per distinct property name for a whole document, instead of one per feature.
+    /// </summary>
+    /// <remarks>
+    /// <para><c>JsonProperty.Name</c> allocates a fresh string on every call, and the attributes
+    /// tables keep them: 56,600 roads × 31 properties is 1.75 million copies of 31 names, held
+    /// for as long as the features are. Features in one file almost always list their properties
+    /// in the same order, so the name at the same position as last time is compared first
+    /// (<c>NameEquals</c> compares the UTF-8 bytes, no allocation); only a miss allocates, and
+    /// the dictionary folds that back onto the one copy.</para>
+    /// <para>Local to one <see cref="Normalise(FeatureCollection)"/> call, so nothing is shared
+    /// between threads and nothing outlives the document.</para>
+    /// </remarks>
+    private sealed class NameCache
+    {
+        private string[] _byPosition = new string[32];
+        private readonly Dictionary<string, string> _all = new(StringComparer.Ordinal);
+
+        public string Get(JsonProperty property, int position)
+        {
+            if (position < _byPosition.Length && _byPosition[position] is { } last && property.NameEquals(last))
+                return last;
+
+            var name = property.Name;
+            if (_all.TryGetValue(name, out var shared))
+                name = shared;
+            else
+                _all.Add(name, name);
+
+            if (position >= _byPosition.Length)
+                Array.Resize(ref _byPosition, Math.Max(position + 1, _byPosition.Length * 2));
+            _byPosition[position] = name;
+            return name;
+        }
     }
 
     private static object[] NormaliseArray(object[] source)

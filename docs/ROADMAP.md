@@ -10,7 +10,7 @@ because the serializer has the option.
 ## Now — 0.0.1-alpha, unpublished
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
-**Two nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 60 tests, 4 load tests, six help
+**Two nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 61 tests, 4 load tests, six help
 patches.** Depends on VL.NetTopologySuite **0.0.3-alpha**, the first with `GetAttribute` — **so it
 cannot be published before that version is.**
 
@@ -35,7 +35,7 @@ both are backed by a survey of the shipped packs — see
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the arithmetic and the semantics are right | ✅ 60 tests, ~100 ms, no network |
+| `dotnet test` | the arithmetic and the semantics are right | ✅ 61 tests, ~100 ms, no network |
 | negative test: the raw attributes table into the `Feature` (the nearest to dropping `Defaults.Normalise` that still compiles) | the interop claim is a check, not decoration | ✅ **10 tests go red**, 2 of them interop (2026-10-18) |
 | negative test: `NormaliseValue` returns the raw value | the value types are a check | ✅ **6 tests go red** (2026-10-18) |
 | negative test: drop the cache | the lifetime claim is a check | ✅ **4 tests go red** (2026-10-18) |
