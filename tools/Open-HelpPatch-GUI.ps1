@@ -1,0 +1,241 @@
+﻿<#
+.SYNOPSIS
+    A double-clickable picker for the help patches - select one, vvvv opens it.
+
+.DESCRIPTION
+    Wraps Open-HelpPatch.ps1, which stays the single source of truth for HOW a patch is launched:
+    the four package repositories (dist\ and deps\ here and in vl-nettopologysuite), the
+    vvvv-already-running rule, the empty-dist check. This file only supplies a window; every launch goes through the same gate and every
+    refusal is printed in the log box with the same words.
+
+    Start it by double-clicking Open-HelpPatch.cmd in the repository root, or:
+
+        pwsh -File tools\Open-HelpPatch-GUI.ps1
+
+    Buttons:
+      Open in vvvv        the selected patch (double-click does the same). While the vvvv this
+                          launcher started is still open, the patch becomes another tab in it.
+      Close my vvvv       asks ONLY the vvvv this launcher started (the pid it wrote to
+                          %TEMP%\vl-geojson-vvvv.pid) to close - never another session's
+                          window, and never by force: a dirty tab makes vvvv ask "save changes?",
+                          and forcing would throw that edit away
+      Normalize           tools\Normalize-HelpPatches.ps1 - after a hand edit was saved and vvvv closed;
+                          vvvv repins the package version on open, this undoes it
+      Check               tools\Test-VLPatch.ps1 - IDs, links, label collisions, help flags, Help.xml
+
+    THE LIST IS IN Help.xml ORDER, NOT ALPHABETICAL (carried from vl-mapsui, 2026-09-25): the Gray
+    Book says vvvv's own Help Browser "displays items in alphabetical order by default unless
+    Help.xml specifies otherwise", and every shipped pack's Help.xml is hand-curated. A picker sorted
+    by filename shows a different order than vvvv does. Topic headings appear as "-- Title --" and
+    are not launchable; any .vl on disk that Help.xml does not list still appears under
+    "-- Not in Help.xml --", because the picker must never hide a patch that exists.
+#>
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices; using System.Collections.Generic;
+public static class Win32 {
+    public delegate bool EnumProc(IntPtr h, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc p, IntPtr l);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+    [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
+    [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);
+    public static List<IntPtr> WindowsOf(uint pid) {
+        var list = new List<IntPtr>();
+        EnumWindows((h, l) => { uint q; GetWindowThreadProcessId(h, out q); if (q == pid && IsWindowVisible(h)) list.Add(h); return true; }, IntPtr.Zero);
+        return list;
+    }
+}
+'@
+
+$RepoRoot    = Split-Path $PSScriptRoot -Parent
+$Launcher    = Join-Path $PSScriptRoot 'Open-HelpPatch.ps1'
+$Normalize   = Join-Path $PSScriptRoot 'Normalize-HelpPatches.ps1'
+$Check       = Join-Path $PSScriptRoot 'Test-VLPatch.ps1'
+$HelpDir     = Join-Path $RepoRoot 'help\VL.NetTopologySuite.GeoJSON'
+$HelpXmlPath = Join-Path $HelpDir 'Help.xml'
+$PidFile     = Join-Path ([IO.Path]::GetTempPath()) 'vl-geojson-vvvv.pid'
+
+# Builds the picker list in Help.xml's own order - the order vvvv's Help Browser actually shows.
+# Each entry is @{ Kind = 'Header' | 'Patch' | 'Missing'; Text; File }. A 'Header' cannot be
+# opened; a 'Missing' entry is something Help.xml names that is not on disk, shown so a broken
+# listing is visible here too and not only in Test-VLPatch. Falls back to a flat alphabetical list,
+# with a header saying so, if Help.xml is absent or fails to parse - the picker must degrade,
+# never go blank.
+function Get-PatchEntries {
+    $onDisk = @(Get-ChildItem $HelpDir -File -Filter *.vl)
+    $byName = @{}
+    foreach ($f in $onDisk) { $byName[$f.Name] = $f }
+
+    $entries = [System.Collections.Generic.List[object]]::new()
+    $ordered = [System.Collections.Generic.HashSet[string]]::new()
+    $parsed  = $false
+
+    if (Test-Path $HelpXmlPath) {
+        try {
+            [xml]$hx = Get-Content $HelpXmlPath -Raw
+            foreach ($topic in @($hx.SelectNodes('//Topic'))) {
+                $docs = @($topic.SelectNodes('VLDocument'))
+                if ($docs.Count -eq 0) { continue }
+                $entries.Add([pscustomobject]@{ Kind = 'Header'; Text = $topic.title; File = $null })
+                foreach ($doc in $docs) {
+                    $link = $doc.link
+                    if ($byName.ContainsKey($link)) {
+                        $entries.Add([pscustomobject]@{ Kind = 'Patch'; Text = [IO.Path]::GetFileNameWithoutExtension($link); File = $byName[$link] })
+                        [void]$ordered.Add($link)
+                    }
+                    else {
+                        $entries.Add([pscustomobject]@{ Kind = 'Missing'; Text = "$link  (listed in Help.xml, not on disk)"; File = $null })
+                    }
+                }
+            }
+            $parsed = $true
+        }
+        catch {
+            $entries.Clear()
+            $entries.Add([pscustomobject]@{ Kind = 'Header'; Text = "Help.xml did not parse - alphabetical order: $($_.Exception.Message)"; File = $null })
+        }
+    }
+    else {
+        $entries.Add([pscustomobject]@{ Kind = 'Header'; Text = 'no Help.xml found - alphabetical order'; File = $null })
+    }
+
+    $strayLabel = if ($parsed) { 'Not in Help.xml' } else { 'help\VL.NetTopologySuite.GeoJSON (alphabetical)' }
+    $stray = @($onDisk | Where-Object { -not $ordered.Contains($_.Name) } | Sort-Object Name)
+    if ($stray.Count -gt 0) {
+        $entries.Add([pscustomobject]@{ Kind = 'Header'; Text = $strayLabel; File = $null })
+        foreach ($f in $stray) { $entries.Add([pscustomobject]@{ Kind = 'Patch'; Text = $f.BaseName; File = $f }) }
+    }
+    , $entries
+}
+
+$entries = Get-PatchEntries
+
+$form                 = [System.Windows.Forms.Form]::new()
+$form.Text            = 'VL.NetTopologySuite.GeoJSON - open a help patch'
+$form.ClientSize      = [System.Drawing.Size]::new(700, 640)
+$form.StartPosition   = 'CenterScreen'
+$form.Font            = [System.Drawing.Font]::new('Segoe UI', 10)
+$form.MinimumSize     = [System.Drawing.Size]::new(560, 520)
+
+$list                 = [System.Windows.Forms.ListBox]::new()
+$list.Location        = [System.Drawing.Point]::new(12, 12)
+$list.Size            = [System.Drawing.Size]::new(676, 330)
+$list.Anchor          = 'Top,Left,Right,Bottom'
+$list.Font            = [System.Drawing.Font]::new('Segoe UI', 11)
+$list.IntegralHeight  = $false
+foreach ($e in $entries) {
+    # Plain ASCII decoration on purpose: the file is ASCII throughout, unlike the .vl documents.
+    $line = switch ($e.Kind) {
+        'Header'  { "-- $($e.Text) --" }
+        'Missing' { "    !! $($e.Text)" }
+        default   { "    $($e.Text)" }
+    }
+    [void]$list.Items.Add($line)
+}
+$firstPatch = 0
+for ($i = 0; $i -lt $entries.Count; $i++) { if ($entries[$i].Kind -eq 'Patch') { $firstPatch = $i; break } }
+if ($list.Items.Count -gt 0) { $list.SelectedIndex = $firstPatch }
+
+$hint                 = [System.Windows.Forms.Label]::new()
+$hint.Text            = 'Open as many as you like - each becomes a tab in the same vvvv. When done: save, close vvvv, then Normalize and Check.'
+$hint.Location        = [System.Drawing.Point]::new(12, 350)
+$hint.Size            = [System.Drawing.Size]::new(676, 20)
+$hint.Anchor          = 'Left,Right,Bottom'
+
+function New-Button([string]$text, [int]$x, [int]$w) {
+    $b          = [System.Windows.Forms.Button]::new()
+    $b.Text     = $text
+    $b.Location = [System.Drawing.Point]::new($x, 376)
+    $b.Size     = [System.Drawing.Size]::new($w, 34)
+    $b.Anchor   = 'Left,Bottom'
+    $b
+}
+$openBtn  = New-Button 'Open in vvvv'  12  140
+$closeBtn = New-Button 'Close my vvvv' 160 140
+$normBtn  = New-Button 'Normalize'     308 120
+$checkBtn = New-Button 'Check'         436 120
+$buttons  = @($openBtn, $closeBtn, $normBtn, $checkBtn)
+
+$log                  = [System.Windows.Forms.TextBox]::new()
+$log.Multiline        = $true
+$log.ReadOnly         = $true
+$log.ScrollBars       = 'Vertical'
+$log.Font             = [System.Drawing.Font]::new('Consolas', 9)
+$log.Location         = [System.Drawing.Point]::new(12, 422)
+$log.Size             = [System.Drawing.Size]::new(676, 206)
+$log.Anchor           = 'Left,Right,Bottom'
+$patchCount   = @($entries | Where-Object Kind -eq 'Patch').Count
+$topicCount   = @($entries | Where-Object Kind -eq 'Header').Count
+$missingCount = @($entries | Where-Object Kind -eq 'Missing').Count
+$log.Text             = "$patchCount patch(es) in $topicCount topic(s), Help.xml order. Pick one and press Open - or double-click it.`r`n"
+if ($missingCount -gt 0) { $log.Text += "$missingCount entr$(if ($missingCount -eq 1) {'y'} else {'ies'}) in Help.xml point at a file that is not on disk - marked with !! above.`r`n" }
+
+function Write-Log([string]$text) {
+    $log.AppendText($text)
+    $log.SelectionStart = $log.TextLength; $log.ScrollToCaret()
+}
+
+# Run a tool script in a CHILD pwsh: the tools call `exit` on refusal, which would close this
+# window if they ran in-process. The child's console output lands in the log box either way.
+function Invoke-Tool([string]$scriptPath, [string[]]$toolArgs, [string]$doing) {
+    foreach ($b in $buttons) { $b.Enabled = $false }
+    $form.UseWaitCursor = $true
+    Write-Log "`r`n== $doing`r`n"
+    [System.Windows.Forms.Application]::DoEvents()
+    try {
+        $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $scriptPath @toolArgs 2>&1 | Out-String
+        Write-Log (($out -replace "`e\[[\d;]*m", ''))
+        if ($LASTEXITCODE -ne 0) { Write-Log "`r`nREFUSED / FAILED (exit $LASTEXITCODE) - the reason is above.`r`n" }
+    }
+    finally {
+        $form.UseWaitCursor = $false
+        foreach ($b in $buttons) { $b.Enabled = $true }
+    }
+}
+
+$openPatch = {
+    if ($list.SelectedIndex -lt 0) { return }
+    $entry = $entries[$list.SelectedIndex]
+    if ($entry.Kind -ne 'Patch') {
+        Write-Log "`r`n'$($entry.Text)' is a topic heading, not a patch - pick one listed under it.`r`n"
+        return
+    }
+    Invoke-Tool $Launcher @('-Path', $entry.File.FullName) "opening $($entry.Text)"
+}
+
+# Only the vvvv this launcher started. Another session on this machine may have its own vvvv open;
+# that one is not ours to close, and a plain `Stop-Process vvvv` would take it (it did, 2026-09-24).
+$closeMine = {
+    Write-Log "`r`n== closing the vvvv this launcher started`r`n"
+    if (-not (Test-Path $PidFile)) { Write-Log "no pid file at $PidFile - nothing was launched from here.`r`n"; return }
+    $ourPid = [int](Get-Content $PidFile)
+    $p = Get-Process -Id $ourPid -ErrorAction SilentlyContinue
+    if (-not $p -or $p.ProcessName -ne 'vvvv') { Write-Log "pid $ourPid is not a running vvvv - already closed.`r`n"; return }
+    # NEVER force it. vvvv answers a close request with a "save changes?" dialog when a tab is
+    # dirty, and killing it after a timeout would throw away exactly the edits the person made -
+    # vl-mapsui's first version of this button did that after 8 seconds. Ask, wait a little, and
+    # if it is still up, say where the question is.
+    # Ask EVERY visible window of that pid to close, not only the main one: after the editor closes,
+    # an open Help Browser window keeps the process alive indefinitely (measured 2026-09-25).
+    # WM_CLOSE is the X button - vvvv still asks before dropping a dirty tab.
+    [void]$p.CloseMainWindow()
+    foreach ($h in [Win32]::WindowsOf([uint32]$ourPid)) { [void][Win32]::PostMessage($h, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero) }
+    if ($p.WaitForExit(5000)) { Write-Log "closed pid $ourPid.`r`n" }
+    else { Write-Log "vvvv is still open - it is probably asking whether to save. Answer it in vvvv; nothing was forced.`r`n" }
+    $others = @(Get-Process vvvv -ErrorAction SilentlyContinue)
+    if ($others) { Write-Log "NOTE: $($others.Count) other vvvv still running (pid $($others.Id -join ', ')) - not ours, left alone.`r`n" }
+}
+
+$openBtn.Add_Click($openPatch)
+$list.Add_DoubleClick($openPatch)
+$closeBtn.Add_Click($closeMine)
+$normBtn.Add_Click({ Invoke-Tool $Normalize @() 'normalizing help patches (vvvv must be closed)' })
+$checkBtn.Add_Click({ Invoke-Tool $Check @() 'checking every .vl and Help.xml' })
+
+$form.Controls.AddRange(@($list, $hint, $openBtn, $closeBtn, $normBtn, $checkBtn, $log))
+[void]$form.ShowDialog()
