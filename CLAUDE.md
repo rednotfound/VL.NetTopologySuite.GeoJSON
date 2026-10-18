@@ -18,7 +18,7 @@ do not undo any of it without reading them. The GitHub repository is renamed by 
 
 **Current state (2026-10-18): 3 nodes, 86 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
-and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org yet. It depends on
+and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** **0.0.1-alpha is on nuget.org (2026-10-18)**, byte-identical to the local pack and installed back from nuget.org alone (`tools\Test-Install.ps1 -FromNuGetOrg`, both packages signed). It depends on
 VL.NetTopologySuite **0.0.4-alpha** (on nuget.org since 2026-10-18; 0.0.3-alpha was the first with
 `GetAttribute`, 0.0.4-alpha the first with short tooltips). See
 [Verification](#verification--be-precise-about-which-one-you-have).

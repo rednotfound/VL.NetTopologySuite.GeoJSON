@@ -6,7 +6,7 @@ for [vvvv gamma](https://vvvv.org).**
 Read a GeoJSON document into NetTopologySuite features, and write features back out. Three nodes, in
 VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `Write WKT`.
 
-> **Status: `0.0.1-alpha`, the first release — a prerelease, early.** It needs VL.NetTopologySuite
+> **Status: `0.0.1-alpha`, the first release, [on nuget.org](https://www.nuget.org/packages/VL.NetTopologySuite.GeoJSON) since 2026-10-18 — a prerelease, early.** It needs VL.NetTopologySuite
 > 0.0.4-alpha (on nuget.org since 2026-10-18), which installs with it. Every node resolves in a
 > headless `vvvvc` compile of all six help patches, 86 tests pass, the category is proved, and the
 > changed help patches were run in vvvv 7.4. F1 is not yet checked. See
@@ -132,7 +132,7 @@ Two of those are copied from `vl-mapsui` rather than linked, on that repository'
 
 ## Status
 
-Nothing is published to nuget.org. What is verified, and what is not, is tabulated in
+0.0.1-alpha is on nuget.org. What is verified, and what is not, is tabulated in
 [docs/ROADMAP.md](docs/ROADMAP.md#verified) — the distinction between *a node resolved*, *it is in
 the right category* and *it computes the right value* is three separate claims here, and only the
 last two need a running vvvv.

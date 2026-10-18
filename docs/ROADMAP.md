@@ -7,7 +7,11 @@ because the serializer has the option.
 
 ---
 
-## Now — 0.0.1-alpha, unpublished
+## Now — 0.0.1-alpha, published 2026-10-18
+
+On nuget.org, byte-identical to the local pack (every file compared), signed, and installed back
+from nuget.org alone with both packages evicted from the cache first:
+`tools\Test-Install.ps1 -FromNuGetOrg` - 14 packages, all six help patches compile from the install.
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
 **Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 86 tests, 4 load tests, six help

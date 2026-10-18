@@ -46,7 +46,11 @@
 param(
     [string]$OutputDirectory,
     [string]$Version,
-    [switch]$KeepOutput
+    [switch]$KeepOutput,
+    # After a release: install from nuget.org ONLY, so a green run proves the published package
+    # works rather than the local feed. Evict both packages from %USERPROFILE%\.nuget\packages
+    # first, or restore can still be satisfied from disk.
+    [switch]$FromNuGetOrg
 )
 
 Set-StrictMode -Version Latest
@@ -91,7 +95,7 @@ New-Item -ItemType Directory $OutputDirectory -Force | Out-Null
 
 Write-Host "installing $packageId $Version -> $OutputDirectory`n"
 
-$sources = @($feed, 'https://api.nuget.org/v3/index.json')
+$sources = if ($FromNuGetOrg) { @('https://api.nuget.org/v3/index.json') } else { @($feed, 'https://api.nuget.org/v3/index.json') }
 
 # -NoHttpCache always: this package's dependency VL.NetTopologySuite comes from nuget.org, usually
 # just published, and nuget.exe's 30-minute HTTP cache hides a new version. Measured 2026-10-18:
