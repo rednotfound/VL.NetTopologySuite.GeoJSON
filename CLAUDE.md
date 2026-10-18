@@ -37,7 +37,10 @@ The sibling repositories:
   `NetTopologySuite.Features.Feature`, which is why this package emits exactly that.** Also depends
   on VL.NetTopologySuite; neither it nor this package references the other.
 - `D:\2026_Projects\vl-overworld` (`VL.Overworld`) — tutorials; depends on this package by id.
-- `VL.GIS` — an earlier package, deliberately not a constraint.
+- `VL.GIS` (`vvvv-gis`) — the retired predecessor, history only.
+
+Memory for the whole family lives in vl-nettopologysuite's project folder; this repository's is a
+junction onto it (since 2026-10-18).
 
 Every dependency arrow points at VL.NetTopologySuite, and **VL.NetTopologySuite references nothing
 of ours. Keep it that way** — a format or map package may depend on the geometry package, never the
