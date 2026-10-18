@@ -121,9 +121,17 @@ if ($patches.Count -eq 0) { throw "No help patch matches -Patch '$Patch'" }
 # The names a patch may reference from this package, and the C# each must produce.
 $OurNodes = @{
     'Read GeoJSON'  = 'ReadGeoJsonNode'
-    'Split'         = 'FeatureNodes.SplitFeature'
-    'GetProperty'   = 'FeatureNodes.GetProperty'
     'Write GeoJSON' = 'WriteNodes.WriteGeoJson'
+}
+
+# VL.NetTopologySuite's nodes the help opens a feature with. Not ours, but a help patch that uses
+# them depends on that package resolving here - the same silent link-drop applies - so they are
+# checked the same way, anchored on that package's own .vl.
+$DependencyNodes = @{
+    'VL.NetTopologySuite' = @{
+        'Split'        = 'FeatureNodes.Split('
+        'GetAttribute' = 'FeatureNodes.GetAttribute('
+    }
 }
 
 # Pin names this package renames away from VL's defaults. A wrong one is the quietest failure
@@ -223,6 +231,27 @@ foreach ($p in $patches) {
 
     $nodesChecked += $checked
     if ($checked -eq 0) { Write-Host "  ok    compiled (uses no $PackageName node)" -ForegroundColor DarkGray }
+
+    foreach ($dep in $DependencyNodes.Keys) {
+        $depAnchor = 'LastDependency="' + [regex]::Escape("$dep.vl") + '">'
+        $depClaimed = @([regex]::Matches($patchXml,
+                $depAnchor + '\s*(?:<[^>]+>\s*)*?<Choice Kind="(?:OperationCallFlag|ProcessAppFlag|ProcessNodeFlag|OperationFlag)" Name="([^"]+)"') |
+            ForEach-Object { $_.Groups[1].Value } | Sort-Object -Unique)
+        foreach ($name in $depClaimed) {
+            $table = $DependencyNodes[$dep]
+            if (-not $table.ContainsKey($name)) {
+                $failures.Add("$($p.Name): uses '$name' from $dep, which the dependency node table does not know")
+                Write-Host "  FAIL  '$name' ($dep) is not in the dependency node table" -ForegroundColor Red
+            }
+            elseif ($csharp -notmatch [regex]::Escape($table[$name])) {
+                $failures.Add("$($p.Name): '$name' from $dep is in the patch but NOT in the generated C# - it did not resolve")
+                Write-Host "  FAIL  '$name' ($dep) did not resolve" -ForegroundColor Red
+            }
+            else {
+                Write-Host "  ok    '$name' ($dep) resolved" -ForegroundColor DarkGray
+            }
+        }
+    }
 
     # A process node built in Update instead of Create is the expensive mistake in this ecosystem.
     if ($csharp -match 'new\s+\w*\.?ReadGeoJsonNode\(\)') {

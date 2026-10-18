@@ -120,9 +120,9 @@ public class InteropTests
         // and return exactly this type. No conversion step exists anywhere in this chain.
         var features = new ReadGeoJsonNode().Update(out _, out _, out _, Fixtures.Read(Fixtures.Polygons));
 
-        FeatureNodes.SplitFeature(features.First(), out var geometry, out _);
+        var geometry = features.First().Geometry;
 
-        Geometry buffered = geometry!.Buffer(1.0);
+        Geometry buffered = geometry.Buffer(1.0);
 
         Assert.True(buffered.Area > geometry.Area);
         Assert.Equal(4.0, geometry.Area);

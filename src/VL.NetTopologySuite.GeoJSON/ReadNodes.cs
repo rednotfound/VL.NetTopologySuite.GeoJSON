@@ -21,7 +21,7 @@ namespace VL.NetTopologySuite.GeoJSON;
 /// <para>So the text is parsed when it <i>changes</i>, and the same <c>Spread</c> instance is
 /// returned on every frame in between. Returning the same instance matters as much as skipping the
 /// parse: object identity is the only "has this changed" signal VL has, so an unchanged spread lets
-/// everything downstream — <c>Feature (Split)</c>, and VL.Mapsui's <c>FeatureLayer</c> — skip its
+/// everything downstream — VL.NetTopologySuite's <c>Split</c>, and VL.Mapsui's <c>FeatureLayer</c> — skip its
 /// own work too.</para>
 /// <para><b>The features come out directly; there is no <c>FeatureCollection</c> to open first.</b>
 /// That follows vvvv's own document readers, which never hand a patch a document type — see

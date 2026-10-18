@@ -86,13 +86,13 @@
             TryGetValue is waiting. See HowTo Access properties.
           -->
           <Node Bounds="60,310,90,26" Id="BHJGK55hy4VAPlVssWA45f">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Split" />
             </p:NodeReference>
             <Pin Id="CGOR6MBM7oYoBm030euPg9" Name="Feature" Kind="InputPin" />
             <Pin Id="JUFUKrKaMwkOj7YOXGUgzF" Name="Geometry" Kind="OutputPin" />
-            <Pin Id="AomkFeKLWiK5JRumjLxv9S" Name="Properties" Kind="OutputPin" />
+            <Pin Id="AomkFeKLWiK5JRumjLxv9S" Name="Attributes" Kind="OutputPin" />
           </Node>
           <Pad Id="P58SJ3hyk0C9anoQqsN2U2" Comment="geometry" Bounds="60,355,300,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="Sebj2V9km5LZ1zL7PGwSlF" Comment="all the properties at once" Bounds="60,390,300,15" ShowValueBox="true" isIOBox="true" />
@@ -118,4 +118,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="Juswb0LcGo1ezrAwD7IOhj" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
+  <NugetDependency Id="Hq4WkZtR8sYcN2fLb7DmVe" Location="VL.NetTopologySuite" Version="0.0.3-alpha" />
 </Document>

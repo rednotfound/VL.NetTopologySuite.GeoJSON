@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="ILfoHE0EPqXqmgnvBsh4DV">
         <Canvas Id="H7Aq0RW6oZ1Ix57FsXrZ8f" CanvasType="Group">
-          <Pad Id="OSr6Un5jRabAEFkMq9vduz" Bounds="930,60,460,620" ShowValueBox="true" isIOBox="true" Value="Two ways to reach a property&#xD;&#xA;&#xD;&#xA;  Split         EVERY property, as a Dictionary&#xD;&#xA;  GetProperty   THIS ONE, by name&#xD;&#xA;&#xD;&#xA;One name box feeds both. Type a name that is not there and both report it - neither throws. That matters: underneath, NetTopologySuite's table THROWS on a missing name, and a node doing that sixty times a second while you type would be useless.&#xD;&#xA;&#xD;&#xA;vvvv ships the same pair for XML - XElement (Split) for all the attributes, GetAttributeValue for one by name with a Success pin.&#xD;&#xA;&#xD;&#xA;What each JSON type arrives as&#xD;&#xA;&#xD;&#xA;  &quot;text&quot;       String&#xD;&#xA;  42           Int64&#xD;&#xA;  1.5          Float64&#xD;&#xA;  true/false   Boolean&#xD;&#xA;  null         reported as not found&#xD;&#xA;  { ... }      a nested table&#xD;&#xA;  [ ... ]      an array&#xD;&#xA;&#xD;&#xA;Whole numbers are Int64, not Float64, on purpose: an OpenStreetMap id is too big for a Float64 to hold exactly.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member becomes an ordinary property. Try typing id.">
+          <Pad Id="OSr6Un5jRabAEFkMq9vduz" Bounds="930,60,460,620" ShowValueBox="true" isIOBox="true" Value="Two ways to reach a property&#xD;&#xA;&#xD;&#xA;  Split          EVERY property, as a Dictionary&#xD;&#xA;  GetAttribute   THIS ONE, by name&#xD;&#xA;&#xD;&#xA;Both come from VL.NetTopologySuite, which installs with this package. GeoJSON calls them properties, NetTopologySuite calls them attributes: the same table.&#xD;&#xA;&#xD;&#xA;One name box feeds both. Type a name that is not there and both report it - neither throws. That matters: underneath, NetTopologySuite's table THROWS on a missing name, and a node doing that sixty times a second while you type would be useless.&#xD;&#xA;&#xD;&#xA;vvvv ships the same pair for XML - XElement (Split) for all the attributes, GetAttributeValue for one by name with a Success pin.&#xD;&#xA;&#xD;&#xA;What each JSON type arrives as&#xD;&#xA;&#xD;&#xA;  &quot;text&quot;       String&#xD;&#xA;  42           Int64&#xD;&#xA;  1.5          Float64&#xD;&#xA;  true/false   Boolean&#xD;&#xA;  null         reported as not found&#xD;&#xA;  { ... }      a nested table&#xD;&#xA;  [ ... ]      an array&#xD;&#xA;&#xD;&#xA;Whole numbers are Int64, not Float64, on purpose: an OpenStreetMap id is too big for a Float64 to hold exactly.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member becomes an ordinary property. Try typing id.">
             <p:TypeAnnotation>
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -69,13 +69,13 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,355,90,26" Id="TKk6PjbIg6PSzr909wvX7F">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Split" />
             </p:NodeReference>
             <Pin Id="Ac7AnLqDp36gzn1ky97HUr" Name="Feature" Kind="InputPin" />
             <Pin Id="N225RosY0xJrunMTwlFaQ9" Name="Geometry" Kind="OutputPin" />
-            <Pin Id="MAGf85aJs56ZDhXrVyKC8E" Name="Properties" Kind="OutputPin" />
+            <Pin Id="MAGf85aJs56ZDhXrVyKC8E" Name="Attributes" Kind="OutputPin" />
           </Node>
           <Pad Id="NJj0Q9SjQJSCAE774W50cj" Comment="geometry - goes straight into VL.NetTopologySuite" Bounds="330,358,250,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="R2Q8pIcxJ9avA1y3TLR53k" Comment="every property at once" Bounds="60,400,250,15" ShowValueBox="true" isIOBox="true" />
@@ -112,9 +112,9 @@
             throws.
           -->
           <Node Bounds="440,490,100,26" Id="Lt1YTag1xVWh6xyQL3m92n">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="GetProperty" />
+              <Choice Kind="OperationCallFlag" Name="GetAttribute" />
             </p:NodeReference>
             <Pin Id="LYONSWBisxh493OAWBlGtc" Name="Feature" Kind="InputPin" />
             <Pin Id="QRmvaE8vhWNmNSOQfWUZbd" Name="Name" Kind="InputPin" />
@@ -151,4 +151,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="NqhGdYpr6flaHKsqHSMRuX" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
+  <NugetDependency Id="Ub2pSG4mXyQe7RkcV1tLwN" Location="VL.NetTopologySuite" Version="0.0.3-alpha" />
 </Document>

@@ -1,4 +1,3 @@
-using System.Collections.Immutable;
 using System.Linq;
 using NetTopologySuite.Features;
 using Xunit;
@@ -9,20 +8,20 @@ namespace VL.NetTopologySuite.GeoJSON.Tests;
 /// Property values, and the normalisation that makes them usable in a patch.
 /// </summary>
 /// <remarks>
-/// This is the suite that would go red if <c>Defaults.NormaliseValue</c> were removed, which is
+/// <para>This is the suite that would go red if <c>Defaults.NormaliseValue</c> were removed, which is
 /// what makes it a check rather than decoration. Without it every number is a
 /// <c>System.Decimal</c> — a type VL has no nodes for — and every nested object is an immutable
-/// <c>JsonElementAttributesTable</c> that throws when written to.
+/// <c>JsonElementAttributesTable</c> that throws when written to.</para>
+/// <para>It reads the attributes table directly. Opening a feature in a patch is VL.NetTopologySuite's
+/// <c>Split</c> and <c>GetAttribute</c>, tested in that repository; what is this package's to test
+/// is what those nodes are handed.</para>
 /// </remarks>
 public class PropertyTests
 {
-    static ImmutableDictionary<string, object> PropertiesOf(string fixture, string name)
+    static IAttributesTable PropertiesOf(string fixture, string name)
     {
         var collection = new ReadGeoJsonNode().Update(out _, out _, out _, Fixtures.Read(fixture));
-        var feature = collection.Single(f => Equals(Fixtures.Get(f, "name"), name));
-
-        FeatureNodes.SplitFeature(feature, out _, out var properties);
-        return properties;
+        return collection.Single(f => Equals(Fixtures.Get(f, "name"), name)).Attributes;
     }
 
     [Fact]
@@ -54,13 +53,16 @@ public class PropertyTests
         => Assert.True(Assert.IsType<bool>(PropertiesOf(Fixtures.Points, "Berlin")["capital"]));
 
     [Fact]
-    public void A_json_null_is_absent_rather_than_a_null_entry()
+    public void A_json_null_stays_a_null_entry_for_the_feature_nodes_to_drop()
     {
-        // Berlin's "nickname" is null in the fixture. A dictionary entry whose value is null is
-        // worse than no entry: TryGetValue succeeds and hands the patch nothing.
+        // Berlin's "nickname" is null in the fixture. The table keeps it as written, and
+        // VL.NetTopologySuite's Split leaves it out of the Dictionary while GetAttribute reports
+        // Success false - one rule for "absent", applied where the feature is opened, whoever
+        // produced it.
         var properties = PropertiesOf(Fixtures.Points, "Berlin");
 
-        Assert.False(properties.ContainsKey("nickname"));
+        Assert.True(properties.Exists("nickname"));
+        Assert.Null(properties["nickname"]);
     }
 
     [Fact]
@@ -75,18 +77,16 @@ public class PropertyTests
             """;
 
         var collection = new ReadGeoJsonNode().Update(out _, out _, out _, big);
-        FeatureNodes.SplitFeature(collection.Single(), out _, out var properties);
 
-        Assert.Equal(9007199254740993L, Assert.IsType<long>(properties["osm_id"]));
+        Assert.Equal(9007199254740993L, Assert.IsType<long>(collection.Single().Attributes["osm_id"]));
     }
 
     [Fact]
     public void A_nested_object_becomes_a_mutable_attributes_table()
     {
         var collection = new ReadGeoJsonNode().Update(out _, out _, out _, Fixtures.Read(Fixtures.MultiPolygon));
-        FeatureNodes.SplitFeature(collection.Single(), out _, out var properties);
 
-        var meta = Assert.IsType<AttributesTable>(properties["meta"]);
+        var meta = Assert.IsType<AttributesTable>(collection.Single().Attributes["meta"]);
 
         Assert.Equal("hand-written", meta["source"]);
         Assert.Equal(2L, meta["revision"]);
@@ -101,9 +101,8 @@ public class PropertyTests
     public void A_json_array_keeps_its_elements()
     {
         var collection = new ReadGeoJsonNode().Update(out _, out _, out _, Fixtures.Read(Fixtures.MultiPolygon));
-        FeatureNodes.SplitFeature(collection.Single(), out _, out var properties);
 
-        var tags = Assert.IsType<object[]>(properties["tags"]);
+        var tags = Assert.IsType<object[]>(collection.Single().Attributes["tags"]);
 
         Assert.Equal(["island", "test", "multipolygon"], tags);
     }
@@ -124,102 +123,6 @@ public class PropertyTests
     {
         var properties = PropertiesOf(Fixtures.Points, "Paris");
 
-        Assert.False(properties.ContainsKey("id"));
-    }
-
-    [Fact]
-    public void Splitting_a_null_feature_gives_nothing_rather_than_throwing()
-    {
-        FeatureNodes.SplitFeature(null, out var geometry, out var properties);
-
-        Assert.Null(geometry);
-        Assert.Empty(properties);
-    }
-
-    // ------------------------------------------------------------ GetProperty
-    //
-    // The node exists because IAttributesTable's indexer THROWS on a name it does not have, and a
-    // node that throws sixty times a second while somebody types is not a diagnostic. Every test
-    // below is really one test: does it report instead of raising.
-
-    static global::NetTopologySuite.Features.Feature Berlin()
-        => new ReadGeoJsonNode()
-            .Update(out _, out _, out _, Fixtures.Read(Fixtures.Points))
-            .Single(f => Equals(Fixtures.Get(f, "name"), "Berlin"));
-
-    [Fact]
-    public void GetProperty_finds_a_property_and_reports_success()
-    {
-        var value = FeatureNodes.GetProperty(Berlin(), "population", out var success);
-
-        Assert.True(success);
-        Assert.Equal(3677472L, value);
-    }
-
-    [Fact]
-    public void GetProperty_reports_a_missing_name_instead_of_throwing()
-    {
-        // The whole reason the node exists. Under the raw NTS indexer this line is an
-        // ArgumentException; here it is a false on a pin.
-        var value = FeatureNodes.GetProperty(Berlin(), "no_such_property", out var success);
-
-        Assert.False(success);
-        Assert.Null(value);
-    }
-
-    [Fact]
-    public void GetProperty_treats_a_json_null_as_not_found()
-    {
-        // Berlin's "nickname" is null in the fixture. A patch cannot act on a null differently
-        // from a missing value, so reporting them the same way means one check instead of two.
-        var value = FeatureNodes.GetProperty(Berlin(), "nickname", out var success);
-
-        Assert.False(success);
-        Assert.Null(value);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    public void GetProperty_survives_an_unconnected_or_empty_name(string? name)
-    {
-        // An IOBox somebody has not typed into yet is the normal starting state.
-        var value = FeatureNodes.GetProperty(Berlin(), name, out var success);
-
-        Assert.False(success);
-        Assert.Null(value);
-    }
-
-    [Fact]
-    public void GetProperty_survives_a_null_feature()
-    {
-        var value = FeatureNodes.GetProperty(null, "name", out var success);
-
-        Assert.False(success);
-        Assert.Null(value);
-    }
-
-    [Fact]
-    public void GetProperty_finds_the_geojson_id_member()
-    {
-        Assert.Equal("berlin", FeatureNodes.GetProperty(Berlin(), "id", out var success));
-        Assert.True(success);
-    }
-
-    [Fact]
-    public void GetProperty_agrees_with_Split_on_every_name()
-    {
-        // The two nodes answer different questions - take the lot, versus take one by name - but
-        // they must never disagree about what is there. vvvv ships the same pair for XML
-        // (XElement (Split) -> Attributes, and GetAttributeValue -> Value, Success).
-        var berlin = Berlin();
-        FeatureNodes.SplitFeature(berlin, out _, out var properties);
-
-        foreach (var (key, expected) in properties)
-        {
-            var value = FeatureNodes.GetProperty(berlin, key, out var success);
-            Assert.True(success, $"Split offered '{key}' but GetProperty did not find it");
-            Assert.Equal(expected, value);
-        }
+        Assert.False(properties.Exists("id"));
     }
 }

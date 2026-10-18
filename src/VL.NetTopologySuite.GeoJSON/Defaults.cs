@@ -149,7 +149,7 @@ internal static class Defaults
 
     /// <summary>
     /// Copy a decoded collection into a <see cref="Spread{T}"/> of concrete
-    /// <see cref="NetTopologySuite.Features.Feature"/> objects with mutable
+    /// <see cref="global::NetTopologySuite.Features.Feature"/> objects with mutable
     /// <see cref="AttributesTable"/>s and VL-natural property values.
     /// </summary>
     /// <remarks>
@@ -175,7 +175,7 @@ internal static class Defaults
         return builder.ToSpread();
     }
 
-    /// <summary>Copy one decoded feature into a concrete <see cref="NetTopologySuite.Features.Feature"/>.</summary>
+    /// <summary>Copy one decoded feature into a concrete <see cref="global::NetTopologySuite.Features.Feature"/>.</summary>
     /// <remarks>
     /// <para>Two things are carried across that a naive copy would drop.</para>
     /// <para><b>The GeoJSON <c>id</c> member.</b> It arrives on <c>IUnique.Id</c>, and the concrete

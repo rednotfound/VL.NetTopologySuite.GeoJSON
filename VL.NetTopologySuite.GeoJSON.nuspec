@@ -12,26 +12,26 @@
     <description>
       EARLY - not ready for real work yet.
 
-      GeoJSON made natural inside vvvv gamma. Read a GeoJSON FeatureCollection, take it apart into
-      features, geometry and properties, and write it back out.
+      GeoJSON for VL.NetTopologySuite. Read GeoJSON turns GeoJSON text into a spread of
+      NetTopologySuite features; Write GeoJSON turns features back into text. Both sit in
+      NetTopologySuite.IO, beside Read WKT and Write WKT.
 
-      The nodes hand back native NetTopologySuite types - Feature, FeatureCollection, Geometry -
-      not wrappers, so data read here goes straight into anything else that speaks NTS, including
-      VL.NetTopologySuite for geometry operations and VL.Mapsui for drawing it on a map, with no
-      adapter and no dependency between those packages and this one.
+      The features are NetTopologySuite's own Feature type, not a wrapper. VL.NetTopologySuite
+      (installed with this package) opens them with Split and GetAttribute and operates on their
+      geometry; VL.Mapsui draws them on a map. No adapter anywhere in that chain.
 
       Reads RFC 7946 GeoJSON. Decoded geometry gets SRID 4326, which the format mandates; a
       Factory pin overrides it. Nothing here reprojects anything.
 
       Requires vvvv gamma 7.2 or newer (.NET 8).
     </description>
-    <summary>GeoJSON reading and writing as composable nodes for vvvv gamma.</summary>
+    <summary>GeoJSON reading and writing for VL.NetTopologySuite, as nodes for vvvv gamma.</summary>
     <releaseNotes>
-      0.0.1-alpha - First package. Not published.
+      0.0.1-alpha - First package, developed as VL.GeoJSON until 2026-10-18. Not published.
     </releaseNotes>
     <copyright>Copyright 2026 VL.NetTopologySuite.GeoJSON Contributors</copyright>
     <!-- The "VL" tag is what makes the pack discoverable at https://vvvv.org/packs -->
-    <tags>VL vvvv gamma geojson gis json geometry feature nts nettopologysuite spatial</tags>
+    <tags>VL vvvv gamma geojson gis json io geometry feature nts nettopologysuite spatial</tags>
     <repository type="git" url="https://github.com/rednotfound/VL.NetTopologySuite.GeoJSON" />
 
     <!--
@@ -55,6 +55,16 @@
         <dependency id="NetTopologySuite" version="2.6.0" />
         <dependency id="NetTopologySuite.Features" version="2.1.0" />
         <dependency id="NetTopologySuite.IO.GeoJSON4STJ" version="4.0.0" />
+        <!--
+          The geometry package this one is the GeoJSON half of. Not needed by any node here - they
+          name only upstream types - but by the help: a feature read here is opened with
+          VL.NetTopologySuite's Split and GetAttribute, and vvvv does not fetch a missing document
+          dependency by itself. Same reasoning, same direction, as VL.Mapsui's dependency on it.
+
+          0.0.3-alpha is the first version with GetAttribute, so this package cannot be published
+          before that one is.
+        -->
+        <dependency id="VL.NetTopologySuite" version="0.0.3-alpha" />
       </group>
     </dependencies>
   </metadata>
