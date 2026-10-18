@@ -6,7 +6,7 @@ using NetTopologySuite.Features;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// A <c>[Fact]</c> that only runs when <c>VLGEOJSON_LOAD=1</c>.

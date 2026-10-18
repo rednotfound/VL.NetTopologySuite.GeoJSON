@@ -4,7 +4,7 @@ using System.Text.Json;
 using NetTopologySuite.Features;
 using VL.Core.Import;
 
-namespace VL.GeoJSON;
+namespace VL.NetTopologySuite.GeoJSON;
 
 /// <summary>
 /// Writing features back out as GeoJSON text.
@@ -13,8 +13,9 @@ namespace VL.GeoJSON;
 /// <para>Reading is the reason this package exists; writing is here because <b>a round trip is how
 /// you find out whether the reading was honest</b>. Without it, "the properties survived" is a
 /// claim with nothing behind it.</para>
-/// <para><c>SkipCategory</c> for the same reason as <see cref="FeatureNodes"/>: one flat
-/// <c>GeoJSON</c> category.</para>
+/// <para><c>SkipCategory</c> so that <c>Write GeoJSON</c> sits directly in
+/// <c>NetTopologySuite.IO</c>, beside <c>Write WKT</c>, rather than one level down in a category
+/// named after this class.</para>
 /// </remarks>
 [SkipCategory]
 public static class WriteNodes

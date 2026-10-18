@@ -5,7 +5,7 @@
   <NugetDependency Id="Lddsav8rwLEW6pRl1tKjnD" Location="NetTopologySuite.Features" Version="2.1.0" />
   <NugetDependency Id="KFi9cMJOgIw4YeT3HeCBcW" Location="NetTopologySuite.IO.GeoJSON4STJ" Version="4.0.0" />
   <Patch Id="KDK29Nogj0emjEBXvOc4AU">
-    <Canvas Id="RRxUbRywlYWAgmHNdNBEJx" DefaultCategory="GeoJSON" CanvasType="FullCategory" />
+    <Canvas Id="RRxUbRywlYWAgmHNdNBEJx" DefaultCategory="NetTopologySuite.IO" CanvasType="FullCategory" />
     <!--
 
     ************************ Application ************************

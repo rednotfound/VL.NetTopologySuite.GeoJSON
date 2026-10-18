@@ -3,7 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// The repository-local fixtures, and the generator for the large ones.
@@ -33,7 +33,7 @@ internal static class Fixtures
     /// no properties at all, and a bare indexer turns that into a crash in every test that filters
     /// over the collection.
     /// </remarks>
-    internal static object? Get(NetTopologySuite.Features.IFeature feature, string name)
+    internal static object? Get(global::NetTopologySuite.Features.IFeature feature, string name)
         => feature.Attributes is { } table && table.Exists(name) ? table[name] : null;
 
     internal const string Points = "A-points.geojson";

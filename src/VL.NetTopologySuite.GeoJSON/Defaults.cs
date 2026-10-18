@@ -9,7 +9,7 @@ using NetTopologySuite.Geometries;
 using NetTopologySuite.IO.Converters;
 using VL.Lib.Collections;
 
-namespace VL.GeoJSON;
+namespace VL.NetTopologySuite.GeoJSON;
 
 /// <summary>
 /// The package's default <see cref="GeometryFactory"/>, its cached serializer options, and the
@@ -167,9 +167,9 @@ internal static class Defaults
     /// any node; when something needs it, it becomes an output pin on <c>Read GeoJSON</c>
     /// rather than a resurrected type.</para>
     /// </remarks>
-    internal static Spread<NetTopologySuite.Features.Feature> Normalise(FeatureCollection source)
+    internal static Spread<global::NetTopologySuite.Features.Feature> Normalise(FeatureCollection source)
     {
-        var builder = new SpreadBuilder<NetTopologySuite.Features.Feature>(source.Count);
+        var builder = new SpreadBuilder<global::NetTopologySuite.Features.Feature>(source.Count);
         foreach (var feature in source)
             builder.Add(Normalise(feature));
         return builder.ToSpread();
@@ -188,7 +188,7 @@ internal static class Defaults
     /// tell that apart from a feature with no properties — there is nothing to distinguish. An
     /// empty table means no downstream node has to null-check.</para>
     /// </remarks>
-    internal static NetTopologySuite.Features.Feature Normalise(IFeature feature)
+    internal static global::NetTopologySuite.Features.Feature Normalise(IFeature feature)
     {
         var table = new AttributesTable();
 
@@ -199,7 +199,7 @@ internal static class Defaults
         if (feature is IUnique { Id: { } id } && !table.Exists("id"))
             table.Add("id", NormaliseValue(id));
 
-        return new NetTopologySuite.Features.Feature(feature.Geometry!, table);
+        return new global::NetTopologySuite.Features.Feature(feature.Geometry!, table);
     }
 
     /// <summary>

@@ -5,7 +5,7 @@ using NetTopologySuite.Geometries;
 using VL.Lib.Collections;
 using Xunit;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// The architectural hypothesis, as an assertion: native shared NTS types are enough, and no

@@ -30,7 +30,7 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,185,110,26" Id="UbKHpJZINQo0A0O21TKNyK">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
             </p:NodeReference>

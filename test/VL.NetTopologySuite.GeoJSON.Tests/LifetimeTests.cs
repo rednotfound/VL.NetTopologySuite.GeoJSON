@@ -1,7 +1,7 @@
 using NetTopologySuite.Geometries;
 using Xunit;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// When the parsing happens — the thing that actually matters in VL.

@@ -4,7 +4,7 @@ using VL.Core.Import;
 using NtsFeature = NetTopologySuite.Features.Feature;
 using NtsGeometry = NetTopologySuite.Geometries.Geometry;
 
-namespace VL.GeoJSON;
+namespace VL.NetTopologySuite.GeoJSON;
 
 /// <summary>
 /// Opening up one feature: its geometry, its properties, and one property by name.

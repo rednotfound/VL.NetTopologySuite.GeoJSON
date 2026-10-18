@@ -30,7 +30,7 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,175,110,26" Id="B1OC3ajecXW1K1vJYSrLBr">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
             </p:NodeReference>
@@ -62,7 +62,7 @@
             </p:TypeAnnotation>
           </Pad>
           <Node Bounds="60,375,110,19" Id="Hz7EFi1Zqb8LAsg1QfzEoO">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Write GeoJSON" />
             </p:NodeReference>
@@ -79,7 +79,7 @@
             the top and the bottom agree, the trip was clean.
           -->
           <Node Bounds="60,575,110,26" Id="IIAGnIc44NV9rFGgzeNyOO">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
             </p:NodeReference>

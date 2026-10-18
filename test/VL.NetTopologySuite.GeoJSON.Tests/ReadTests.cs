@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 using VL.Lib.Collections;
 using Xunit;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// What comes out of <c>Read GeoJSON</c>: how many, of what type, with which SRID.

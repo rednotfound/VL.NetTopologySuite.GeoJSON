@@ -35,7 +35,7 @@
             every frame would be a patch that never draws again. Watch Parses settle at 1.
           -->
           <Node Bounds="60,145,110,26" Id="Hp5yah52Q51HVw0PawB6mu">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
             </p:NodeReference>
@@ -86,7 +86,7 @@
             TryGetValue is waiting. See HowTo Access properties.
           -->
           <Node Bounds="60,310,90,26" Id="BHJGK55hy4VAPlVssWA45f">
-            <p:NodeReference LastCategoryFullName="GeoJSON" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Split" />
             </p:NodeReference>

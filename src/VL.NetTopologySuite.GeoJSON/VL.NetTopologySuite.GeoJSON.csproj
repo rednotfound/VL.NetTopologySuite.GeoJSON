@@ -6,14 +6,13 @@
     <LangVersion>12.0</LangVersion>
     <AssemblyName>VL.NetTopologySuite.GeoJSON</AssemblyName>
     <!--
-      The VL node category is derived from the NAMESPACE minus the "VL" prefix (see
-      AssemblyInfo.cs), so this yields categories under "GeoJSON". Assembly name and root
-      namespace happen to agree here, unlike in VL.NetTopologySuite where "NetTopologySuite"
-      had to be abbreviated to "NTS" to stay readable in the node browser. "GeoJSON" is
-      already short, so nothing needs decoupling - but the two are still set separately and
-      deliberately, because that is the rule both sibling repositories follow.
+      Root namespace equals the assembly name, as in VL.NetTopologySuite. The VL category does
+      NOT come from it: AssemblyInfo.cs strips the whole namespace and names the category
+      outright, NetTopologySuite.IO. One consequence, shared with the sibling: inside this
+      namespace a bare "NetTopologySuite" means VL.NetTopologySuite, so a fully qualified
+      upstream name in code needs global::.
     -->
-    <RootNamespace>VL.GeoJSON</RootNamespace>
+    <RootNamespace>VL.NetTopologySuite.GeoJSON</RootNamespace>
     <Version>0.0.1</Version>
     <Authors>VL.NetTopologySuite.GeoJSON Contributors</Authors>
     <Description>GeoJSON as vvvv gamma nodes</Description>

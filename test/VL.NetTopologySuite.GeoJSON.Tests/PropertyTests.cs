@@ -3,7 +3,7 @@ using System.Linq;
 using NetTopologySuite.Features;
 using Xunit;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// Property values, and the normalisation that makes them usable in a patch.
@@ -142,7 +142,7 @@ public class PropertyTests
     // node that throws sixty times a second while somebody types is not a diagnostic. Every test
     // below is really one test: does it report instead of raising.
 
-    static NetTopologySuite.Features.Feature Berlin()
+    static global::NetTopologySuite.Features.Feature Berlin()
         => new ReadGeoJsonNode()
             .Update(out _, out _, out _, Fixtures.Read(Fixtures.Points))
             .Single(f => Equals(Fixtures.Get(f, "name"), "Berlin"));

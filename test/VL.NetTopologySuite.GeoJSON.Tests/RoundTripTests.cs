@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 using VL.Lib.Collections;
 using Xunit;
 
-namespace VL.GeoJSON.Tests;
+namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
 /// Write, read back, and check what survived.

@@ -7,7 +7,7 @@ using VL.Lib.Collections;
 
 using NtsFeature = NetTopologySuite.Features.Feature;
 
-namespace VL.GeoJSON;
+namespace VL.NetTopologySuite.GeoJSON;
 
 /// <summary>
 /// Parse GeoJSON text into a spread of features. Reports failure instead of throwing.
@@ -37,7 +37,7 @@ namespace VL.GeoJSON;
 /// produces text. Adding <c>Read GeoJSON File</c> would duplicate a shipped node, hide where the
 /// file IO happens, and take on encoding and path semantics this package has no business owning.</para>
 /// </remarks>
-[ProcessNode(Name = "Read GeoJSON", Category = "GeoJSON")]
+[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]
 public class ReadGeoJsonNode
 {
     string? _lastText;
