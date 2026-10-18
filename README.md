@@ -7,7 +7,7 @@ Read a GeoJSON document into NetTopologySuite features, and write features back 
 VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `Write WKT`.
 
 > **Status: `0.0.1-alpha`, the first release — a prerelease, early.** It needs VL.NetTopologySuite
-> 0.0.3-alpha (on nuget.org since 2026-10-18), which installs with it. Every node resolves in a
+> 0.0.4-alpha (on nuget.org since 2026-10-18), which installs with it. Every node resolves in a
 > headless `vvvvc` compile of all six help patches, 83 tests pass, the category is proved, and the
 > changed help patches were run in vvvv 7.4. F1 is not yet checked. See
 > [docs/ROADMAP.md](docs/ROADMAP.md#verified).
@@ -81,7 +81,7 @@ reprojects anything.
 
 ## Requirements
 
-vvvv gamma 7.2 or newer (.NET 8). Depends on **VL.NetTopologySuite 0.0.3-alpha**, NetTopologySuite
+vvvv gamma 7.2 or newer (.NET 8). Depends on **VL.NetTopologySuite 0.0.4-alpha**, NetTopologySuite
 2.6.0, NetTopologySuite.Features 2.1.0 and NetTopologySuite.IO.GeoJSON4STJ 4.0.0 — the same NTS
 versions the sibling packages pin, so a vvvv loading all of them sees one assembly identity.
 

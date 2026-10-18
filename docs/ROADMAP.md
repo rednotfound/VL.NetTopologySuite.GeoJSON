@@ -11,8 +11,8 @@ because the serializer has the option.
 
 **VL.NetTopologySuite.GeoJSON** — `VL.GeoJSON` until 2026-10-18 ([why](ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson)).
 **Three nodes in VL.NetTopologySuite's `NetTopologySuite.IO`. 83 tests, 4 load tests, six help
-patches.** Depends on VL.NetTopologySuite **0.0.3-alpha**, the first with `GetAttribute` — **so it
-cannot be published before that version is.**
+patches.** Depends on VL.NetTopologySuite **0.0.4-alpha**, on nuget.org since 2026-10-18 (0.0.3-alpha
+was the first with `GetAttribute`; 0.0.4-alpha has the short tooltips).
 
 ```text
 Read GeoJSON        [ProcessNode]  text + Factory -> Features (Spread), Success, Status, Parses
@@ -45,7 +45,7 @@ both are backed by a survey of the shipped packs — see
 | negative test: dangling-Pad rule | that rule can still go red after being loosened | ✅ red on a Comment-only Pad, green on an annotation |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
 | `tools\Compile-HelpPatches.ps1` | **every node in every patch RESOLVED** — ours, and VL.NetTopologySuite's `Split` / `GetAttribute` | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
-| `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.3-alpha from nuget.org**, and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
+| `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.4-alpha from nuget.org** (2026-10-18: cache evicted first; the copy it pulled is byte-identical to nuget.org's signed package), and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
 | negative test: a patch naming the package by its old name | the compile check cannot go silently green after a rename | ✅ FAIL, exit 1 (2026-10-18) |
 | the generated C# | `Read GeoJSON` is built in `Create`, never in `Update` | ✅ counted independently: 1 ctor, in `Create`, 0 in `Update` |
 

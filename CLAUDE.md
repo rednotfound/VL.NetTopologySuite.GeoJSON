@@ -18,8 +18,9 @@ do not undo any of it without reading them. The GitHub repository is renamed by 
 
 **Current state (2026-10-18): 3 nodes, 83 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
-and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org, and **nothing can be until
-VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
+and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** Nothing is published to nuget.org yet. It depends on
+VL.NetTopologySuite **0.0.4-alpha** (on nuget.org since 2026-10-18; 0.0.3-alpha was the first with
+`GetAttribute`, 0.0.4-alpha the first with short tooltips). See
 [Verification](#verification--be-precise-about-which-one-you-have).
 
 **Help is the teaching surface here, not a fatter node.** Two things a user needs are deliberately
@@ -165,7 +166,7 @@ These cost a full survey; do not re-derive them.
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
 | `tools\Compile-HelpPatches.ps1` | every node in every patch **resolved** — ours and VL.NetTopologySuite's | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
-| `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.3-alpha from nuget.org**, and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
+| `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.4-alpha from nuget.org** (2026-10-18: cache evicted first; the copy it pulled is byte-identical to nuget.org's signed package), and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
 | a **category-constrained probe** (below) | **which category a node is in** | ✅ 2026-10-18: `NetTopologySuite.IO` resolves, the old `GeoJSON` gives `Not found` |
 | the vvvv **NodeBrowser** | the same, as a user sees it | ❌ not looked at — the probe is the stronger evidence |
 | the vvvv **GUI, running** | the patch computes the right value | ✅ 2026-10-18, vvvv 7.4: Access properties, Read GeoJSON, Write GeoJSON, Explanation — values read off PrintWindow captures (2 features, Parses 1, round trip 2 = 2, `TryGetValue` and `GetAttribute` both "Tokyo") |

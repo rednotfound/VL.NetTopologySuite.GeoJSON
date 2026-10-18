@@ -34,7 +34,7 @@
     <releaseNotes>
       0.0.1-alpha - First release. Read GeoJSON, GeoJSONReader (Reactive) - a file read and
       parsed in the background - and Write GeoJSON, in NetTopologySuite.IO.
-      Developed as VL.GeoJSON until 2026-10-18. Requires VL.NetTopologySuite 0.0.3-alpha, which
+      Developed as VL.GeoJSON until 2026-10-18. Requires VL.NetTopologySuite 0.0.4-alpha, which
       opens the features (Split, GetAttribute) and is installed with this package.
     </releaseNotes>
     <copyright>Copyright 2026 VL.NetTopologySuite.GeoJSON Contributors</copyright>
@@ -69,10 +69,10 @@
           VL.NetTopologySuite's Split and GetAttribute, and vvvv does not fetch a missing document
           dependency by itself. Same reasoning, same direction, as VL.Mapsui's dependency on it.
 
-          0.0.3-alpha is the first version with GetAttribute, so this package cannot be published
-          before that one is.
+          0.0.3-alpha is the first version with GetAttribute; 0.0.4-alpha (2026-10-18) is the first
+          whose node tooltips are short, and is what this package is tested against.
         -->
-        <dependency id="VL.NetTopologySuite" version="0.0.3-alpha" />
+        <dependency id="VL.NetTopologySuite" version="0.0.4-alpha" />
       </group>
     </dependencies>
   </metadata>

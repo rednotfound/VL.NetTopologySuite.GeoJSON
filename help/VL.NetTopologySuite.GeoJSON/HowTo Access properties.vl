@@ -138,5 +138,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="NqhGdYpr6flaHKsqHSMRuX" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
-  <NugetDependency Id="Ub2pSG4mXyQe7RkcV1tLwN" Location="VL.NetTopologySuite" Version="0.0.3-alpha" />
+  <NugetDependency Id="Ub2pSG4mXyQe7RkcV1tLwN" Location="VL.NetTopologySuite" Version="0.0.4-alpha" />
 </Document>
