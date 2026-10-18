@@ -27,6 +27,6 @@
 		<VLDocument link="HowTo Write GeoJSON.vl" tags="geojson,write,serialize,roundtrip,ringorientation,winding,indent,srid,io,file,save,filewriter,disk" />
 	</Topic>
 	<Topic title="Real data">
-		<VLDocument link="HowTo Handle a large GeoJSON file.vl" tags="geojson,large,performance,parses,frames,processnode,memory,caching,scale,naturalearth,cities,realdata,filereader" />
+		<VLDocument link="HowTo Handle a large GeoJSON file.vl" tags="geojson,large,performance,async,background,reactive,freeze,blocking,foreach,holdlatest,frames,memory,scale,naturalearth,cities,realdata,filereader" />
 	</Topic>
 </Pack>

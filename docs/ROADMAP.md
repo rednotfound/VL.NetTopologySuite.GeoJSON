@@ -69,8 +69,10 @@ ratio should keep moving toward more help rather than more nodes** — VL.Skia s
 
 **Not yet verified:**
 
-- **F1** on `Read GeoJSON` / `Write GeoJSON`, and `HowTo Read a GeoJSON file` /
-  `HowTo Handle a large GeoJSON file` on screen (unchanged by the rename, never opened).
+- **F1** on `Read GeoJSON` / `Write GeoJSON`, and `HowTo Read a GeoJSON file` on screen.
+- The two bangs of `HowTo Handle a large GeoJSON file` pressed in the GUI. Opened and captured
+  2026-10-18: 7,342 features arrive through the background chain, longest frame 0.02 s; the
+  bangs need a human, posted clicks do not reach the editor.
 - **Stages F, G, H of the brief's §13** — Mapsui feature conversion, layer construction, rendering.
   They need vvvv, and a console host would prove nothing about them.
 

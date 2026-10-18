@@ -26,7 +26,7 @@ Six help patches, in the order the help browser shows them:
 | **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `Read GeoJSON`, and why there is no file node here |
 | **HowTo Access properties** | `Split` and `GetAttribute` side by side, and what type each JSON value arrives as |
 | **HowTo Write GeoJSON** | a full round trip, and the ring-winding pin that decides whether it is exact |
-| **HowTo Handle a large GeoJSON file** | a frame counter climbing while `Parses` stays at 1 |
+| **HowTo Handle a large GeoJSON file** | reading in the background - `FileReader (String Reactive)`, `ForEach [Reactive]`, `HoldLatest` - against a blocking read, with the longest frame measured in the patch |
 
 ```text
 GeoJSON text

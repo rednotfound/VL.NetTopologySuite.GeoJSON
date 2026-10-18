@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="KAgwYthZ2huojxWWteSu4O">
         <Canvas Id="Sd1LQJidF9lXO7Nd5UyXo0" CanvasType="Group">
-          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1050,60,480,740" ShowValueBox="true" isIOBox="true" Value="The one that matters once your data is real&#xD;&#xA;&#xD;&#xA;This patch reads a real dataset: every populated place in Natural Earth's 1:10m set - 7,342 cities, 4.7 MB of GeoJSON, 31 properties each. A ForEach reads one property, name, from every one of them. Doing that every frame is cheap - 7,342 lookups held the patch at 60 fps (measured) - because reading a property is not parsing. The parse is the expensive part, and it happens once.&#xD;&#xA;&#xD;&#xA;Watch the two numbers. Frames climbs sixty times a second. Parses sits at 1 and never moves.&#xD;&#xA;&#xD;&#xA;In vvvv, having a patch open means having it RUNNING - every node is evaluated every frame. One parse of this file takes about 220 ms, thirteen frames. If Read GeoJSON parsed its text every frame, this patch would run at about four frames a second. It parses when the TEXT CHANGES, and FileReader only reads when its Read pin is banged - here once, by OnOpen.&#xD;&#xA;&#xD;&#xA;One parse, measured on real files:&#xD;&#xA;&#xD;&#xA;   1,858 earthquakes (USGS, a week)       160 ms&#xD;&#xA;   7,342 cities (this file)               220 ms&#xD;&#xA;  10,120 earthquakes (USGS, a month)      275 ms&#xD;&#xA;  56,600 roads (Natural Earth 1:10m)    2,000 ms&#xD;&#xA;&#xD;&#xA;A frame is 16.7 ms. The cost follows the number of FEATURES and of their PROPERTIES, not the number of points.&#xD;&#xA;&#xD;&#xA;Try a bigger one: download ne_10m_roads.geojson (48 MB, public domain) from github.com/nvkelso/natural-earth-vector, folder geojson, and point File Path at it. Parses still stays at 1 - the open just takes two seconds.&#xD;&#xA;&#xD;&#xA;How to break it anyway: build the text fresh every frame. Every frame is then a new text, so every frame is a new parse, and Parses climbs alongside Frames - that is your warning.&#xD;&#xA;&#xD;&#xA;GeoJSON is one big JSON object, so all of it must be in memory before you get the first feature. For millions of features the answer is a different format - GeoParquet, FlatGeobuf, PMTiles - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
+          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1300,60,480,740" ShowValueBox="true" isIOBox="true" Value="Reading a big file without freezing vvvv&#xD;&#xA;&#xD;&#xA;Read GeoJSON parses on the main loop, and while it parses NOTHING else in vvvv runs - not your patch, not the renderer, not the editor. Measured in vvvv 7.4, longest frame:&#xD;&#xA;&#xD;&#xA;      7,342 cities (this file)              0.56 s&#xD;&#xA;     56,600 roads (Natural Earth)           2.5 s&#xD;&#xA;    357,534 buildings (Delaware)            4.0 s&#xD;&#xA;  1,215,624 buildings (Connecticut)        12.9 s&#xD;&#xA;&#xD;&#xA;So read in the BACKGROUND, as on the left: FileReader (String Reactive) reads the file on another thread, ForEach [Reactive] runs Read GeoJSON on that thread too, and HoldLatest hands the result to the main loop. The same node - nothing else to install. For the same four files the longest frame stayed at 0.02 - 0.04 s.&#xD;&#xA;&#xD;&#xA;The result arrives some frames after you ask for it. LOADING is true until then, and HoldLatest keeps the previous result in the meantime.&#xD;&#xA;&#xD;&#xA;Try it: press READ IN BACKGROUND and watch LONGEST FRAME - it stays near 0.02. Then press READ BLOCKING: it jumps to about half a second, and FRAMES stops while it parses.&#xD;&#xA;&#xD;&#xA;Memory is the real limit: about ten times the file. Connecticut (340 MB) took vvvv to 3.8 GB. Beyond that the answer is a different format - FlatGeobuf, GeoParquet - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -43,30 +43,21 @@
             <Pin Id="SXCqUb0QBUFADT57Z993Bu" Name="Simulate" Kind="InputPin" />
             <Pin Id="DcgL6BvckJsloUbUn6a9Dc" Name="Output" Kind="OutputPin" />
           </Node>
-          <Node Bounds="60,135,110,19" Id="FjFdQVU13eNeF1ePdUwr8w">
+          <Node Bounds="60,135,150,19" Id="FjFdQVU13eNeF1ePdUwr8w">
             <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="FileReader (String)" />
+              <Choice Kind="ProcessAppFlag" Name="FileReader (String Reactive)" />
             </p:NodeReference>
             <Pin Id="TVHGg5cGqc2uWMdcM3ByeY" Name="Node Context" Kind="InputPin" IsHidden="true" />
             <Pin Id="ILlP30Hm276VLTvEZ3DrBp" Name="File Path" Kind="InputPin" />
             <Pin Id="U3ip3exzsSqaGabuwedsam" Name="Encoding" Kind="InputPin" />
             <Pin Id="RN1ZSNlLOqcNCJYo0lQcAD" Name="Read" Kind="InputPin" />
             <Pin Id="UIeJeRb1cZU8uLKrL0ISYx" Name="Output" Kind="OutputPin" />
+            <Pin Id="DKpYIyZ5CVx2slbEcTyDOq" Name="Progress" Kind="OutputPin" />
+            <Pin Id="TX5WYTQpNeKo9enfJrR7Qp" Name="In Progress" Kind="OutputPin" />
+            <Pin Id="PVwXcwPdf24tN6OCrVoCQc" Name="On Completed" Kind="OutputPin" />
           </Node>
-          <Node Bounds="60,185,110,19" Id="UbKHpJZINQo0A0O21TKNyK">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
-            </p:NodeReference>
-            <Pin Id="GAYsmaRBTrGgLbSoXya2Rm" Name="GeoJSON" Kind="InputPin" />
-            <Pin Id="GyZGyzwcyFeWuCPRfCwvat" Name="Factory" Kind="InputPin" />
-            <Pin Id="SZRL34NA58dsAozVRP3O7S" Name="Features" Kind="OutputPin" />
-            <Pin Id="N2mOHUfMVd6vzamgxKUleM" Name="Success" Kind="OutputPin" />
-            <Pin Id="FOLyQpGLZrHgrxfIrc1RQ6" Name="Status" Kind="OutputPin" />
-            <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
-          </Node>
-          <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="PARSES - this is the number to watch. It stays at 1." Bounds="166,231,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="parses - one per press: each read is a new text" Bounds="806,231,50,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="544,200,40,20" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
@@ -82,7 +73,170 @@
             <Pin Id="GxEUSjS9FSU9fGTTb3eAcH" Name="Reset" Kind="ApplyPin" />
             <Pin Id="QKuJT08RzzLmuOOY7wQogi" Name="Value" Kind="OutputPin" />
           </Node>
-          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="544,300,60,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbs sixty a second, and stops dead while READ BLOCKING parses" Bounds="544,300,60,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="60,185,200,85" Id="UCNhiwS5wmvh0c3dVVWrZQ">
+            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.Reactive.vl">
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="ForEach" />
+              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="VILuWJBq7yxudBoTnSVRhw" Name="Messages" Kind="InputPin" />
+            <Pin Id="NtZCL3FPKGe9dhju4R346C" Name="Reset" Kind="InputPin" />
+            <Pin Id="PA9sdcPYBPMtv9gg2dNU74" Name="Result" Kind="OutputPin" />
+            <Patch Id="J9QwE1SILRrWjhG125ubxw" ManuallySortedPins="true">
+              <Patch Id="UmjA4wiOCCWLD9knhRUqh5" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="Rq1gCv4Qy2ySNI8dwxuv0D" Name="Update" ManuallySortedPins="true">
+                <Pin Id="NNhod21TpVazi5dNVyAiFy" Name="Input 1" Kind="InputPin" />
+                <Pin Id="UOWFPc2tJZsrXMPs7HeQWu" Name="Output" Kind="OutputPin" />
+              </Patch>
+              <ControlPoint Id="VfZT7Wk7Vn0PmstaSzlW0C" Bounds="64,193" />
+              <ControlPoint Id="HA2XvhbJVpRlEyTKQfAAws" Bounds="84,263" />
+              <Node Bounds="80,222,110,19" Id="UbKHpJZINQo0A0O21TKNyK">
+                <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+                </p:NodeReference>
+                <Pin Id="GAYsmaRBTrGgLbSoXya2Rm" Name="GeoJSON" Kind="InputPin" />
+                <Pin Id="GyZGyzwcyFeWuCPRfCwvat" Name="Factory" Kind="InputPin" />
+                <Pin Id="SZRL34NA58dsAozVRP3O7S" Name="Features" Kind="OutputPin" />
+                <Pin Id="N2mOHUfMVd6vzamgxKUleM" Name="Success" Kind="OutputPin" />
+                <Pin Id="FOLyQpGLZrHgrxfIrc1RQ6" Name="Status" Kind="OutputPin" />
+                <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
+              </Node>
+            </Patch>
+          </Node>
+          <Node Bounds="60,300,65,19" Id="QZ5uwB50R9QMFdJmkzaW9M">
+            <p:NodeReference LastCategoryFullName="Reactive" LastDependency="VL.Reactive.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="HoldLatest" />
+              <CategoryReference Kind="Category" Name="Reactive" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="LM1NXVE97PjSBd7Vh03Ik2" Name="Initial Result" Kind="InputPin" />
+            <Pin Id="BHSgoE9WJCtYbwVqbiZAJ9" Name="Async Notifications" Kind="InputPin" />
+            <Pin Id="EDXcjbLMEEdHJzntYEGefD" Name="Reset" Kind="InputPin" />
+            <Pin Id="U02VsaNxbZvSW0OlKKWSY5" Name="Value" Kind="OutputPin" />
+            <Pin Id="UPT54XCfcmYLKzkOrO2xG1" Name="On Data" Kind="OutputPin" />
+          </Node>
+          <Pad Id="QJZHj4YgJTXsHm0OGtC0Cv" Comment="LOADING - true while the file is read and parsed in the background" Bounds="230,160,40,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="GSR2JJIVyZHOPi8Mk0AbkY" Comment="READ IN BACKGROUND" Bounds="420,95,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Pad Id="FEbBdM7y5vctgqueWMEiIM" Comment="READ BLOCKING - vvvv freezes while it parses" Bounds="700,85,35,35" ShowValueBox="true" isIOBox="true" Value="False">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+            <p:ValueBoxSettings>
+              <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
+            </p:ValueBoxSettings>
+          </Pad>
+          <Node Bounds="700,135,110,19" Id="GUxG16Of4YH2D8mo2T2zP7">
+            <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FileReader (String)" />
+            </p:NodeReference>
+            <Pin Id="R9gx7rFYCZ8hy5IYAihz03" Name="File Path" Kind="InputPin" />
+            <Pin Id="ITZuxJRBAOSYt7zEersjPC" Name="Encoding" Kind="InputPin" />
+            <Pin Id="KJezqqQZeBjhxjJdqSPyLC" Name="Read" Kind="InputPin" />
+            <Pin Id="NxIcUgjmx9Lkt8fRZG79bf" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="700,185,110,19" Id="Hrp3sV9bP8m8KgoXyf0NaQ">
+            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+            </p:NodeReference>
+            <Pin Id="IGrPeOsRMCqNgsyyIDa0FT" Name="GeoJSON" Kind="InputPin" />
+            <Pin Id="Kw9oYTyiGET9kKa1MPuN8m" Name="Factory" Kind="InputPin" />
+            <Pin Id="ULRJ25nTBWuNNnY2b8uSeH" Name="Features" Kind="OutputPin" />
+            <Pin Id="Ah3UgCrvaz1c4n0NSrMBAl" Name="Success" Kind="OutputPin" />
+            <Pin Id="MZjnMOmBZG61VepP6yr3QQ" Name="Status" Kind="OutputPin" />
+            <Pin Id="JFCG7Svjwduh438GRkf9ln" Name="Parses" Kind="OutputPin" />
+          </Node>
+          <Pad Id="CRoQsXBNiF3QaxpDQB8HJ7" Comment="measure" Bounds="860,400,35,15" ShowValueBox="true" isIOBox="true" Value="True">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Boolean" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="860,440,65,19" Id="DhtqYOJRKzWCU7d0y457kR">
+            <p:NodeReference LastCategoryFullName="Animation" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="Stopwatch" />
+            </p:NodeReference>
+            <Pin Id="T3fF2BvOp7k7Pb3l3OzWCt" Name="Enabled" Kind="InputPin" />
+            <Pin Id="L0OVas418usWc2BXmd4EtR" Name="Reset" Kind="InputPin" />
+            <Pin Id="MDqxhJz4RBW1b8hmbJyHDc" Name="Time" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="920,470,69,19" Id="QWQwtNKTkBuJpbG9Mq9ZU2">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FrameDelay" />
+            </p:NodeReference>
+            <Pin Id="GHsSTREJM7kNVpbXshcR22" Name="Initial Value" Kind="InputPin" />
+            <Pin Id="Vz8VMNAzdbPj7u5mjx4hqL" Name="Value" Kind="InputPin" />
+            <Pin Id="UxTujcQFAFduqLiuMPrvzA" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="860,505,25,19" Id="JIPXCedZeFwXgmDqXppVNn">
+            <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="-" />
+            </p:NodeReference>
+            <Pin Id="N8uVo89GhnD3LR5TVPVinn" Name="Input" Kind="InputPin" />
+            <Pin Id="DNRFhqinsdgoe3H0jx2rhS" Name="Input 2" Kind="InputPin" />
+            <Pin Id="Lgw4TamPTSFosYXrMtkpRw" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Pad Id="O4pGf1BE5I4IGDvz2w5wQP" Comment="from frame - startup is not your patch" Bounds="990,505,40,15" ShowValueBox="true" isIOBox="true" Value="600">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Integer32" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="920,535,35,19" Id="KXFlBKwu5ikORnunzDEdl8">
+            <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="&gt;" />
+            </p:NodeReference>
+            <Pin Id="VClGucbeULxQV4rQO8RbYm" Name="Input" Kind="InputPin" />
+            <Pin Id="UB4mHFuAJe7NjHCLw4O6Xl" Name="Input 2" Kind="InputPin" />
+            <Pin Id="CBOvArMs70ALDZ7dQZgzIx" Name="Result" Kind="OutputPin" />
+          </Node>
+          <Pad Id="IFZxiKutlXFPVN3bvJuvqR" Comment="" Bounds="990,545,40,15" ShowValueBox="true" isIOBox="true" Value="0">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="Float64" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Node Bounds="860,575,45,19" Id="FmSpARa3CTtlcN1G0eNjVa">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Switch" />
+              <CategoryReference Kind="Category" Name="Control" NeedsToBeDirectParent="true" />
+            </p:NodeReference>
+            <Pin Id="MxCs8vqSB5C0IPJIkzpRvV" Name="Index" Kind="InputPin" />
+            <Pin Id="Hbz155vRP0zgRUmlMCwRNz" Name="Input" Kind="InputPin" />
+            <Pin Id="UkZDWiA6IMhk5znNM3OQA2" Name="Input 2" Kind="InputPin" />
+            <Pin Id="A35Zezv7dNAix4enpwRRuw" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="860,615,38,19" Id="Qw6Jb5XWDYtwmn6nZGi7rF">
+            <p:NodeReference LastCategoryFullName="Math" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="OperationCallFlag" Name="Max" />
+            </p:NodeReference>
+            <Pin Id="UWgHODHoyvg3rNUrYFtnWc" Name="Input" Kind="InputPin" />
+            <Pin Id="H9i4kTSYHB6r01f9N2A0iO" Name="Input 2" Kind="InputPin" />
+            <Pin Id="V82WNEBAK9Js5R0suWX6CF" Name="Output" Kind="OutputPin" />
+          </Node>
+          <Node Bounds="920,645,69,19" Id="DbIlS87tyJ3mmlL1ECayh8">
+            <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+              <Choice Kind="ProcessAppFlag" Name="FrameDelay" />
+            </p:NodeReference>
+            <Pin Id="GYqfnyy8Oag3Alnc2FjwpK" Name="Initial Value" Kind="InputPin" />
+            <Pin Id="RsKPKkab6Zv4nPjY5DEUn2" Name="Value" Kind="InputPin" />
+            <Pin Id="O1moup3syhFgCykbwy7Yx1" Name="Value" Kind="OutputPin" />
+          </Node>
+          <Pad Id="JwxCLNeQWXqDdJ7PyAJtgk" Comment="LONGEST FRAME, seconds - a frame at 60 fps is 0.017" Bounds="860,690,60,25" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="60,445,44,26" Id="VhY1SynGqSzKXvDUczpksp">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -93,7 +247,7 @@
             <Pin Id="S7G105tsE2LkaP0KyDnKJF" Name="Count" Kind="OutputPin" />
           </Node>
           <Pad Id="LH4ebQNEbp8DWihC2ALOsC" Comment="features" Bounds="62,500,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="132,261,99,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="772,261,99,15" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="254,495,96,88" Id="KLuTAxcqAawQCvFRQxjdbS">
             <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
               <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
@@ -132,21 +286,45 @@
           <Fragment Id="MO75PQWIVZzlgZ6PZ12Wye" Patch="M7XBO0ly0fQe7Zxaw1tRns" Enabled="true" />
           <Fragment Id="Ra4bl0BfFh5pTYhc2bqu2A" Patch="UVPx3Oa07kknucSIa8ZKdc" Enabled="true" />
         </ProcessDefinition>
-        <Link Id="DyRSkhRT7OrNmlIpOH33fy" Ids="KhOLnsKtnkesCOWwAQjeN6,FofjZK5QupUMGDo7OiKD40" />
         <Link Id="HyKANb4o90cqXo9eoKVAWR" Ids="V3RCPt1dkrJMucrisaD7To,HVzyyS2cMRPUd7cTj5I9im" />
         <Link Id="O5V2gSVmrXiHeo2j2f3uIx" Ids="QKuJT08RzzLmuOOY7wQogi,RscSLOj3HjNKDj2G2VpHR8" />
-        <Link Id="Vv03T2ciyg5iKG6PLW3BdM" Ids="SZRL34NA58dsAozVRP3O7S,JRduor7o0G31QwI1eiLPC6" />
         <Link Id="EhR6T8yl1IR8C68DO3Fv1m" Ids="S7G105tsE2LkaP0KyDnKJF,LH4ebQNEbp8DWihC2ALOsC" />
-        <Link Id="TF9f7Jv8lVns9nqpYBP7sU" Ids="FOLyQpGLZrHgrxfIrc1RQ6,PoAVCukwoghXUra2KJ9SoE" />
         <Link Id="TX3tKPMMxJvgqBvZmTlCFd" Ids="DZyWbq65vYkzkpCqXXj02v,ILlP30Hm276VLTvEZ3DrBp" />
         <Link Id="Qzc4n39oeLdSITBPf1XUDu" Ids="FyE3hfZjvyBAJQmp0lu7aI,U3ip3exzsSqaGabuwedsam" />
         <Link Id="BTH2qw0xoVhsth0pbdJ5qr" Ids="DcgL6BvckJsloUbUn6a9Dc,RN1ZSNlLOqcNCJYo0lQcAD" />
-        <Link Id="MRtt1qbVJo05XAdR871fEE" Ids="UIeJeRb1cZU8uLKrL0ISYx,GAYsmaRBTrGgLbSoXya2Rm" />
-        <Link Id="NZe7saVt2qeMIj8ShgtbiA" Ids="SZRL34NA58dsAozVRP3O7S,HsDbeyca2kBMPmpw6HfKrz" />
         <Link Id="JbTLLKPnq1PPgOWJqUwC3M" Ids="HsDbeyca2kBMPmpw6HfKrz,OLd7GgqWoC5PZHAooihI3u" />
         <Link Id="DqEoopKpuu2Mmst1aB4laV" Ids="UAAvwZ9z09SMuEXVYj9G4b,IJ5I09qarKHMygGbXt0cim" />
         <Link Id="U0zNeqE0e7gPYXg6nDz3VK" Ids="N6iIRArlPqcM7JvOux0yRg,B1t5N0cS4pGMMOP8AxLGJP" />
         <Link Id="A5MXwXwRr3sQGPK0uAQ3yI" Ids="B1t5N0cS4pGMMOP8AxLGJP,MDlfneG0bjmLU4FeXyE6gF" />
+        <Link Id="PvMDiBVXpfk3KzwdHt8HHe" Ids="UIeJeRb1cZU8uLKrL0ISYx,VILuWJBq7yxudBoTnSVRhw" />
+        <Link Id="UDU0pXKb1IVS6757jydA8O" Ids="NNhod21TpVazi5dNVyAiFy,VfZT7Wk7Vn0PmstaSzlW0C" IsHidden="true" />
+        <Link Id="BfPMv9hb7RYzFT0ew05NbQ" Ids="HA2XvhbJVpRlEyTKQfAAws,UOWFPc2tJZsrXMPs7HeQWu" IsHidden="true" />
+        <Link Id="ARR1QRZLPGK5NigCgmpkbJ" Ids="VfZT7Wk7Vn0PmstaSzlW0C,GAYsmaRBTrGgLbSoXya2Rm" />
+        <Link Id="G606UYOX1HymPP9W934bo9" Ids="SZRL34NA58dsAozVRP3O7S,HA2XvhbJVpRlEyTKQfAAws" />
+        <Link Id="OElQTeyoHuYnIUgFszbHpL" Ids="PA9sdcPYBPMtv9gg2dNU74,BHSgoE9WJCtYbwVqbiZAJ9" />
+        <Link Id="RT26Jm5ofvloUAzJbp68c9" Ids="U02VsaNxbZvSW0OlKKWSY5,JRduor7o0G31QwI1eiLPC6" />
+        <Link Id="TtwnNuUGlDnquyKIE062w6" Ids="U02VsaNxbZvSW0OlKKWSY5,HsDbeyca2kBMPmpw6HfKrz" />
+        <Link Id="KRtqdm8mjHupLhnXTYvMHA" Ids="TX5WYTQpNeKo9enfJrR7Qp,QJZHj4YgJTXsHm0OGtC0Cv" />
+        <Link Id="NZxEVQibRT3tnDE35nBRKA" Ids="GSR2JJIVyZHOPi8Mk0AbkY,SXCqUb0QBUFADT57Z993Bu" />
+        <Link Id="JW2ropPxxH8bwzymYLE84s" Ids="DZyWbq65vYkzkpCqXXj02v,R9gx7rFYCZ8hy5IYAihz03" />
+        <Link Id="KNNiGbtHBolKjndHYg3fFJ" Ids="FyE3hfZjvyBAJQmp0lu7aI,ITZuxJRBAOSYt7zEersjPC" />
+        <Link Id="EMXEGLUJ2ALedvZEUMBevx" Ids="FEbBdM7y5vctgqueWMEiIM,KJezqqQZeBjhxjJdqSPyLC" />
+        <Link Id="EzC40J6PcL7pgi9O9617su" Ids="NxIcUgjmx9Lkt8fRZG79bf,IGrPeOsRMCqNgsyyIDa0FT" />
+        <Link Id="NHiMMOgszNvTQMbgmjGdLu" Ids="JFCG7Svjwduh438GRkf9ln,FofjZK5QupUMGDo7OiKD40" />
+        <Link Id="O3wlXqbhhWqDVx1iRHEWEY" Ids="MZjnMOmBZG61VepP6yr3QQ,PoAVCukwoghXUra2KJ9SoE" />
+        <Link Id="Seaf2vMeTcQVqSiz0gXTIR" Ids="CRoQsXBNiF3QaxpDQB8HJ7,T3fF2BvOp7k7Pb3l3OzWCt" />
+        <Link Id="IDGHqtXjcw5np5gAsIiahx" Ids="MDqxhJz4RBW1b8hmbJyHDc,Vz8VMNAzdbPj7u5mjx4hqL" />
+        <Link Id="Evy9hVlWxJst0APPGAnu1w" Ids="MDqxhJz4RBW1b8hmbJyHDc,N8uVo89GhnD3LR5TVPVinn" />
+        <Link Id="DwzGS3zJbps5mBmrQHuLXc" Ids="UxTujcQFAFduqLiuMPrvzA,DNRFhqinsdgoe3H0jx2rhS" />
+        <Link Id="NJzbtJNJkFtqd3obR2A9Lr" Ids="QKuJT08RzzLmuOOY7wQogi,VClGucbeULxQV4rQO8RbYm" />
+        <Link Id="QQmOCQ7Pt2uHdgEYfljg0s" Ids="O4pGf1BE5I4IGDvz2w5wQP,UB4mHFuAJe7NjHCLw4O6Xl" />
+        <Link Id="Q1uQUjEFsMzBnH8Gq3fGt5" Ids="CBOvArMs70ALDZ7dQZgzIx,MxCs8vqSB5C0IPJIkzpRvV" />
+        <Link Id="MU0Llcle6PrMpOXDmImWRu" Ids="IFZxiKutlXFPVN3bvJuvqR,Hbz155vRP0zgRUmlMCwRNz" />
+        <Link Id="VpzvWMJyG6rBFIMboOyC0J" Ids="Lgw4TamPTSFosYXrMtkpRw,UkZDWiA6IMhk5znNM3OQA2" />
+        <Link Id="LRTMD5mdJLXdK3gFUfMpsP" Ids="A35Zezv7dNAix4enpwRRuw,UWgHODHoyvg3rNUrYFtnWc" />
+        <Link Id="RFNqJAtgjGcnTaSeSALVrJ" Ids="O1moup3syhFgCykbwy7Yx1,H9i4kTSYHB6r01f9N2A0iO" />
+        <Link Id="QRrFpDBAktVxeoel3ZiCeF" Ids="V82WNEBAK9Js5R0suWX6CF,RsKPKkab6Zv4nPjY5DEUn2" />
+        <Link Id="QjIFsQUogT4BjHp5O78zX5" Ids="V82WNEBAK9Js5R0suWX6CF,JwxCLNeQWXqDdJ7PyAJtgk" />
       </Patch>
     </Node>
   </Patch>
