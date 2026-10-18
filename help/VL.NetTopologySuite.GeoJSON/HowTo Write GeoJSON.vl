@@ -74,34 +74,12 @@
           </Node>
           <Pad Id="Cvi1pAs1Yem9MNogLzgUNT" Comment="wrote ok?" Bounds="167,420,50,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="ClCGUbrSJzVEdbV7zPonvi" Comment="GeoJSON out" Bounds="62,460,196,150" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="55,694,110,19" Id="IIAGnIc44NV9rFGgzeNyOO">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
-            </p:NodeReference>
-            <Pin Id="C8AoWneCBVqJRHBEVzNOl0" Name="GeoJSON" Kind="InputPin" />
-            <Pin Id="M1xRnqLIn52bvT0rjFSTbG" Name="Factory" Kind="InputPin" />
-            <Pin Id="Nz5XqyLGR3QTXylLMeRluI" Name="Features" Kind="OutputPin" />
-            <Pin Id="Ou1VrUOdjeFfQ5jtLqcMfl" Name="Success" Kind="OutputPin" />
-            <Pin Id="KSSxeqsZxGrsVYNTOEbTPU" Name="Status" Kind="OutputPin" />
-            <Pin Id="Sl0l4Hx3wDOS2d6wIWryW9" Name="Parses" Kind="OutputPin" />
-          </Node>
-          <Node Bounds="55,749,110,26" Id="HZtiCuqhi0ZGIi3ywGEHkj">
-            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="Count" />
-              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
-            </p:NodeReference>
-            <Pin Id="AyzAjGrxt9XNLwQdY2gtBX" Name="Input" Kind="StateInputPin" />
-            <Pin Id="R5ZqfwDWxSX7ouWxm5LlV8" Name="Count" Kind="OutputPin" />
-          </Node>
-          <Pad Id="MeJLdaf9Yg7M4GILnJ4rzm" Comment="features read back - the same number, or something was lost" Bounds="57,799,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="DkJoJUL7akjaMRm4nKZoX1" Comment="File Path - written next to this patch" Bounds="390,470,150,15" ShowValueBox="true" isIOBox="true" Value="written.geojson">
+          <Pad Id="DkJoJUL7akjaMRm4nKZoX1" Comment="File Path - written next to this patch" Bounds="233,670,228,15" ShowValueBox="true" isIOBox="true" Value="written.geojson">
             <p:TypeAnnotation LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Path" />
             </p:TypeAnnotation>
           </Pad>
-          <Pad Id="Dp0qUDBrjJrUju9rEE5egg" Comment="SAVE - writes the file" Bounds="390,505,40,30" ShowValueBox="true" isIOBox="true" Value="False">
+          <Pad Id="Dp0qUDBrjJrUju9rEE5egg" Comment="SAVE - writes the file" Bounds="160,801,40,30" ShowValueBox="true" isIOBox="true" Value="False">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
@@ -109,12 +87,12 @@
               <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="NFwONzMci0bKvxwI8sQ9U0" Comment="Encoding" Bounds="480,540,110,19" ShowValueBox="true" isIOBox="true" Value="UTF8">
+          <Pad Id="NFwONzMci0bKvxwI8sQ9U0" Comment="Encoding" Bounds="233,721,110,19" ShowValueBox="true" isIOBox="true" Value="UTF8">
             <p:TypeAnnotation LastCategoryFullName="Text" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Encodings" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="360,575,85,19" Id="NaIEZwocKX3STLIhxnO8OK">
+          <Node Bounds="41,800,85,19" Id="NaIEZwocKX3STLIhxnO8OK">
             <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileWriter (String)" />
@@ -126,7 +104,7 @@
             <Pin Id="AWOmidmzD4JunQKa9ipNVI" Name="Append" Kind="InputPin" />
             <Pin Id="S9yAFxKMVfx1EC2vWRNQcQ" Name="Write" Kind="InputPin" />
           </Node>
-          <Pad Id="SPhMOTKmKrMR8MKKIIYIFU" Comment="READ IT BACK - after saving" Bounds="390,615,40,30" ShowValueBox="true" isIOBox="true" Value="False">
+          <Pad Id="SPhMOTKmKrMR8MKKIIYIFU" Comment="READ IT BACK - after saving" Bounds="564,765,40,30" ShowValueBox="true" isIOBox="true" Value="False">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
@@ -134,7 +112,7 @@
               <p:buttonmode p:Assembly="VL.UI.Forms" p:Type="VL.HDE.PatchEditor.Editors.ButtonModeEnum">Bang</p:buttonmode>
             </p:ValueBoxSettings>
           </Pad>
-          <Node Bounds="360,665,110,19" Id="VHZ21Qn33DXGQH4eGKEoup">
+          <Node Bounds="457,800,110,19" Id="VHZ21Qn33DXGQH4eGKEoup">
             <p:NodeReference LastCategoryFullName="IO" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FileReader (String)" />
@@ -145,7 +123,7 @@
             <Pin Id="UvQt2WrwFv87Mt8Tsq4sK4" Name="Read" Kind="InputPin" />
             <Pin Id="EpeJZG4WnPjGUWXYlwFx5f" Name="Output" Kind="OutputPin" />
           </Node>
-          <Node Bounds="360,715,110,19" Id="V9z3gKHUSvTLLvJgPc4fzt">
+          <Node Bounds="457,850,110,19" Id="V9z3gKHUSvTLLvJgPc4fzt">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
@@ -157,8 +135,8 @@
             <Pin Id="AZbufVYsfMGa3Dh6f0csMu" Name="Status" Kind="OutputPin" />
             <Pin Id="ADTlCI6ZINTojSuGm32j8c" Name="Parses" Kind="OutputPin" />
           </Node>
-          <Pad Id="LQaDu01D7WaRpPhqMd0Y5t" Comment="status of the file read back" Bounds="500,745,180,15" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="360,770,110,26" Id="DB5KpF2IsGbdqZG6x5qo5Z">
+          <Pad Id="LQaDu01D7WaRpPhqMd0Y5t" Comment="status of the file read back" Bounds="529,890,180,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="457,905,110,26" Id="DB5KpF2IsGbdqZG6x5qo5Z">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="OperationCallFlag" Name="Count" />
@@ -167,7 +145,7 @@
             <Pin Id="VLtCq526PcKI4FXs43LjDS" Name="Input" Kind="StateInputPin" />
             <Pin Id="NakgfXY6qkztpCJKHrA21j" Name="Count" Kind="OutputPin" />
           </Node>
-          <Pad Id="Ug4fGyYrPn3M49kdLpEZVP" Comment="features read back FROM THE FILE" Bounds="362,820,50,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="Ug4fGyYrPn3M49kdLpEZVP" Comment="features read back FROM THE FILE" Bounds="459,955,50,15" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="AYm9J4jI9rttfSX13a1kD7" Name="Create" />
         <Patch Id="TN1Prg6PJAL8nHfogMddBz" Name="Update" />
@@ -183,9 +161,6 @@
         <Link Id="GyuwHvHImigkF97wfUj2R6" Ids="E6YbuK3DfSKKXHVOCJWWRm,Mg4J3YxLm7NJyM01troPui" />
         <Link Id="UAqtwXRwOg50o31No3gUXy" Ids="QOkZL6mfwvs9SfMgNVnBWm,ClCGUbrSJzVEdbV7zPonvi" />
         <Link Id="HCNAGY5uoWVsxhY6WEHBEu" Ids="AS2S0SUZiJeiKfxLTXPlrs,Cvi1pAs1Yem9MNogLzgUNT" />
-        <Link Id="Ja9zrzwYSyPIVzNjj01ShX" Ids="ClCGUbrSJzVEdbV7zPonvi,C8AoWneCBVqJRHBEVzNOl0" />
-        <Link Id="ILqCcuOZhw2DnLeFepnhoS" Ids="Nz5XqyLGR3QTXylLMeRluI,AyzAjGrxt9XNLwQdY2gtBX" />
-        <Link Id="SRCBswOFT0PXR0FDSDNeS5" Ids="R5ZqfwDWxSX7ouWxm5LlV8,MeJLdaf9Yg7M4GILnJ4rzm" />
         <Link Id="Hywdle2d2eXENUYNNncWbD" Ids="ClCGUbrSJzVEdbV7zPonvi,M32zaslirpO0fLKmuU940e" />
         <Link Id="T19OW4C1KxHscNvEhIdOEz" Ids="DkJoJUL7akjaMRm4nKZoX1,QPdY3Pv9fItbdn027Uu8sw" />
         <Link Id="OuFm46o7aKq298bnBk0xYC" Ids="NFwONzMci0bKvxwI8sQ9U0,PQW2QiKNeXyAgeYpo6OjZm" />

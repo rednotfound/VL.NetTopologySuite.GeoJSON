@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="KAgwYthZ2huojxWWteSu4O">
         <Canvas Id="Sd1LQJidF9lXO7Nd5UyXo0" CanvasType="Group">
-          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1050,60,480,740" ShowValueBox="true" isIOBox="true" Value="The one that matters once your data is real&#xD;&#xA;&#xD;&#xA;This patch reads a real dataset: every populated place in Natural Earth's 1:10m set - 7,342 cities, 4.7 MB of GeoJSON, 31 properties each. Pick any one by number on the left.&#xD;&#xA;&#xD;&#xA;Watch the two numbers. Frames climbs sixty times a second. Parses sits at 1 and never moves.&#xD;&#xA;&#xD;&#xA;In vvvv, having a patch open means having it RUNNING - every node is evaluated every frame. One parse of this file takes about 220 ms, thirteen frames. If Read GeoJSON parsed its text every frame, this patch would run at about four frames a second. It parses when the TEXT CHANGES, and FileReader only reads when its Read pin is banged - here once, by OnOpen.&#xD;&#xA;&#xD;&#xA;One parse, measured on real files:&#xD;&#xA;&#xD;&#xA;   1,858 earthquakes (USGS, a week)       160 ms&#xD;&#xA;   7,342 cities (this file)               220 ms&#xD;&#xA;  10,120 earthquakes (USGS, a month)      275 ms&#xD;&#xA;  56,600 roads (Natural Earth 1:10m)    2,000 ms&#xD;&#xA;&#xD;&#xA;A frame is 16.7 ms. The cost follows the number of FEATURES and of their PROPERTIES, not the number of points.&#xD;&#xA;&#xD;&#xA;Try a bigger one: download ne_10m_roads.geojson (48 MB, public domain) from github.com/nvkelso/natural-earth-vector, folder geojson, and point File Path at it. Parses still stays at 1 - the open just takes two seconds.&#xD;&#xA;&#xD;&#xA;How to break it anyway: build the text fresh every frame. Every frame is then a new text, so every frame is a new parse, and Parses climbs alongside Frames - that is your warning.&#xD;&#xA;&#xD;&#xA;GeoJSON is one big JSON object, so all of it must be in memory before you get the first feature. For millions of features the answer is a different format - GeoParquet, FlatGeobuf, PMTiles - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
+          <Pad Id="VNM5oTPCIaffpa0MUWPBHG" Bounds="1050,60,480,740" ShowValueBox="true" isIOBox="true" Value="The one that matters once your data is real&#xD;&#xA;&#xD;&#xA;This patch reads a real dataset: every populated place in Natural Earth's 1:10m set - 7,342 cities, 4.7 MB of GeoJSON, 31 properties each. A ForEach reads one property, name, from every one of them. Doing that every frame is cheap - 7,342 lookups held the patch at 60 fps (measured) - because reading a property is not parsing. The parse is the expensive part, and it happens once.&#xD;&#xA;&#xD;&#xA;Watch the two numbers. Frames climbs sixty times a second. Parses sits at 1 and never moves.&#xD;&#xA;&#xD;&#xA;In vvvv, having a patch open means having it RUNNING - every node is evaluated every frame. One parse of this file takes about 220 ms, thirteen frames. If Read GeoJSON parsed its text every frame, this patch would run at about four frames a second. It parses when the TEXT CHANGES, and FileReader only reads when its Read pin is banged - here once, by OnOpen.&#xD;&#xA;&#xD;&#xA;One parse, measured on real files:&#xD;&#xA;&#xD;&#xA;   1,858 earthquakes (USGS, a week)       160 ms&#xD;&#xA;   7,342 cities (this file)               220 ms&#xD;&#xA;  10,120 earthquakes (USGS, a month)      275 ms&#xD;&#xA;  56,600 roads (Natural Earth 1:10m)    2,000 ms&#xD;&#xA;&#xD;&#xA;A frame is 16.7 ms. The cost follows the number of FEATURES and of their PROPERTIES, not the number of points.&#xD;&#xA;&#xD;&#xA;Try a bigger one: download ne_10m_roads.geojson (48 MB, public domain) from github.com/nvkelso/natural-earth-vector, folder geojson, and point File Path at it. Parses still stays at 1 - the open just takes two seconds.&#xD;&#xA;&#xD;&#xA;How to break it anyway: build the text fresh every frame. Every frame is then a new text, so every frame is a new parse, and Parses climbs alongside Frames - that is your warning.&#xD;&#xA;&#xD;&#xA;GeoJSON is one big JSON object, so all of it must be in memory before you get the first feature. For millions of features the answer is a different format - GeoParquet, FlatGeobuf, PMTiles - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; Read GeoJSON accepts it and ignores it.&#xD;&#xA;&#xD;&#xA;Data: Natural Earth, public domain. naturalearthdata.com">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -34,7 +34,7 @@
               <Choice Kind="TypeFlag" Name="Encodings" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="335,95,54,19" Id="JRj1D4Y4o0n0T5Rssg8LfT">
+          <Node Bounds="302,90,54,19" Id="JRj1D4Y4o0n0T5Rssg8LfT">
             <p:NodeReference LastCategoryFullName="Control" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="OnOpen" />
@@ -54,39 +54,7 @@
             <Pin Id="RN1ZSNlLOqcNCJYo0lQcAD" Name="Read" Kind="InputPin" />
             <Pin Id="UIeJeRb1cZU8uLKrL0ISYx" Name="Output" Kind="OutputPin" />
           </Node>
-          <Node Bounds="430,445,52,26" Id="UF2viW4e3uSmf4fzZvzvkI">
-            <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="GetSlice" />
-              <CategoryReference Kind="RecordType" Name="Spread" NeedsToBeDirectParent="true" />
-            </p:NodeReference>
-            <Pin Id="BkJDmEbLxM1EnP5uchSOft" Name="Input" Kind="StateInputPin" />
-            <Pin Id="BnRx6zRJt1arIsg2EgELLp" Name="Default Value" Kind="InputPin" />
-            <Pin Id="BRka6nuQD5wPnFz4v5UFOA" Name="Index" Kind="InputPin" />
-            <Pin Id="QqyIFFYBIhD5Jy04o3CC0c" Name="Result" Kind="OutputPin" />
-          </Node>
-          <Pad Id="AQsoPJq1708AdNaEP4xcCX" Comment="which city - any number up to 7341" Bounds="500,450,45,15" ShowValueBox="true" isIOBox="true" Value="7341">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="Integer32" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Node Bounds="430,510,100,19" Id="QF1Hj9itLNBebPvfPQxwCF">
-            <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
-              <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="GetAttribute" />
-            </p:NodeReference>
-            <Pin Id="KcvhVAIiPIHYsAiI09W7xb" Name="Feature" Kind="InputPin" />
-            <Pin Id="NPqfog6E0Iwua4Qfd7Hirq" Name="Name" Kind="InputPin" />
-            <Pin Id="Aquib5eQXC4hF3dJsdM0aE" Name="Result" Kind="OutputPin" />
-            <Pin Id="RBjbDqyvuA9f3wu7djENt4" Name="Success" Kind="OutputPin" />
-          </Node>
-          <Pad Id="PU7jj4Kdkd86twWp0oNXmY" Comment="attribute - try adm0name or pop_max" Bounds="560,490,70,15" ShowValueBox="true" isIOBox="true" Value="name">
-            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
-              <Choice Kind="TypeFlag" Name="String" />
-            </p:TypeAnnotation>
-          </Pad>
-          <Pad Id="MXIu7la13GdaDqsjRo2z3b" Comment="a real city, out of 7,342" Bounds="430,560,200,25" ShowValueBox="true" isIOBox="true" />
-          <Node Bounds="60,185,110,26" Id="UbKHpJZINQo0A0O21TKNyK">
+          <Node Bounds="60,185,110,19" Id="UbKHpJZINQo0A0O21TKNyK">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
@@ -99,12 +67,12 @@
             <Pin Id="KhOLnsKtnkesCOWwAQjeN6" Name="Parses" Kind="OutputPin" />
           </Node>
           <Pad Id="FofjZK5QupUMGDo7OiKD40" Comment="PARSES - this is the number to watch. It stays at 1." Bounds="166,231,50,15" ShowValueBox="true" isIOBox="true" />
-          <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="323,310,40,20" ShowValueBox="true" isIOBox="true" Value="True">
+          <Pad Id="V3RCPt1dkrJMucrisaD7To" Comment="leave this on" Bounds="544,200,40,20" ShowValueBox="true" isIOBox="true" Value="True">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="Boolean" />
             </p:TypeAnnotation>
           </Pad>
-          <Node Bounds="321,350,81,19" Id="RI51wMPw5bnt9ONWXKUbqD">
+          <Node Bounds="542,240,81,19" Id="RI51wMPw5bnt9ONWXKUbqD">
             <p:NodeReference LastCategoryFullName="Animation.FrameBased" LastDependency="VL.CoreLib.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
               <Choice Kind="ProcessAppFlag" Name="FrameCounter" />
@@ -114,7 +82,7 @@
             <Pin Id="GxEUSjS9FSU9fGTTb3eAcH" Name="Reset" Kind="ApplyPin" />
             <Pin Id="QKuJT08RzzLmuOOY7wQogi" Name="Value" Kind="OutputPin" />
           </Node>
-          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="323,410,60,15" ShowValueBox="true" isIOBox="true" />
+          <Pad Id="RscSLOj3HjNKDj2G2VpHR8" Comment="FRAMES - climbing, sixty a second, while Parses does not" Bounds="544,300,60,15" ShowValueBox="true" isIOBox="true" />
           <Node Bounds="60,445,44,26" Id="VhY1SynGqSzKXvDUczpksp">
             <p:NodeReference LastCategoryFullName="Collections.Spread" LastDependency="VL.Collections.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
@@ -126,6 +94,37 @@
           </Node>
           <Pad Id="LH4ebQNEbp8DWihC2ALOsC" Comment="features" Bounds="62,500,50,15" ShowValueBox="true" isIOBox="true" />
           <Pad Id="PoAVCukwoghXUra2KJ9SoE" Comment="status" Bounds="132,261,99,15" ShowValueBox="true" isIOBox="true" />
+          <Node Bounds="254,495,96,88" Id="KLuTAxcqAawQCvFRQxjdbS">
+            <p:NodeReference LastCategoryFullName="Primitive" LastDependency="Builtin">
+              <Choice Kind="StatefulRegion" Name="Region (Stateful)" Fixed="true" />
+              <CategoryReference Kind="Category" Name="Primitive" />
+              <Choice Kind="ApplicationStatefulRegion" Name="ForEach" />
+            </p:NodeReference>
+            <Pin Id="NT1GFl9iKXwObPNUbKJWHT" Name="Break" Kind="OutputPin" />
+            <Patch Id="DqFIBvjXn1EQN4vicPrAYs" ManuallySortedPins="true">
+              <Patch Id="RWUJQCd0K8tNkTpOig3Giq" Name="Create" ManuallySortedPins="true" />
+              <Patch Id="SX7XwTUO8OGP7zldPoFUvr" Name="Update" ManuallySortedPins="true" />
+              <Patch Id="S9vO0653ZZ6PwwOhNXRRjD" Name="Dispose" ManuallySortedPins="true" />
+              <Node Bounds="266,544,72,19" Id="A7DRsAyfH79OUHjPkapweJ">
+                <p:NodeReference LastCategoryFullName="NetTopologySuite.Feature" LastDependency="VL.NetTopologySuite.vl">
+                  <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
+                  <Choice Kind="OperationCallFlag" Name="GetAttribute" />
+                </p:NodeReference>
+                <Pin Id="OLd7GgqWoC5PZHAooihI3u" Name="Feature" Kind="InputPin" />
+                <Pin Id="IJ5I09qarKHMygGbXt0cim" Name="Name" Kind="InputPin" />
+                <Pin Id="N6iIRArlPqcM7JvOux0yRg" Name="Result" Kind="OutputPin" />
+                <Pin Id="MvJI1u1UhW8PruMkFqxzz8" Name="Success" Kind="OutputPin" />
+              </Node>
+            </Patch>
+            <ControlPoint Id="HsDbeyca2kBMPmpw6HfKrz" Bounds="268,501" Alignment="Top" />
+            <ControlPoint Id="B1t5N0cS4pGMMOP8AxLGJP" Bounds="268,577" Alignment="Bottom" />
+          </Node>
+          <Pad Id="UAAvwZ9z09SMuEXVYj9G4b" Comment="Name" Bounds="335,454,35,15" ShowValueBox="true" isIOBox="true" Value="name">
+            <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
+              <Choice Kind="TypeFlag" Name="String" />
+            </p:TypeAnnotation>
+          </Pad>
+          <Pad Id="MDlfneG0bjmLU4FeXyE6gF" Comment="" Bounds="268,634,190,132" ShowValueBox="true" isIOBox="true" />
         </Canvas>
         <Patch Id="M7XBO0ly0fQe7Zxaw1tRns" Name="Create" />
         <Patch Id="UVPx3Oa07kknucSIa8ZKdc" Name="Update" />
@@ -143,11 +142,11 @@
         <Link Id="Qzc4n39oeLdSITBPf1XUDu" Ids="FyE3hfZjvyBAJQmp0lu7aI,U3ip3exzsSqaGabuwedsam" />
         <Link Id="BTH2qw0xoVhsth0pbdJ5qr" Ids="DcgL6BvckJsloUbUn6a9Dc,RN1ZSNlLOqcNCJYo0lQcAD" />
         <Link Id="MRtt1qbVJo05XAdR871fEE" Ids="UIeJeRb1cZU8uLKrL0ISYx,GAYsmaRBTrGgLbSoXya2Rm" />
-        <Link Id="JyVIQZ44o4JC4jNAGdwq20" Ids="SZRL34NA58dsAozVRP3O7S,BkJDmEbLxM1EnP5uchSOft" />
-        <Link Id="DsxTumWNb0roUnxY6YKXec" Ids="AQsoPJq1708AdNaEP4xcCX,BRka6nuQD5wPnFz4v5UFOA" />
-        <Link Id="MjKj2bs93NrrfQwq64PLpO" Ids="QqyIFFYBIhD5Jy04o3CC0c,KcvhVAIiPIHYsAiI09W7xb" />
-        <Link Id="ETiJWV0N2NsponmqIiOfzd" Ids="PU7jj4Kdkd86twWp0oNXmY,NPqfog6E0Iwua4Qfd7Hirq" />
-        <Link Id="EpxTnag5LvnLX8hUmk9t0W" Ids="Aquib5eQXC4hF3dJsdM0aE,MXIu7la13GdaDqsjRo2z3b" />
+        <Link Id="NZe7saVt2qeMIj8ShgtbiA" Ids="SZRL34NA58dsAozVRP3O7S,HsDbeyca2kBMPmpw6HfKrz" />
+        <Link Id="JbTLLKPnq1PPgOWJqUwC3M" Ids="HsDbeyca2kBMPmpw6HfKrz,OLd7GgqWoC5PZHAooihI3u" />
+        <Link Id="DqEoopKpuu2Mmst1aB4laV" Ids="UAAvwZ9z09SMuEXVYj9G4b,IJ5I09qarKHMygGbXt0cim" />
+        <Link Id="U0zNeqE0e7gPYXg6nDz3VK" Ids="N6iIRArlPqcM7JvOux0yRg,B1t5N0cS4pGMMOP8AxLGJP" />
+        <Link Id="A5MXwXwRr3sQGPK0uAQ3yI" Ids="B1t5N0cS4pGMMOP8AxLGJP,MDlfneG0bjmLU4FeXyE6gF" />
       </Patch>
     </Node>
   </Patch>
