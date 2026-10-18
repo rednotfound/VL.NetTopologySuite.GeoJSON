@@ -1,4 +1,4 @@
-# Why VL.GeoJSON is shaped this way
+# Why VL.NetTopologySuite.GeoJSON is shaped this way
 
 [docs/RULES.md](RULES.md) covers mechanics — what silently breaks when packaging, and what breaks
 outside the package at runtime. [docs/MEASUREMENTS.md](MEASUREMENTS.md) holds every number quoted
@@ -15,9 +15,9 @@ That is the whole question. Not how to draw it, not how to reproject it, not how
 operations on it, not how to read a shapefile.
 
 ```text
-VL.GeoJSON  =  GeoJSON format semantics
-             + serialization / deserialization
-             + VL-friendly access to GeoJSON data
+VL.NetTopologySuite.GeoJSON  =  GeoJSON format semantics
+                              + serialization / deserialization
+                              + normalisation into the types the rest of the family accepts
 ```
 
 Almost all the value is upstream. NetTopologySuite and its GeoJSON serializer are mature; what this
@@ -33,17 +33,18 @@ matter most — **what type crosses the package boundary**.
 `NetTopologySuite.Geometries.Geometry` directly.
 
 ```text
-                        NetTopologySuite
-                     /         |         \
-                    /          |          \
-          VL.GeoJSON    VL.NetTopologySuite    (VL.Mapsui, as a consumer)
-                    \          |          /
-                     \         |         /
-                      the patch composes them
+                          NetTopologySuite (+ .Features)
+                                    |
+                           VL.NetTopologySuite         geometry, Feature, Split, GetAttribute
+                              ↗            ↖
+      VL.NetTopologySuite.GeoJSON         VL.Mapsui    each depends on it; neither on the other
 ```
 
-Nothing references anything else. **VL.GeoJSON does not depend on VL.Mapsui or on
-VL.NetTopologySuite, and neither of them has ever heard of it.**
+Every arrow points at VL.NetTopologySuite, and VL.NetTopologySuite points at nothing of ours. **This
+package does not depend on VL.Mapsui, and VL.Mapsui has never heard of this one** — a feature read
+here reaches a `FeatureLayer` because both speak NetTopologySuite's `Feature`, not because either
+knows the other. Why the arrow to VL.NetTopologySuite exists at all is in
+[The package boundary](#the-package-boundary).
 
 ### The exception: normalisation, and why it is not optional
 
@@ -121,16 +122,25 @@ comment says so instead.
 
 ## Node categories
 
-```text
-category = (.NET namespace minus the "VL" prefix) + type name
+**Both nodes are in `NetTopologySuite.IO`**, VL.NetTopologySuite's own category, beside `Read WKT`
+and `Write WKT`:
+
+```csharp
+[assembly: ImportAsIs(Namespace = "VL.NetTopologySuite.GeoJSON", Category = "NetTopologySuite.IO")]
 ```
 
-Namespace `VL.GeoJSON` gives **`GeoJSON`**, flat. `[SkipCategory]` on the static node classes keeps
-them from becoming a category level of their own (`GeoJSON.FeatureNodes`), and `[ProcessNode(...)]`
-names the one process node explicitly.
+The namespace is stripped whole and the category named outright. `[SkipCategory]` keeps
+`WriteNodes` from becoming a level of its own, and `[ProcessNode(Category = "NetTopologySuite.IO")]`
+places `Read GeoJSON`.
 
-**One level, deliberately.** Four nodes do not earn sub-categories, and `docs/RULES.md` warns
-against excessive nesting. If this grows past a dozen nodes, `GeoJSON.IO` is the split to make.
+Why not a category of our own: the Gray Book says *prefer existing categories over inventing your
+own*, and vvvv's packs do exactly this with satellites — `VL.Stride.TextureFX` puts its nodes into
+`Stride.Textures`, `VL.Audio.UI` into `Audio`. The attribute form itself is copied from
+`VL.Core.Commands`, which ships `ImportAsIs(Namespace = "VL.Core", Category = "System")`.
+
+Until 2026-10-18 the category was a flat `GeoJSON`, from the namespace `VL.GeoJSON`. **Where a node
+appears is proved only by the NodeBrowser** — `LastCategoryFullName` in a `.vl` is a hint, and the
+generated C# carries no category at all (checked).
 
 ---
 
@@ -170,7 +180,7 @@ The measured cost of composing rather than specialising: reading via `string` is
 101 ms for `byte[]` on a 5.4 MB document. Worth a `Read GeoJSON (Bytes)` overload one day; not
 worth a file node.
 
-### There is no `FeatureCollection`, and therefore only one `Split`
+### There is no `FeatureCollection`
 
 `Read GeoJSON` returns a `Spread<Feature>`. The GeoJSON *document* type never reaches a patch.
 
@@ -192,8 +202,9 @@ calls, 247 categories**:
 | `Split` used to unwrap a collection into a `Spread` | never, except `String`/`Regex`, which *are* sequences. For real collections the vocabulary is `FromSequence` and `ToSpread` |
 | output pins `Result` and `Count` | every other `Split` names the type's **own members**. `Count` is a derived quantity, not a member |
 
-The survivor, `Split (Feature) → Geometry, Properties`, is textbook: it is field projection on a
-record, and it is the same shape as VL.Mapsui's own `Split`.
+The survivor, `Split (Feature) → Geometry, Properties`, was textbook: field projection on a
+record. It has since left this package altogether — opening a feature is VL.NetTopologySuite's
+`Split → Geometry, Attributes` now ([The package boundary](#the-package-boundary)).
 
 **`Count` is not a pin either.** `Count [Collections.Spread]` is a shipped node, used 163 times, and
 it works on our output directly — confirmed in generated code:
@@ -208,7 +219,11 @@ needs it, it becomes an output pin on `Read GeoJSON`, not a resurrected type.
 and it costs nothing at the boundary, since `Spread<T>` is an `IReadOnlyList<T>` and satisfies
 VL.Mapsui's `IEnumerable<Feature>` pin unchanged.
 
-### `GetProperty` exists, and carries a `Success` pin
+### One attribute by name: `GetAttribute`, with a `Success` pin — in VL.NetTopologySuite
+
+This package had it first, as `GetProperty`; it moved to VL.NetTopologySuite as `GetAttribute` on
+2026-10-18, because it answers a question about *any* feature, not about GeoJSON. The reasoning
+that created it still stands, and is kept here because it was learned here.
 
 An earlier version of this document argued that a property getter would be a *trap*, because
 `IAttributesTable`'s indexer throws `ArgumentException` on a missing name (measured) and a node that
@@ -221,7 +236,7 @@ and returns `Value` and `Success`, as do `GetValue`, `GetValues`, `GetAttributeV
 `Success` pin and never throws**, while a non-`Get` accessor hands back a raw, possibly-null object
 and carries none.
 
-It sits **beside** `Split`'s `Properties` output rather than replacing it, because the two answer
+It sits **beside** `Split`'s `Attributes` output rather than replacing it, because the two answer
 different questions and vvvv ships exactly the same pair: `XElement (Split)` hands over
 `Attributes` as a spread, and `GetAttributeValue` takes one by name.
 
@@ -256,7 +271,8 @@ Reachable through VL's raw .NET nodes, deliberately not wrapped:
 
 - **The serializer's own configuration**: `GeoJsonConverterFactory`, `JsonSerializerOptions`,
   `idPropertyName`, `writeGeometryBBox`.
-- **`IAttributesTable` and `AttributesTable` themselves.** `Split` converts; the types stay open.
+- **`IAttributesTable` and `AttributesTable` themselves.** VL.NetTopologySuite's `Split` converts
+  to a Dictionary; the types stay open.
 - **Nested objects and arrays.** They arrive as `AttributesTable` and `object[]`. Real, reachable,
   and not given nodes until something needs them.
 - **`bbox`**, on the collection and per feature. The collection's is dropped with the collection
@@ -270,11 +286,43 @@ Reachable through VL's raw .NET nodes, deliberately not wrapped:
 | If it answers | It belongs in |
 |---|---|
 | How do I read or write GeoJSON? | **here** |
-| How do I create or manipulate geometry? | `VL.NetTopologySuite` |
+| How do I create or manipulate geometry, or open a feature? | `VL.NetTopologySuite` |
 | How do I display this on a map? | `VL.Mapsui` |
 | How do I transform between coordinate reference systems? | `VL.ProjNet` |
 | How do I read Shapefile / GeoParquet / FlatGeobuf? | a focused package, one each |
 | Nothing yet — we imagine needing it | **nowhere. Do not build it.** |
+
+### 2026-10-18: VL.GeoJSON became VL.NetTopologySuite.GeoJSON
+
+Until that day this package was `VL.GeoJSON`, had four nodes — `Read GeoJSON`, `Split (Feature)`,
+`GetProperty`, `Write GeoJSON` — and the rule was that no package of the family references
+another. Three findings, all measured, ended that:
+
+- **The rule was already untrue.** The published VL.Mapsui depends on VL.NetTopologySuite, so that
+  its help patches open working: vvvv does not fetch a missing document dependency by itself.
+- **Two `Split`s on the same type.** VL.NetTopologySuite had meanwhile taken ownership of the
+  feature (a feature must be constructible without a map engine), with its own
+  `Split → Geometry, Attributes`. With both packages installed, a user met two `Split`s on
+  `Feature` with different outputs. Among the 47 packs shipped with vvvv 7.4 a node name repeats
+  across packages only for *different backends* (`Serialize` in each `VL.Serialization.*`) —
+  never two packages doing the same thing to the same type. vvvv's own way out of overlap is to
+  retire one side (the MQTT packages, folded into `VL.IO.MQTT`).
+- **The name promised more than the package was.** `VL.GeoJSON` reads as vvvv's GeoJSON package
+  for every geometry model; this one emits NetTopologySuite types and nothing else, and no second
+  geometry model exists in vvvv to support.
+
+So: `GetProperty` moved to VL.NetTopologySuite as `GetAttribute`; `Split (Feature)` was dropped in
+favour of theirs; this package depends on VL.NetTopologySuite, joined its `NetTopologySuite.IO`
+category, and took a name that says what it extends. In vvvv a three-segment id names an extension
+of its parent — `VL.ImGui.Skia`, `VL.Stride.TextureFX`, `VL.Audio.UI` — and each of those depends on
+it. The dependency points one way, format package to geometry package, so there is no cycle.
+
+**What stayed separate, and why.** Merging GeoJSON *into* VL.NetTopologySuite was considered and
+rejected. Upstream ships it as a separate package (`NetTopologySuite.IO.GeoJSON4STJ`; the NTS core
+assembly contains WKT, WKB, GML and KML readers and no GeoJSON type at all — checked by reflection);
+vvvv ships one format per package (`VL.Serialization.Raw` / `.MessagePack` / `.FSPickler`); and the
+geometry package has its own long roadmap that a format should not wait on. The one merged
+precedent, VL.GIS, put geometry, GeoJSON, reprojection and tiles in one package and is unlisted.
 
 **GeoJSON is not the final large-data format.** It is common, readable, interoperable and excellent
 for testing, which is why it is first. It is a monolithic JSON object, which makes it the wrong

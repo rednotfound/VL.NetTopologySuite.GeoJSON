@@ -26,7 +26,7 @@ work. Nine releases of an earlier package shipped contributing zero nodes, with 
 # vvvv must be CLOSED. build.ps1 refuses otherwise, and that refusal is the design -
 # see docs/PITFALLS.md section 6. Never kill it; close it.
 .\build.ps1
-dotnet test test\VL.GeoJSON.Tests\VL.GeoJSON.Tests.csproj
+dotnet test test\VL.NetTopologySuite.GeoJSON.Tests\VL.NetTopologySuite.GeoJSON.Tests.csproj
 
 .\tools\Test-VLPatch.ps1        # every .vl: BOM, IDs, link endpoints, annotation boxes, layout
 .\tools\Test-VLPackage.ps1      # the package: entry point, [ImportAsIs], nuspec, help patches

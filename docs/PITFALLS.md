@@ -35,8 +35,12 @@ compile* with raw output, because `FeatureLayer` takes `IEnumerable<Feature>`, t
 That was discovered by probing the library, not by reading about it; a design that had gone to
 implementation on the assumption would have failed at the last step.
 
-**Now prevented by** `Defaults.Normalise`, and it is negative-tested: removing it turns **47 tests
-red**, including every interop test. Costs 22 ms per 10,000 features, 12% of the parse.
+**Now prevented by** `Defaults.Normalise`, and it is negative-tested. Measured 2026-08-16 against 69
+tests: removing it turned **47 red**, every interop test among them. Re-measured 2026-10-18 against
+the 60 left after the feature nodes moved to VL.NetTopologySuite — the code can no longer drop the
+copy and still compile, so the nearest variant is putting the raw table into the `Feature`: **10
+red**, 2 of them interop; making only `NormaliseValue` return the raw value turns **6** red. Costs
+22 ms per 10,000 features, 12% of the parse.
 
 ### The silent one
 
@@ -52,7 +56,8 @@ A legacy `crs` member is likewise **accepted and silently ignored**.
 draft used that as the reason to omit a `GetProperty` node entirely — and that was **mistaking an
 implementation detail for a design conclusion**. vvvv's own `GetAttributeValue [XElement]` answers
 the same problem with a `Success` pin. The node exists now; it calls `Exists` first and never
-throws.
+throws. (Since 2026-10-18 it lives in VL.NetTopologySuite as `GetAttribute`, because it answers a
+question about any feature, not about GeoJSON.)
 
 ### Round-tripping is not exact by default
 

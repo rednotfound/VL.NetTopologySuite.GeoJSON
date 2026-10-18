@@ -78,7 +78,7 @@ error, so the only signal a patch gets is the count. `Read GeoJSON` reports `0 f
 
 ## Load, through the actual node
 
-`test\VL.GeoJSON.Tests\LoadTests.cs`. Run with `$env:VLGEOJSON_LOAD=1; dotnet test -c Release`.
+`test\VL.NetTopologySuite.GeoJSON.Tests\LoadTests.cs`. Run with `$env:VLGEOJSON_LOAD=1; dotnet test -c Release`.
 Synthetic polygons, 20 vertices each, three properties.
 
 ### Scaling by feature count

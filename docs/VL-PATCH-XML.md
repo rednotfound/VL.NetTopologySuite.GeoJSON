@@ -389,7 +389,7 @@ thousand times, decided by nothing but whether the patch builds its data once.
 
 ---
 
-## What VL.GeoJSON added
+## What VL.GeoJSON added (now VL.NetTopologySuite.GeoJSON)
 
 Four things learned here that the document above does not cover. Each is enforced by
 `tools\Test-VLPatch.ps1` where it can be, and each is followed by what it cost.

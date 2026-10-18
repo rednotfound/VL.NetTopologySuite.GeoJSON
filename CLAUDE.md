@@ -4,28 +4,44 @@ Guidance for Claude Code (claude.ai/code) working in this repository.
 
 ## Project overview
 
-**VL.GeoJSON** wraps [NetTopologySuite.IO.GeoJSON4STJ](https://github.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON)
-as nodes for [vvvv gamma](https://vvvv.org). One package, one job: **read and write GeoJSON**.
-Nothing about geometry algorithms, maps, rendering or reprojection.
+**VL.NetTopologySuite.GeoJSON** wraps [NetTopologySuite.IO.GeoJSON4STJ](https://github.com/NetTopologySuite/NetTopologySuite.IO.GeoJSON)
+as nodes for [vvvv gamma](https://vvvv.org): **the GeoJSON half of VL.NetTopologySuite.** One job,
+**read and write GeoJSON**. Nothing about geometry algorithms, maps, rendering or reprojection —
+and nothing about opening a feature either, which is VL.NetTopologySuite's.
 
-**Current state (2026-08-16): 4 nodes, 69 tests + 4 load tests, 6 help patches. Static checks and a
-headless `vvvvc` compile of every patch are green; the GUI check is outstanding.** Nothing is
-published to nuget.org. See [Verification](#verification--be-precise-about-which-one-you-have).
+**Until 2026-10-18 this was `VL.GeoJSON`**, with four nodes of its own (`Read GeoJSON`,
+`Split (Feature)`, `GetProperty`, `Write GeoJSON`) and no dependency on any sibling. It was renamed,
+took a dependency on VL.NetTopologySuite, moved `GetProperty` there as `GetAttribute`, dropped its
+own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
+do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
+
+**Current state (2026-10-18): 2 nodes, 60 tests + 4 load tests, 6 help patches. Static checks and a
+headless `vvvvc` compile of every patch are green; the GUI check is outstanding — including the
+category, which the rename moved.** Nothing is published to nuget.org, and **nothing can be until
+VL.NetTopologySuite 0.0.3-alpha (the first with `GetAttribute`) is.** See
+[Verification](#verification--be-precise-about-which-one-you-have).
 
 **Help is the teaching surface here, not a fatter node.** Two things a user needs are deliberately
-*not* nodes — reading a file, and getting one property — so the help patches are the only place
-those get taught. That is why there are six patches against four nodes, and why the ratio should
-keep going up rather than the node count.
+*not* nodes of this package — reading a file (`FileReader`) and opening a feature
+(VL.NetTopologySuite's `Split` / `GetAttribute`) — so the help patches are where those get taught.
+That is why there are six patches against two nodes, and why the ratio should keep going up
+rather than the node count.
 
-Two sibling repositories sit beside this one and are **references, not dependencies**:
+The sibling repositories:
 
-- `D:\2026_Projects\vl-nettopologysuite` (`VL.NetTopologySuite`) — geometry operations.
+- `D:\2026_Projects\vl-nettopologysuite` (`VL.NetTopologySuite`) — geometry, and the feature:
+  `Feature`, `Split`, `GetAttribute`. **This package depends on it** (nuspec only — no node here
+  needs it, the help does).
 - `D:\2026_Projects\vl-mapsui` (`VL.Mapsui`) — map rendering. **Consumes
-  `NetTopologySuite.Features.Feature`, which is why this package emits exactly that.**
-- `D:\2026_Projects\vvvv-gis` (`VL.GIS`) — an earlier package, deliberately not a constraint.
+  `NetTopologySuite.Features.Feature`, which is why this package emits exactly that.** Also depends
+  on VL.NetTopologySuite; neither it nor this package references the other.
+- `D:\2026_Projects\vl-overworld` (`VL.Overworld`) — tutorials; depends on this package by id.
+- `VL.GIS` — an earlier package, deliberately not a constraint.
 
-All three compose through **NetTopologySuite**, not through each other. **No package references any
-other, and none should.**
+Every dependency arrow points at VL.NetTopologySuite, and **VL.NetTopologySuite references nothing
+of ours. Keep it that way** — a format or map package may depend on the geometry package, never the
+reverse, and never on each other.
 
 **Only this repository's `CLAUDE.md` loads automatically.** Read a sibling's before touching it, and
 do not assume a rule written there applies here unless it has been copied.
@@ -53,7 +69,9 @@ both had already grown in `vl-mapsui` while the copy here stayed frozen.
    releases shipped that way.
 2. **An upstream library must be a *package in a package repository*, not just a
    `<NugetDependency>` line.** **This failure is total here**: every node names an NTS or
-   NTS.Features type. `build.ps1` installs them into `deps\`.
+   NTS.Features type. `build.ps1` installs them into `deps\`. The VL.NetTopologySuite dependency is different: `build.ps1`
+skips `VL.*` NugetDependencies (they normally ship inside vvvv), so the help needs that sibling
+built and packed — `Compile-HelpPatches.ps1` adds its `dist\` and `dist\feed\` itself.
 
 And: **a `public static` method is a node evaluated sixty times a second from the moment the
 document opens.** That is why `Read GeoJSON` is a `[ProcessNode]` — see below.
@@ -75,7 +93,9 @@ Measured against GeoJSON4STJ 4.0.0:
 **VL.Mapsui's `FeatureLayer` takes `IEnumerable<NetTopologySuite.Features.Feature>` — the concrete
 class.** So without `Defaults.Normalise` the pipeline this package exists to prove does not
 compile. It costs **22 ms per 10,000 features, 12% of the parse**, and it is **negative-tested**:
-removing it turns **47 tests red**, including every interop test. Confirmed 2026-08-16.
+putting the raw table into the `Feature` turns **10 of 60 tests red**, 2 of them interop; making
+only `NormaliseValue` return the raw value turns **6** red (2026-10-18; it was 47 of 69 before the
+feature nodes moved out).
 
 Do not "simplify" this away.
 
@@ -99,7 +119,7 @@ Full table with dates in [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md). The loa
 | Legacy `crs` member | accepted and **silently ignored** |
 | Ring orientation | **not** touched on read; **rewound** on write by default. Round trip is `EqualsTopologically` but not `EqualsExact` unless `DoNotModify` |
 | `{"hello":"world"}` | **succeeds with 0 features.** The count is the only signal — hence `Status` |
-| `IAttributesTable` indexer, missing name | **throws `ArgumentException`** — which is why `GetProperty` calls `Exists` first and reports on a `Success` pin |
+| `IAttributesTable` indexer, missing name | **throws `ArgumentException`** — which is why `GetAttribute` (born here as `GetProperty`, now VL.NetTopologySuite's) calls `Exists` first and reports on a `Success` pin |
 | `Deserialize<Feature>` (concrete) | `InvalidCastException`. Only `IFeature` works |
 | Streaming | **not supported.** Materialises the whole document |
 | Newtonsoft alternative | same speed, **2× retained memory** (101 MB vs 49 at 50k), extra dependency |
@@ -127,12 +147,12 @@ These cost a full survey; do not re-derive them.
 
 | | proves | state |
 |---|---|---|
-| `dotnet test` | the semantics are right | ✅ 69 tests, ~100 ms, no network |
-| the two negative tests | those checks can actually go red | ✅ 21 red without normalisation, 4 without the cache |
+| `dotnet test` | the semantics are right | ✅ 60 tests, ~100 ms, no network |
+| the negative tests | those checks can actually go red | ✅ 10 red with the raw table, 6 with raw values, 4 without the cache (2026-10-18) |
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
-| `tools\Compile-HelpPatches.ps1` | every node in every patch **resolved** | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
-| the vvvv **NodeBrowser** | **which category a node is in** | ❌ **not yet checked** |
+| `tools\Compile-HelpPatches.ps1` | every node in every patch **resolved** — ours and VL.NetTopologySuite's | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
+| the vvvv **NodeBrowser** | **which category a node is in** — `NetTopologySuite.IO` is expected | ❌ **not yet checked** |
 | the vvvv **GUI, running** | the patch computes the right value | ❌ **not yet checked** |
 
 **The last three rows are three different claims, and this is where a false proof lives.**
@@ -146,17 +166,21 @@ These cost a full survey; do not re-derive them.
 
 ### How to re-run the headless check
 
-`.\build.ps1` then `.\tools\Compile-HelpPatches.ps1`. It compiles every patch and **reads the
-generated C#** rather than trusting an exit code. Three things it encodes, each of which cost a
-round:
+`.\build.ps1`, `.\pack.ps1`, then `.\tools\Compile-HelpPatches.ps1` — with VL.NetTopologySuite built
+and packed in its own repository first. It compiles every patch and **reads the generated C#**
+rather than trusting an exit code. Four things it encodes, each of which cost a round:
+
+- **The package name is discovered, not written down** (a `.vl` at the root with a `.nuspec` of the
+  same name). It anchors every node check, and when it was hardcoded a rename would have matched
+  nothing and passed: every patch "uses no node of ours", green. Now a run that checks no node of
+  ours fails, and so does a node the table does not know. Negative-tested 2026-10-18.
 
 - **Use absolute paths** for both the document and the output directory. With a relative document
   path `vvvvc` dies inside `PathUtils.GetRelativePath` with `UriFormatException: Invalid URI`
   before generating anything — a failure that looks like a package problem and is not.
-- The run ends with `NU1101: VL.GeoJSON not found`. **That is expected**: it is the *export* stage,
-  after codegen, and the C# is already written. Pass `-Feed .\dist\feed` after `.\pack.ps1` for a
-  fully green export. The script `exit 0`s explicitly for this reason — otherwise vvvvc's 82 leaks
-  out and a passing run reports as failed.
+- A `NU1101` means restore did not find a package: the script drops a `NuGet.config` naming this
+  repository's `dist\feed` and VL.NetTopologySuite's beside the generated projects, so a run after
+  `.\pack.ps1` restores cleanly and reports "no NU1101".
 - **Anchor on `public … __Create__(`, not on `__Create__`.** The first occurrence in the file is a
   *call* (`return instance.__Create__(Node_Context);`), and matching it searches the wrong region —
   which reported all five patches as constructing the process node in the wrong place. Nor will
@@ -186,15 +210,15 @@ killing vvvv instead of closing it. What that cost, recorded because neither sib
 
 ```
 vl-geojson/
-├── VL.GeoJSON.vl / .nuspec        # the package. .vl is hand-edited, never regenerated
-├── src/VL.GeoJSON/
+├── VL.NetTopologySuite.GeoJSON.vl / .nuspec   # the package. .vl is hand-edited, never regenerated
+├── src/VL.NetTopologySuite.GeoJSON/
+│   ├── AssemblyInfo.cs            # ImportAsIs(..., Category = "NetTopologySuite.IO")
 │   ├── Defaults.cs                # ⭐ the factory, the cached options, and Normalise
 │   ├── ReadNodes.cs               # [ProcessNode] Read GeoJSON - the lifetime-critical one
-│   ├── FeatureNodes.cs            # Split (Feature) and GetProperty
 │   └── WriteNodes.cs              # Write GeoJSON
-├── test/VL.GeoJSON.Tests/         # 69 xunit tests + 4 opt-in load tests, no network, no vvvv
+├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 60 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
-├── help/VL.GeoJSON/               # 6 help patches + Help.xml (ordering and tags)
+├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
 │   └── Assets/cities.geojson      # what "HowTo Read a GeoJSON file" points at, RELATIVELY
 ├── docs/ARCHITECTURE.md           # why each node exists, the SRID decision, the boundary
 ├── docs/VL-PATCH-XML.md           # ⭐ carried from vl-mapsui - read before hand-editing a .vl
@@ -229,16 +253,22 @@ public API** and must stay in the test project.
 
 ## Node categories
 
-```
-category = (.NET namespace minus the "VL" prefix) + type name
+**`NetTopologySuite.IO`** — VL.NetTopologySuite's own category, beside `Read WKT` and `Write WKT`:
+
+```csharp
+[assembly: ImportAsIs(Namespace = "VL.NetTopologySuite.GeoJSON", Category = "NetTopologySuite.IO")]
 ```
 
-Namespace `VL.GeoJSON` gives **`GeoJSON`**, flat and one level deep. `[SkipCategory]` on the static
-classes stops `FeatureNodes` / `WriteNodes` becoming a category level of their own;
-`[ProcessNode(Name = "Read GeoJSON", Category = "GeoJSON")]` names the process node.
+The namespace is stripped whole and the category named outright — the form `VL.Core.Commands`
+ships (`Namespace = "VL.Core", Category = "System"`), found by scanning the 7.4 pack assemblies.
+`[SkipCategory]` keeps `WriteNodes` from becoming a level of its own;
+`[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]` places the process node.
+Not yet seen in the NodeBrowser — the generated C# carries no category, so nothing else proves it.
 
-Unlike VL.NetTopologySuite (assembly `VL.NetTopologySuite`, namespace `VL.NTS`), the two agree here
-because "GeoJSON" is already short enough to read in a node browser.
+Namespace and RootNamespace equal the assembly name, as in VL.NetTopologySuite. **Inside that
+namespace a bare `NetTopologySuite` means `VL.NetTopologySuite`**, so a fully qualified upstream
+name in code or in a `cref` needs `global::` — it broke four references and two crefs on the day
+of the rename.
 
 ## Adding a node
 
@@ -256,7 +286,9 @@ Answer these before writing it. If any answer is thin, it is a help patch rather
   should not exist.
 - **Does it hold a resource, or is it expensive?** Then `[ProcessNode]`, not a static method.
 - **Is it about GeoJSON?** If it is about geometry, maps or projections, it belongs in another
-  package. This one must not grow an `Area` node just because it happens to hold geometry.
+  package. This one must not grow an `Area` node just because it happens to hold geometry — and
+  must not grow a feature node either: anything that opens or builds a `Feature` belongs in
+  VL.NetTopologySuite, whoever produced the feature.
 - **Three inputs is the target**; five means two decisions are wearing one node. Extra *outputs*
   are free — `Read GeoJSON` has four.
 
@@ -287,7 +319,7 @@ Answer these before writing it. If any answer is thin, it is a help patch rather
   of them; VL.Mapsui's Explanation patch is nothing else), while a Pad with a `Comment` and no
   `Value` is a label waiting for a link and is still flagged. Both directions are negative-tested.
 - **A help patch that reads a file must ship the file and point at it RELATIVELY.**
-  `help\VL.GeoJSON\Assets\cities.geojson`, referenced as `Assets\cities.geojson`, which resolves the
+  `help\VL.NetTopologySuite.GeoJSON\Assets\cities.geojson`, referenced as `Assets\cities.geojson`, which resolves the
   same in the repository and in an installed package. Never an empty Path IOBox — `Value=""` means
   the document's own folder, and that is the mistake that wrote 444 stray files in a sibling.
 - **Opening a help patch in vvvv rewrites its `NugetDependency` version and saving keeps it.** Run
