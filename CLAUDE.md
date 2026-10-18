@@ -95,7 +95,9 @@ Measured against GeoJSON4STJ 4.0.0:
 
 **VL.Mapsui's `FeatureLayer` takes `IEnumerable<NetTopologySuite.Features.Feature>` — the concrete
 class.** So without `Defaults.Normalise` the pipeline this package exists to prove does not
-compile. It costs **22 ms per 10,000 features, 12% of the parse**, and it is **negative-tested**:
+compile. It costs **22 ms per 10,000 features, 12% of the parse — on the synthetic fixture with
+3 properties. On real files (26–41 properties) it is 50–67% of the parse**, the larger half, and
+the obvious place to make reading faster (2026-10-18). It is **negative-tested**:
 putting the raw table into the `Feature` turns **10 of 60 tests red**, 2 of them interop; making
 only `NormaliseValue` return the raw value turns **6** red (2026-10-18; it was 47 of 69 before the
 feature nodes moved out).
@@ -105,6 +107,11 @@ Do not "simplify" this away.
 ### 2. Parsing when the input changes, not every frame
 
 **162 ms for 10,000 features against a 16.7 ms frame.** Even 1,000 features cost 0.8 of a frame.
+Inside vvvv it is worse: the shipped 7,342 cities freeze the whole of vvvv for **0.56 s**, and a
+1.2-million-feature file for 12.9 s. The cache only stops it happening *every* frame; for a big
+file the answer is reading in the background — `FileReader (String Reactive)` → `ForEach [Reactive]`
+around `Read GeoJSON` → `HoldLatest`, measured at 60 fps throughout with the existing node. See
+`docs/MEASUREMENTS.md`, "Large files inside vvvv".
 `ReadGeoJsonNode` caches on (text, factory) and returns **the same instance** in between — identity
 is the only "has this changed" signal VL has. Negative-tested: removing the cache check turns **4
 tests red**, the first reporting 100 parses instead of 1.

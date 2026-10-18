@@ -106,8 +106,20 @@ Cost is close to linear in feature count, and memory runs about **2.5× the text
 | D | normalisation to concrete `Feature` | 22.3 |
 | | **`Read GeoJSON` node, total** | **180.2** |
 
-**D is 12% of the node's cost.** Geometry construction (C) dominates, and raw JSON tokenising (B)
-is under a third of the total — so a slow read is not "JSON is slow", it is object construction.
+**D is 12% of the node's cost — on this synthetic fixture, with 3 properties per feature.** Geometry
+construction (C) dominates here, and raw JSON tokenising (B) is under a third of the total — so a
+slow read is not "JSON is slow", it is object construction.
+
+**On real data the 12% does not hold** (2026-10-18, throwaway console probe, Release, median of 3):
+
+| | cities, 7,342 × 31 properties | roads, 56,600 × 31 properties |
+|---|---:|---:|
+| `Deserialize` | 56 ms | 863 ms |
+| normalisation (D) | **114 ms (67%)** | **860 ms (50%)** |
+
+The deserializer leaves properties as undecoded `JsonElement`s, so the per-property work lands in
+`Normalise` — enumerating names, the indexer, a fresh `AttributesTable`, number conversion. On real
+files **normalisation is the larger half of the parse**, and it is our code, not upstream's.
 
 Reading path also matters: `byte[]` 101 ms < `string` 140 ms < `FileStream` 168 ms.
 
@@ -151,6 +163,51 @@ public domain.
 
 600 frames over an unchanged 10,000-feature document: **0.0 ms total, 1 parse.** Reference equality
 short-circuits before anything else runs.
+
+---
+
+## Large files inside vvvv: blocking versus background (2026-10-18)
+
+Measured **in vvvv 7.4**, not a console. One patch per row, read triggered at frame 1800, longest
+frame measured *inside the patch* (Stopwatch minus its FrameDelay, Max-held, from frame 600 on) and
+read off a capture. An idle patch's longest frame was 0.02 s. vvvv working set 0.6 GB idle.
+
+| file | features | size | **blocking**: longest frame | **background**: longest frame | background: frames > 33 ms |
+|---|---:|---:|---:|---:|---:|
+| Natural Earth populated places (shipped) | 7,342 | 4.7 MB | **0.56 s** | 0.02 s | 0 |
+| Natural Earth roads 1:10m | 56,600 | 48 MB | **2.49 s** | 0.03 s | 4 |
+| Microsoft US building footprints, Delaware | 357,534 | 99 MB | **3.95 s** | 0.04 s | 3 |
+| Microsoft US building footprints, Connecticut | 1,215,624 | 340 MB | **12.91 s** | 0.04 s | 5 |
+
+- **Blocking** = `FileReader (String)` → `Read GeoJSON`, the chain the help taught until now.
+  The whole of vvvv freezes for one frame of that length.
+- **Background** = `FileReader (String Reactive)` → `ForEach [Reactive]` around `Read GeoJSON` →
+  `HoldLatest` — The Gray Book's own recipe for JSON. **It works with the existing node, no code.**
+  Connecticut arrived about 15 s after the trigger, at 60 fps throughout.
+- **The shipped 7,342 cities freeze vvvv for 0.56 s**, not the 220 ms the console measured — cold
+  JIT and the file read count inside the host.
+- **Memory is the ceiling, not time.** Connecticut took vvvv from 0.6 to **3.8 GB**, blocking or
+  background alike: about 10× the file. Part of it is certain — `ReadGeoJsonNode` keeps the last
+  text to compare against, so a 340 MB file stays alive as a 680 MB UTF-16 string for as long as
+  the node exists. How the rest splits between geometry and attribute tables is not measured.
+- Delaware has 6× the roads' features but froze only 1.6× as long: it carries **2 properties per
+  feature to the roads' 31.** Cost follows properties.
+
+**The instrument, because the first one was blind.** An external probe timing `WM_NULL` round
+trips to the editor window every 4 ms saw **no stall at all** during the 2.5 s blocking parse:
+vvvv's main loop does not run on the editor's UI thread. The blocking row is the negative control
+that caught it. Measure frame time inside the patch.
+
+### Running a parse off the main thread — console probe, same day
+
+| | |
+|---|---|
+| Thread safety of `Defaults` | 2–8 parallel parses, cold and warm, **byte-identical** to sequential (SHA-256 over geometry, SRID, attribute names, types and values). Every converter field is `readonly`; `JsonSerializerOptions` is documented thread-safe once frozen |
+| Parallel throughput | none to speak of — 8 at once 836 ms against 178 for one |
+| Bytes instead of a string | parse 4–5% faster; **peak memory 94 MB lower** on the roads (no 101 MB string) |
+| `DeserializeAsync` cancellation | **only during the read phase.** The serializer buffers the whole document, then parses it synchronously; a token set after that is ignored |
+| One feature at a time (`Utf8JsonReader` on `features`, `Deserialize<IFeature>` each) | same total time, identical result, **cancellable within 0.4 ms**, progress available, lowest peak (308 MB against 405 bytes / 499 string on the roads) |
+| GC on the main thread, background parse of the roads | worst frame about 35 ms (workstation concurrent GC, which vvvv's runtimeconfig leaves on) |
 
 ---
 
@@ -200,5 +257,6 @@ Stated plainly, because an unmeasured stage quietly becomes an assumed one.
   console host would prove nothing about them — that is the false proof this ecosystem has already
   made once. Stages F, G and H of the brief's §13 are open.
 - **VL spread/dataflow overhead** (stage E) at scale, for the same reason.
+- **Where the 3.8 GB goes** for a 1.2-million-feature file, beyond the retained text.
 - **The NodeBrowser category** for these nodes. `vvvvc` resolved every one of them, which proves
   they exist and contribute; only the GUI proves *where* they appear.
