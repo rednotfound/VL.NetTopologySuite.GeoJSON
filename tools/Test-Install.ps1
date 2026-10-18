@@ -93,7 +93,12 @@ Write-Host "installing $packageId $Version -> $OutputDirectory`n"
 
 $sources = @($feed, 'https://api.nuget.org/v3/index.json')
 
-$log = & $NuGet install $packageId -Version $Version -PreRelease `
+# -NoHttpCache always: this package's dependency VL.NetTopologySuite comes from nuget.org, usually
+# just published, and nuget.exe's 30-minute HTTP cache hides a new version. Measured 2026-10-18:
+# with VL.NetTopologySuite 0.0.3-alpha published but cached as absent, the resolver did not say
+# "not found" - it wandered into System.Text.Json 11.0.0-rc and failed on a System.Buffers
+# conflict, a wrong diagnosis that looks exactly like a broken package.
+$log = & $NuGet install $packageId -Version $Version -PreRelease -NoHttpCache `
     -Source ($sources -join ';') -OutputDirectory $OutputDirectory -NonInteractive 2>&1
 
 if ($LASTEXITCODE -ne 0) {

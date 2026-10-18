@@ -9,6 +9,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/rednotfound/VL.NetTopologySuite.GeoJSON</projectUrl>
+    <!-- nuget.org shows this on the package page. The path is the path INSIDE the package (README.md
+         is packed to docs\ below), and nuget pack refuses to pack if it is not in <files>. Same as
+         VL.NetTopologySuite and VL.Mapsui. -->
+    <readme>docs\README.md</readme>
     <description>
       EARLY - not ready for real work yet.
 
@@ -27,7 +31,9 @@
     </description>
     <summary>GeoJSON reading and writing for VL.NetTopologySuite, as nodes for vvvv gamma.</summary>
     <releaseNotes>
-      0.0.1-alpha - First package, developed as VL.GeoJSON until 2026-10-18. Not published.
+      0.0.1-alpha - First release. Read GeoJSON and Write GeoJSON, in NetTopologySuite.IO.
+      Developed as VL.GeoJSON until 2026-10-18. Requires VL.NetTopologySuite 0.0.3-alpha, which
+      opens the features (Split, GetAttribute) and is installed with this package.
     </releaseNotes>
     <copyright>Copyright 2026 VL.NetTopologySuite.GeoJSON Contributors</copyright>
     <!-- The "VL" tag is what makes the pack discoverable at https://vvvv.org/packs -->

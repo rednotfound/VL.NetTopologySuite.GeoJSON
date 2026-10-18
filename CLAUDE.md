@@ -155,6 +155,7 @@ These cost a full survey; do not re-derive them.
 | `tools\Test-VLPatch.ps1` | the `.vl` documents are well formed | ✅ 7 documents |
 | `tools\Test-VLPackage.ps1` | the package can structurally contribute nodes | ✅ passes |
 | `tools\Compile-HelpPatches.ps1` | every node in every patch **resolved** — ours and VL.NetTopologySuite's | ✅ 6 patches, read out of the generated `*.vl.1.cs` |
+| `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.3-alpha from nuget.org**, and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
 | a **category-constrained probe** (below) | **which category a node is in** | ✅ 2026-10-18: `NetTopologySuite.IO` resolves, the old `GeoJSON` gives `Not found` |
 | the vvvv **NodeBrowser** | the same, as a user sees it | ❌ not looked at — the probe is the stronger evidence |
 | the vvvv **GUI, running** | the patch computes the right value | ✅ 2026-10-18, vvvv 7.4: Access properties, Read GeoJSON, Write GeoJSON, Explanation — values read off PrintWindow captures (2 features, Parses 1, round trip 2 = 2, `TryGetValue` and `GetAttribute` both "Tokyo") |
