@@ -33,6 +33,13 @@ names a type from one of them. vvvv gamma 8.0 previews also have **Packman** (Ct
 pack → Add); that path has not been tried with this package — if it does not show up there, use the
 command line above.
 
+**Then close and reopen vvvv.** A running vvvv keeps the VL.NetTopologySuite it already loaded. If an
+older one (0.0.1 / 0.0.2-alpha) was loaded when you installed, the next compile fails with a
+`NullReferenceException` in `RuntimeAssemblyUtils.GetSelfAndDependencies` (seen 2026-10-19). A
+document that names an older VL.NetTopologySuite also needs it raised to **0.0.4-alpha** under
+**Document menu → Dependencies → NuGets**. Updating an installed version is described in
+[VL.NetTopologySuite's README](https://github.com/rednotfound/VL.NetTopologySuite#install-and-your-first-geometry).
+
 **2. See it work.** Press **F1** with nothing selected to open the Help Browser, go to **Learn**
 and find VL.NetTopologySuite.GeoJSON. Start with `Explanation Overview of available nodes`, then
 `HowTo Read GeoJSON`: a text box of GeoJSON becomes a spread of features, with their count and a
