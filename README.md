@@ -15,6 +15,42 @@ VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `
 Until 2026-10-18 this was **VL.GeoJSON**, with four nodes of its own and no dependency on any
 sibling. Why it changed is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-package-boundary).
 
+## Install and your first features
+
+VL.NetTopologySuite.GeoJSON is on [nuget.org](https://www.nuget.org/packages/VL.NetTopologySuite.GeoJSON).
+Verified in vvvv gamma **7.4**.
+
+**1. Install.** In vvvv gamma 7.x: Quad menu → **Manage Nugets → Commandline**, then
+
+```
+nuget install VL.NetTopologySuite.GeoJSON -pre
+```
+
+`-pre` is needed because every version so far is a prerelease. It brings
+[VL.NetTopologySuite](https://github.com/rednotfound/VL.NetTopologySuite) 0.0.4-alpha along, plus
+NetTopologySuite, NetTopologySuite.Features and NetTopologySuite.IO.GeoJSON4STJ — every node here
+names a type from one of them. vvvv gamma 8.0 previews also have **Packman** (Ctrl+F3: Browse → the
+pack → Add); that path has not been tried with this package — if it does not show up there, use the
+command line above.
+
+**2. See it work.** Press **F1** with nothing selected to open the Help Browser, go to **Learn**
+and find VL.NetTopologySuite.GeoJSON. Start with `Explanation Overview of available nodes`, then
+`HowTo Read GeoJSON`: a text box of GeoJSON becomes a spread of features, with their count and a
+`Status`.
+
+**3. Use it in your own patch.** Installing does not reference a package by itself. In your
+document: **Document menu → Dependencies → NuGets**, right-click **VL.NetTopologySuite.GeoJSON** to
+reference it — and **VL.NetTopologySuite** as well, whose `Split` and `GetAttribute` open a
+feature. Then double-click the canvas and type `Read GeoJSON`. The smallest chain:
+
+```
+FileReader (String)  →  Read GeoJSON  →  Count            a small file
+GeoJSONReader (Reactive)  →  HoldLatest  →  Count         a big one, read in the background
+```
+
+Then `GetSlice` picks a feature, `Split` opens it into `Geometry` and `Attributes`, and
+`GetAttribute` reads one property by name.
+
 ## Learning it
 
 Six help patches, in the order the help browser shows them:
