@@ -23,7 +23,10 @@ for a file or a stream - which is why `GeoJSONReader (Reactive)` keeps its name.
 *files* keep theirs (`HowTo Read GeoJSON`, `HowTo Write GeoJSON`: a task, not a node, as the
 sibling's `HowTo Read and write WKT`). Dated history below keeps the names things had then. The
 dependency is raised to VL.NetTopologySuite 0.0.6-alpha so the whole family moves to the new names
-together; VL.Mapsui and VL.Overworld follow in the same round.
+together; VL.Mapsui and VL.Overworld follow in the same round. **`0.0.2-alpha` is on nuget.org
+(2026-11-08, browser upload)**, installed back with `Test-Install -FromNuGetOrg -Version 0.0.2-alpha`
+(it was not found for some minutes after the confirmation mail: indexing lags the mail). **The
+working version is `0.0.3-alpha`**, one ahead of the published one, as in the siblings.
 
 **Current state (2026-10-18): 3 nodes, 86 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
