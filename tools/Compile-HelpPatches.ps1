@@ -120,8 +120,8 @@ if ($patches.Count -eq 0) { throw "No help patch matches -Patch '$Patch'" }
 
 # The names a patch may reference from this package, and the C# each must produce.
 $OurNodes = @{
-    'Read GeoJSON'  = 'ReadGeoJsonNode'
-    'Write GeoJSON' = 'WriteNodes.WriteGeoJson'
+    'FromGeoJSON'  = 'ReadGeoJsonNode'
+    'ToGeoJSON' = 'WriteNodes.WriteGeoJson'
     'GeoJSONReader (Reactive)' = 'GeoJsonReaderReactiveNode'
 }
 
@@ -140,7 +140,7 @@ $DependencyNodes = @{
 # dropped and the patch silently computes nothing. Assert the generated C# names the variable
 # after the pin, which is what vvvvc does.
 $OurPins = @{
-    'Read GeoJSON' = 'Features_'
+    'FromGeoJSON' = 'Features_'
 }
 
 $failures = New-Object System.Collections.Generic.List[string]
@@ -265,11 +265,11 @@ foreach ($p in $patches) {
         $createBody = [regex]::Match(
             $csharp, 'public\s+[\w\.]+\s+__Create__\(.*?\)\{(?<body>.*?)\n        \}', 'Singleline')
         if ($createBody.Success -and $createBody.Groups['body'].Value -match 'new\s+\w*\.?ReadGeoJsonNode\(\)') {
-            Write-Host "  ok    Read GeoJSON is constructed in Create, not Update" -ForegroundColor DarkGray
+            Write-Host "  ok    FromGeoJSON is constructed in Create, not Update" -ForegroundColor DarkGray
         }
         else {
             $failures.Add("$($p.Name): ReadGeoJsonNode is not constructed in __Create__")
-            Write-Host "  FAIL  Read GeoJSON is not constructed in Create" -ForegroundColor Red
+            Write-Host "  FAIL  FromGeoJSON is not constructed in Create" -ForegroundColor Red
         }
     }
 }

@@ -14,14 +14,14 @@ namespace VL.NetTopologySuite.GeoJSON;
 // The /// text below is what vvvv shows on hover - user-facing, short, one sentence per line. The
 // reasoning lives here.
 //
-// Why this exists beside FileReader -> Read GeoJSON: Read GeoJSON parses on the main loop, and
+// Why this exists beside FileReader -> FromGeoJSON: FromGeoJSON parses on the main loop, and
 // while it parses nothing else in vvvv runs. Measured in vvvv 7.4: the 7,342 shipped cities freeze
 // it for 0.56 s, 1.2 million building footprints for 12.9 s.
 //
 // Shaped like vvvv's own JSONReader (Reactive) and FileReader (String Reactive) - File Path and
 // Read in; Output observable, Progress, In Progress, On Completed out - following The Gray Book's
 // rule that anything asynchronous is handed out as an observable. Success and Status are added
-// because a file can be wrong; they mean what Read GeoJSON's pins of the same names mean.
+// because a file can be wrong; they mean what FromGeoJSON's pins of the same names mean.
 //
 // What the background buys besides the frame rate (measured 2026-10-18): the file is never made a
 // string, so a 340 MB file does not also sit in memory as a 680 MB text; a new Read cancels the
@@ -60,7 +60,7 @@ public sealed class GeoJsonReaderReactiveNode : IDisposable
 
     // Read is a bang: every frame it is true starts a new read and cancels the one before, so held
     // true it never finishes. SRID follows the same rule, and gives the same features, as
-    // Read GeoJSON. On Completed fires for a failure too; Success says which.
+    // FromGeoJSON. On Completed fires for a failure too; Success says which.
 
     /// <summary>
     /// Starts a read when Read is true.

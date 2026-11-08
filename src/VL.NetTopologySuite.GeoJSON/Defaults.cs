@@ -64,7 +64,7 @@ internal static class Defaults
     /// is the thing not to do.</para>
     /// <para><b>The hazard, stated plainly because nothing else will state it:</b> NTS never
     /// throws on mixed SRIDs (measured — 4326 intersected with 0
-    /// returns 4326 silently). A patch mixing <c>Read WKT</c> (SRID 0) with <c>Read GeoJSON</c>
+    /// returns 4326 silently). A patch mixing <c>FromWKT</c> (SRID 0) with <c>FromGeoJSON</c>
     /// (SRID 4326) therefore gets a confident wrong answer that looks exactly like a right one.
     /// The <c>Factory</c> pin is how a patch makes the two agree, in whichever direction it
     /// wants.</para>
@@ -165,7 +165,7 @@ internal static class Defaults
     /// our <c>XDocument</c>, it crosses no package boundary — and its only role was to be taken apart again
     /// immediately.</para>
     /// <para><b>What this costs:</b> the collection's <c>bbox</c> member. It was never surfaced by
-    /// any node; when something needs it, it becomes an output pin on <c>Read GeoJSON</c>
+    /// any node; when something needs it, it becomes an output pin on <c>FromGeoJSON</c>
     /// rather than a resurrected type.</para>
     /// </remarks>
     internal static Spread<global::NetTopologySuite.Features.Feature> Normalise(FeatureCollection source)

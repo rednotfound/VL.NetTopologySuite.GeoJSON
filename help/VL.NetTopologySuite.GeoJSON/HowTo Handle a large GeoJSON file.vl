@@ -60,7 +60,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="Bo7IMi5NdhzUas9IVwGwfP" Bounds="665,345,330,60" ShowValueBox="true" isIOBox="true" Value="&lt; Read GeoJSON parses on the main loop, and vvvv stops until it is done. Press READ BLOCKING and try to move a node.">
+          <Pad Id="Bo7IMi5NdhzUas9IVwGwfP" Bounds="665,345,330,60" ShowValueBox="true" isIOBox="true" Value="&lt; FromGeoJSON parses on the main loop, and vvvv stops until it is done. Press READ BLOCKING and try to move a node.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -69,7 +69,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="UcrbCE2G6A6AAHDqVVwD89" Bounds="-60,375,600,30" ShowValueBox="true" isIOBox="true" Value="&lt; GeoJSON that is not in a file: put Read GeoJSON in a ForEach [Reactive] region, then HoldLatest.">
+          <Pad Id="UcrbCE2G6A6AAHDqVVwD89" Bounds="-60,375,600,30" ShowValueBox="true" isIOBox="true" Value="&lt; GeoJSON that is not in a file: put FromGeoJSON in a ForEach [Reactive] region, then HoldLatest.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -78,7 +78,7 @@
               <p:stringtype p:Assembly="VL.Core" p:Type="VL.Core.StringType">Comment</p:stringtype>
             </p:ValueBoxSettings>
           </Pad>
-          <Pad Id="RLEoQEmgZ1LlYFAVePiHnd" Bounds="1250,-16,440,420" ShowValueBox="true" isIOBox="true" Value="Reading a big file without freezing vvvv&#xD;&#xA;&#xD;&#xA;Read GeoJSON parses on the main loop, and while it parses everything in vvvv stops - your patch, the renderer, the editor. The 7,342 cities in this file stop it for about half a second; a million features, for more than ten.&#xD;&#xA;&#xD;&#xA;GeoJSONReader (Reactive) reads and parses the file on another thread instead. Its Output is an observable: HoldLatest brings the features into the main loop. In Progress is true while it works, and Progress goes from 0 to 1.&#xD;&#xA;&#xD;&#xA;Read is a bang. OnOpen reads once when the patch opens; READ IN BACKGROUND reads again.&#xD;&#xA;&#xD;&#xA;Memory is the real limit: a few times the file size. Far past a few hundred MB, the answer is a different format - FlatGeobuf, GeoParquet - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; both readers accept it and ignore it.">
+          <Pad Id="RLEoQEmgZ1LlYFAVePiHnd" Bounds="1250,-16,440,420" ShowValueBox="true" isIOBox="true" Value="Reading a big file without freezing vvvv&#xD;&#xA;&#xD;&#xA;FromGeoJSON parses on the main loop, and while it parses everything in vvvv stops - your patch, the renderer, the editor. The 7,342 cities in this file stop it for about half a second; a million features, for more than ten.&#xD;&#xA;&#xD;&#xA;GeoJSONReader (Reactive) reads and parses the file on another thread instead. Its Output is an observable: HoldLatest brings the features into the main loop. In Progress is true while it works, and Progress goes from 0 to 1.&#xD;&#xA;&#xD;&#xA;Read is a bang. OnOpen reads once when the patch opens; READ IN BACKGROUND reads again.&#xD;&#xA;&#xD;&#xA;Memory is the real limit: a few times the file size. Far past a few hundred MB, the answer is a different format - FlatGeobuf, GeoParquet - not a cleverer GeoJSON reader.&#xD;&#xA;&#xD;&#xA;The file carries a legacy crs member. RFC 7946 dropped it; both readers accept it and ignore it.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -170,7 +170,7 @@
           <Node Bounds="721,188,110,19" Id="Hrp3sV9bP8m8KgoXyf0NaQ">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+              <Choice Kind="ProcessAppFlag" Name="FromGeoJSON" />
             </p:NodeReference>
             <Pin Id="IGrPeOsRMCqNgsyyIDa0FT" Name="GeoJSON" Kind="InputPin" />
             <Pin Id="Kw9oYTyiGET9kKa1MPuN8m" Name="Factory" Kind="InputPin" />
@@ -254,5 +254,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="Ci6CVnxxsj4I0iK0jhdJUP" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
-  <NugetDependency Id="NNyMXI7CPhELpNJm3tr7Bm" Location="VL.NetTopologySuite" Version="0.0.4-alpha" />
+  <NugetDependency Id="NNyMXI7CPhELpNJm3tr7Bm" Location="VL.NetTopologySuite" Version="0.0.6-alpha" />
 </Document>

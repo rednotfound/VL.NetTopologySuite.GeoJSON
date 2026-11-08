@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="AH69EQMw4OCVeKbHgY4mWw">
         <Canvas Id="G5nIfOQBtacZrnoKjmQmjN" CanvasType="Group">
-          <Pad Id="CFhuoLqSovHW1j1fdZItZC" Bounds="800,60,470,650" ShowValueBox="true" isIOBox="true" Value="A round trip, and why it is the honest test&#xD;&#xA;&#xD;&#xA;This patch reads GeoJSON, writes it straight back out, and reads THAT. If both counts match, nothing was lost.&#xD;&#xA;&#xD;&#xA;Write GeoJSON takes any sequence of features, so the spread out of Read GeoJSON connects, and so does one you built yourself. Note there is no FeatureCollection anywhere - it is a detail of the file format, and this package keeps it there.&#xD;&#xA;&#xD;&#xA;Exact Round Trip - the pin worth understanding&#xD;&#xA;&#xD;&#xA;The standard says a polygon's outer ring winds counter-clockwise and its holes clockwise. With this pin OFF the writer rewinds your rings to obey that: the shape is unchanged, the coordinate ORDER is not. A polygon written and read back is then equal as a shape and unequal as a list of points - a maddening bug to chase. So the default is ON: write exactly what you have.&#xD;&#xA;&#xD;&#xA;What does NOT survive&#xD;&#xA;&#xD;&#xA;The SRID. GeoJSON has nowhere to put one - the format simply declares coordinates are longitude and latitude. Geometry projected into metres is written as if those metres were degrees, and nothing warns you. Convert before writing.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member arrives as an ordinary property called id, and goes back out as one.&#xD;&#xA;&#xD;&#xA;Saving it to a file&#xD;&#xA;&#xD;&#xA;Write GeoJSON makes text; FileWriter (String) [IO] puts text on disk. Press SAVE and the GeoJSON out text is written to File Path. Nothing is written until you press it - a FileWriter whose Write pin were simply true would rewrite the file sixty times a second.&#xD;&#xA;&#xD;&#xA;Then press READ IT BACK: FileReader reads the file, Read GeoJSON parses it, and the count on the right should match the one at the top. Two buttons on purpose - one press for both would race, and you could read the old file.&#xD;&#xA;&#xD;&#xA;written.geojson is a path RELATIVE TO THIS PATCH, so the file lands beside it. Type a full path to put it elsewhere. Never leave File Path empty: an empty path is not nothing, it means this patch's own folder.">
+          <Pad Id="CFhuoLqSovHW1j1fdZItZC" Bounds="800,60,470,650" ShowValueBox="true" isIOBox="true" Value="A round trip, and why it is the honest test&#xD;&#xA;&#xD;&#xA;This patch reads GeoJSON, writes it straight back out, and reads THAT. If both counts match, nothing was lost.&#xD;&#xA;&#xD;&#xA;ToGeoJSON takes any sequence of features, so the spread out of FromGeoJSON connects, and so does one you built yourself. Note there is no FeatureCollection anywhere - it is a detail of the file format, and this package keeps it there.&#xD;&#xA;&#xD;&#xA;Exact Round Trip - the pin worth understanding&#xD;&#xA;&#xD;&#xA;The standard says a polygon's outer ring winds counter-clockwise and its holes clockwise. With this pin OFF the writer rewinds your rings to obey that: the shape is unchanged, the coordinate ORDER is not. A polygon written and read back is then equal as a shape and unequal as a list of points - a maddening bug to chase. So the default is ON: write exactly what you have.&#xD;&#xA;&#xD;&#xA;What does NOT survive&#xD;&#xA;&#xD;&#xA;The SRID. GeoJSON has nowhere to put one - the format simply declares coordinates are longitude and latitude. Geometry projected into metres is written as if those metres were degrees, and nothing warns you. Convert before writing.&#xD;&#xA;&#xD;&#xA;A GeoJSON id member arrives as an ordinary property called id, and goes back out as one.&#xD;&#xA;&#xD;&#xA;Saving it to a file&#xD;&#xA;&#xD;&#xA;ToGeoJSON makes text; FileWriter (String) [IO] puts text on disk. Press SAVE and the GeoJSON out text is written to File Path. Nothing is written until you press it - a FileWriter whose Write pin were simply true would rewrite the file sixty times a second.&#xD;&#xA;&#xD;&#xA;Then press READ IT BACK: FileReader reads the file, FromGeoJSON parses it, and the count on the right should match the one at the top. Two buttons on purpose - one press for both would race, and you could read the old file.&#xD;&#xA;&#xD;&#xA;written.geojson is a path RELATIVE TO THIS PATCH, so the file lands beside it. Type a full path to put it elsewhere. Never leave File Path empty: an empty path is not nothing, it means this patch's own folder.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -32,7 +32,7 @@
           <Node Bounds="60,175,110,26" Id="B1OC3ajecXW1K1vJYSrLBr">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+              <Choice Kind="ProcessAppFlag" Name="FromGeoJSON" />
             </p:NodeReference>
             <Pin Id="L8uAPu4M1LjIR1XRobrmiU" Name="GeoJSON" Kind="InputPin" />
             <Pin Id="PL8KAKJAZ63L4EspmKSW5P" Name="Factory" Kind="InputPin" />
@@ -64,7 +64,7 @@
           <Node Bounds="60,375,110,19" Id="Hz7EFi1Zqb8LAsg1QfzEoO">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="OperationCallFlag" Name="Write GeoJSON" />
+              <Choice Kind="OperationCallFlag" Name="ToGeoJSON" />
             </p:NodeReference>
             <Pin Id="PRigkt4IRbWEETzf9ivk1t" Name="Features" Kind="InputPin" />
             <Pin Id="H1TOcbcNLpNxEf5vyeOdVb" Name="Exact Round Trip" Kind="InputPin" />
@@ -126,7 +126,7 @@
           <Node Bounds="457,850,110,19" Id="V9z3gKHUSvTLLvJgPc4fzt">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+              <Choice Kind="ProcessAppFlag" Name="FromGeoJSON" />
             </p:NodeReference>
             <Pin Id="H9vPZIpD2W9Cgav3aP2ZEd" Name="GeoJSON" Kind="InputPin" />
             <Pin Id="GG4QAOtWxKRSYhOae5Tybn" Name="Factory" Kind="InputPin" />

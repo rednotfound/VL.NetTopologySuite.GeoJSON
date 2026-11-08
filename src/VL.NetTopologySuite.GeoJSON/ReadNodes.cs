@@ -15,7 +15,7 @@ namespace VL.NetTopologySuite.GeoJSON;
 //
 // THIS IS A PROCESS NODE, AND THAT IS THE WHOLE POINT OF IT. A public static method in VL is a node
 // evaluated sixty times a second from the moment the document opens. Parsing 10,000 polygons takes
-// 122 ms (measured, 5.4 MB) against a 16.7 ms frame, so a static Read GeoJSON would not be slow - it
+// 122 ms (measured, 5.4 MB) against a 16.7 ms frame, so a static FromGeoJSON would not be slow - it
 // would be a patch that never draws a frame again. So the text is parsed when it CHANGES, and the
 // same Spread instance is returned on every frame in between. Returning the same instance matters
 // as much as skipping the parse: object identity is the only "has this changed" signal VL has, so
@@ -30,7 +30,7 @@ namespace VL.NetTopologySuite.GeoJSON;
 // Parses is a pin because "this only runs once" is not a claim anyone should take on trust - the
 // reasoning behind VL.Mapsui's Layers Built.
 //
-// For a small file compose FileReader (String) -> Read GeoJSON. For a big file use
+// For a small file compose FileReader (String) -> FromGeoJSON. For a big file use
 // GeoJsonReaderReactiveNode: this node parses on the main loop, and the 7,342 cities shipped with
 // this package freeze vvvv for 0.56 s (measured in vvvv 7.4).
 
@@ -41,7 +41,7 @@ namespace VL.NetTopologySuite.GeoJSON;
 /// Parses only when the text changes; Parses counts how often that happened.
 /// For a big file use GeoJSONReader (Reactive), which reads in the background.
 /// </remarks>
-[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]
+[ProcessNode(Name = "FromGeoJSON", Category = "NetTopologySuite.IO")]
 public class ReadGeoJsonNode
 {
     string? _lastText;
@@ -59,7 +59,7 @@ public class ReadGeoJsonNode
     // POINT Z(1 2 300)).
     //
     // SRID is 4326 unless Factory says otherwise: RFC 7946 §4 mandates WGS84 lon/lat and the
-    // upstream library stamps it unaided. VL.NetTopologySuite's Read WKT gives 0, and mixing SRIDs
+    // upstream library stamps it unaided. VL.NetTopologySuite's FromWKT gives 0, and mixing SRIDs
     // never throws in NTS, so Factory is how a patch makes them agree. An SRID is a label, not a
     // reprojection. A legacy crs member is accepted and ignored (measured); bbox is read.
     //

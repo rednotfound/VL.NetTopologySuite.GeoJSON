@@ -32,7 +32,7 @@
           <Node Bounds="60,180,110,26" Id="MPvsjde0q1SdMXLPEzIlAs">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+              <Choice Kind="ProcessAppFlag" Name="FromGeoJSON" />
             </p:NodeReference>
             <Pin Id="GUP5Vatc4txLdDP2SW1Bmq" Name="GeoJSON" Kind="InputPin" />
             <Pin Id="C1NHSXWCVGGZB28uETZ960" Name="Factory" Kind="InputPin" />
@@ -138,5 +138,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="NqhGdYpr6flaHKsqHSMRuX" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
-  <NugetDependency Id="Ub2pSG4mXyQe7RkcV1tLwN" Location="VL.NetTopologySuite" Version="0.0.4-alpha" />
+  <NugetDependency Id="Ub2pSG4mXyQe7RkcV1tLwN" Location="VL.NetTopologySuite" Version="0.0.6-alpha" />
 </Document>

@@ -7,7 +7,7 @@ using Xunit;
 namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
-/// What comes out of <c>Read GeoJSON</c>: how many, of what type, with which SRID.
+/// What comes out of <c>FromGeoJSON</c>: how many, of what type, with which SRID.
 /// </summary>
 public class ReadTests
 {
@@ -95,7 +95,7 @@ public class ReadTests
     [Fact]
     public void The_factory_pin_decides_the_srid()
     {
-        // This is the escape hatch for a patch that also uses Read WKT, whose SRID is 0. NTS
+        // This is the escape hatch for a patch that also uses FromWKT, whose SRID is 0. NTS
         // never throws on a mismatch, so the patch has to make them agree deliberately.
         var result = Read(Fixtures.Read(Fixtures.Points), new GeometryFactory(new PrecisionModel(), 0));
 

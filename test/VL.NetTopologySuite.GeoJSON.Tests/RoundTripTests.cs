@@ -134,7 +134,7 @@ public class RoundTripTests
     [Fact]
     public void A_bare_sequence_of_features_can_be_written_too()
     {
-        // Not everything handed to Write GeoJSON came from Read GeoJSON: a patch may have built
+        // Not everything handed to ToGeoJSON came from FromGeoJSON: a patch may have built
         // its features itself, in which case it holds a spread rather than a FeatureCollection.
         var factory = new GeometryFactory(new PrecisionModel(), 4326);
         var features = new[]

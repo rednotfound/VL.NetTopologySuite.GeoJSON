@@ -443,7 +443,7 @@ the allowance as **~200px of clear space to the right**, or give each Pad its ow
 
 ### `[return: Pin(Name = "…")]` on a `[ProcessNode]`'s `Update` is honoured
 
-`Read GeoJSON` renames its return pin from the default `Result` to `Features`, and the generated C#
+`FromGeoJSON` renames its return pin from the default `Result` to `Features`, and the generated C#
 names the variable after the pin — `var Features_5 = Read_GeoJSON_3.Update(…)`, not `Result_5`.
 That is also how to *verify* it: a wrong pin name is the quietest failure available, because the
 node still resolves and only the **link** to that pin is dropped.

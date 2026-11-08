@@ -92,7 +92,7 @@ change for the hand-off to work.
 
 ## SRID — 4326, and why that is not the mistake §8 warns about
 
-`Read GeoJSON` stamps **SRID 4326** unless the `Factory` pin says otherwise. VL.NetTopologySuite
+`FromGeoJSON` stamps **SRID 4326** unless the `Factory` pin says otherwise. VL.NetTopologySuite
 defaults to **0**. That difference is deliberate, and the two are not inconsistent — the formats
 are genuinely different.
 
@@ -105,7 +105,7 @@ are genuinely different.
   match, which is the thing not to do.
 
 **The hazard, stated because nothing else will state it.** NTS **never throws on mixed SRIDs** —
-4326 intersected with 0 returns 4326 silently. A patch mixing `Read WKT` (0) with `Read GeoJSON`
+4326 intersected with 0 returns 4326 silently. A patch mixing `FromWKT` (0) with `FromGeoJSON`
 (4326) gets a confident wrong answer that looks exactly like a right one. The `Factory` pin is how
 a patch makes them agree, in whichever direction it wants; it is the same pin, with the same
 meaning, as every VL.NetTopologySuite creation node.
@@ -115,15 +115,15 @@ that is `VL.ProjNet`'s job. A legacy `crs` member is accepted and ignored, which
 implies and what the library does (measured).
 
 On the way out, **GeoJSON has nowhere to put an SRID**, so a projected geometry is written as
-though its numbers were degrees. `Write GeoJSON` does not warn, because it cannot know — the doc
+though its numbers were degrees. `ToGeoJSON` does not warn, because it cannot know — the doc
 comment says so instead.
 
 ---
 
 ## Node categories
 
-**Both nodes are in `NetTopologySuite.IO`**, VL.NetTopologySuite's own category, beside `Read WKT`
-and `Write WKT`:
+**Both nodes are in `NetTopologySuite.IO`**, VL.NetTopologySuite's own category, beside `FromWKT`
+and `ToWKT`:
 
 ```csharp
 [assembly: ImportAsIs(Namespace = "VL.NetTopologySuite.GeoJSON", Category = "NetTopologySuite.IO")]
@@ -131,7 +131,7 @@ and `Write WKT`:
 
 The namespace is stripped whole and the category named outright. `[SkipCategory]` keeps
 `WriteNodes` from becoming a level of its own, and `[ProcessNode(Category = "NetTopologySuite.IO")]`
-places `Read GeoJSON`.
+places `FromGeoJSON`.
 
 Why not a category of our own: the Gray Book says *prefer existing categories over inventing your
 own*, and vvvv's packs do exactly this with satellites — `VL.Stride.TextureFX` puts its nodes into
@@ -146,11 +146,11 @@ generated C# carries no category at all (checked).
 
 ## Decisions, per node
 
-### `Read GeoJSON` is a process node, not an operation
+### `FromGeoJSON` is a process node, not an operation
 
 A `public static` method in VL is evaluated **sixty times a second from the moment the document
 opens**. Parsing 10,000 features takes **162 ms** against a 16.7 ms frame — a static
-`Read GeoJSON` would not be slow, it would be a patch that never draws again. Even **1,000
+`FromGeoJSON` would not be slow, it would be a patch that never draws again. Even **1,000
 features cost 0.8 of a frame**, so this is not an exotic-scale concern.
 
 So the text is parsed when it *changes*, and the same `Spread` instance is returned in
@@ -168,29 +168,29 @@ milliseconds against 748 ms to re-parse it).
 ### `GeoJSONReader (Reactive)` — the one file node (2026-10-18)
 
 Until this date the package had no file node, on the argument that `FileReader (String) [IO]` →
-`Read GeoJSON` composes. **For a small file that is still the answer, and the help still teaches
+`FromGeoJSON` composes. **For a small file that is still the answer, and the help still teaches
 it.** What changed is a measurement, made in vvvv 7.4 with an in-patch frame meter: that chain
 parses on the main loop, and **the 7,342 cities this package ships freeze vvvv for 0.56 s,
 1.2 million building footprints for 12.9 s.** See `docs/MEASUREMENTS.md`, "Large files inside vvvv".
 
 vvvv's own answer exists and works with the old node — `FileReader (String Reactive)` →
-`ForEach [Reactive]` around `Read GeoJSON` → `HoldLatest`, The Gray Book's recipe for JSON. It held
+`ForEach [Reactive]` around `FromGeoJSON` → `HoldLatest`, The Gray Book's recipe for JSON. It held
 60 fps. Three things it cannot do, and only this package can, because they need the parse itself:
 
 - **cancel.** `DeserializeAsync` honours a token only while buffering; the parse runs to the end.
   Reading one feature at a time and checking between features stops within a millisecond.
 - **report progress** — bytes parsed over file length.
 - **not hold the text.** The bytes go straight to `Utf8JsonReader`; a string is twice the file and
-  `Read GeoJSON` keeps it for its cache. Connecticut (340 MB): **1.9 GB in vvvv against 3.8 GB.**
+  `FromGeoJSON` keeps it for its cache. Connecticut (340 MB): **1.9 GB in vvvv against 3.8 GB.**
 
 **The shape is measured, not invented.** vvvv ships `JSONReader (Reactive)` and
 `FileReader (String Reactive)` with `File Path`, `Read` → `Output` (an observable), `Progress`,
 `In Progress`, `On Completed`, and The Gray Book tells node authors to hand anything asynchronous
 out as an observable. `GeoJSONReader (Reactive)` has exactly those pins, plus `Factory`, and
-`Success` / `Status` because a file can be wrong — the same two pins `Read GeoJSON` has. The
+`Success` / `Status` because a file can be wrong — the same two pins `FromGeoJSON` has. The
 maintainer chose the observable over a FileTexture-style direct output on 2026-10-18.
 
-**There is still no blocking `GeoJSONReader`.** `FileReader → Read GeoJSON` is one.
+**There is still no blocking `GeoJSONReader`.** `FileReader → FromGeoJSON` is one.
 
 **The path hazard is handled, not avoided.** The pin is a `VL.Lib.IO.Path`, as in VL.Mapsui's
 `TileCache`. An empty path reports `no file path` and touches nothing — never "the document's
@@ -202,7 +202,7 @@ feature by feature, geometry exactly and every attribute by type and value.
 
 ### There is no `FeatureCollection`
 
-`Read GeoJSON` returns a `Spread<Feature>`. The GeoJSON *document* type never reaches a patch.
+`FromGeoJSON` returns a `Spread<Feature>`. The GeoJSON *document* type never reaches a patch.
 
 **This follows vvvv's own document readers, and an earlier version of this package got it wrong.**
 Measured against `VL.CoreLib\VL.Xml.vl`: `XMLReader`, `Parse [XML]`, `JSONReader` and `ParseJSON`
@@ -231,9 +231,9 @@ it works on our output directly — confirmed in generated code:
 `Count<Feature>(Input_In: Features_5, …)`.
 
 What this costs: the collection's `bbox` member, which was never surfaced anyway. When something
-needs it, it becomes an output pin on `Read GeoJSON`, not a resurrected type.
+needs it, it becomes an output pin on `FromGeoJSON`, not a resurrected type.
 
-### `Read GeoJSON` returns a `Spread`, not a bare sequence
+### `FromGeoJSON` returns a `Spread`, not a bare sequence
 
 `Spread<T>` is what VL actually patches with — `GetSlice`, `Count` and `ForEach` all expect one —
 and it costs nothing at the boundary, since `Spread<T>` is an `IReadOnlyList<T>` and satisfies
@@ -260,7 +260,7 @@ It sits **beside** `Split`'s `Attributes` output rather than replacing it, becau
 different questions and vvvv ships exactly the same pair: `XElement (Split)` hands over
 `Attributes` as a spread, and `GetAttributeValue` takes one by name.
 
-### `Write GeoJSON` has an `Exact Round Trip` pin
+### `ToGeoJSON` has an `Exact Round Trip` pin
 
 RFC 7946 wants counter-clockwise exterior rings and clockwise holes, and the library rewinds rings
 on the way out to match. Measured: a MultiPolygon read and written back is then

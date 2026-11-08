@@ -4,13 +4,17 @@
 for [vvvv gamma](https://vvvv.org).**
 
 Read a GeoJSON document into NetTopologySuite features, and write features back out. Three nodes, in
-VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `Read WKT` and `Write WKT`.
+VL.NetTopologySuite's own `NetTopologySuite.IO` category beside `FromWKT` and `ToWKT`.
 
-> **Status: `0.0.1-alpha`, the first release, [on nuget.org](https://www.nuget.org/packages/VL.NetTopologySuite.GeoJSON) since 2026-10-18 — a prerelease, early.** It needs VL.NetTopologySuite
-> 0.0.4-alpha (on nuget.org since 2026-10-18), which installs with it. Every node resolves in a
-> headless `vvvvc` compile of all six help patches, 86 tests pass, the category is proved, and the
-> changed help patches were run in vvvv 7.4. F1 is not yet checked. See
+> **Status: `0.0.2-alpha` [on nuget.org](https://www.nuget.org/packages/VL.NetTopologySuite.GeoJSON) since 2026-11-08 — a prerelease, early.** It needs VL.NetTopologySuite
+> 0.0.6-alpha (on nuget.org since 2026-11-08), which installs with it. Every node resolves in a
+> headless `vvvvc` compile of all six help patches, 86 tests pass, and the category is proved. See
 > [docs/ROADMAP.md](docs/ROADMAP.md#verified).
+>
+> **Breaking in `0.0.2-alpha`:** `Read GeoJSON` / `Write GeoJSON` are now `FromGeoJSON` /
+> `ToGeoJSON`, with no alias, named after what you get - the way VL.NetTopologySuite 0.0.6-alpha
+> renamed its WKT nodes. A patch made with `0.0.1-alpha` shows the old node unresolved; put the new
+> one in its place. `GeoJSONReader (Reactive)` keeps its name: it reads a file.
 
 Until 2026-10-18 this was **VL.GeoJSON**, with four nodes of its own and no dependency on any
 sibling. Why it changed is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-package-boundary).
@@ -27,7 +31,7 @@ nuget install VL.NetTopologySuite.GeoJSON -pre
 ```
 
 `-pre` is needed because every version so far is a prerelease. It brings
-[VL.NetTopologySuite](https://github.com/rednotfound/VL.NetTopologySuite) 0.0.4-alpha along, plus
+[VL.NetTopologySuite](https://github.com/rednotfound/VL.NetTopologySuite) 0.0.6-alpha along, plus
 NetTopologySuite, NetTopologySuite.Features and NetTopologySuite.IO.GeoJSON4STJ — every node here
 names a type from one of them. vvvv gamma 8.0 previews also have **Packman** (Ctrl+F3: Browse → the
 pack → Add); that path has not been tried with this package — if it does not show up there, use the
@@ -36,7 +40,7 @@ command line above.
 **Then close and reopen vvvv.** A running vvvv keeps the VL.NetTopologySuite it already loaded. If an
 older one (0.0.1 / 0.0.2-alpha) was loaded when you installed, the next compile fails with a
 `NullReferenceException` in `RuntimeAssemblyUtils.GetSelfAndDependencies` (seen 2026-10-19). A
-document that names an older VL.NetTopologySuite also needs it raised to **0.0.4-alpha** under
+document that names an older VL.NetTopologySuite also needs it raised to **0.0.6-alpha** under
 **Document menu → Dependencies → NuGets**. Updating an installed version is described in
 [VL.NetTopologySuite's README](https://github.com/rednotfound/VL.NetTopologySuite#install-and-your-first-geometry).
 
@@ -48,10 +52,10 @@ and find VL.NetTopologySuite.GeoJSON. Start with `Explanation Overview of availa
 **3. Use it in your own patch.** Installing does not reference a package by itself. In your
 document: **Document menu → Dependencies → NuGets**, right-click **VL.NetTopologySuite.GeoJSON** to
 reference it — and **VL.NetTopologySuite** as well, whose `Split` and `GetAttribute` open a
-feature. Then double-click the canvas and type `Read GeoJSON`. The smallest chain:
+feature. Then double-click the canvas and type `FromGeoJSON`. The smallest chain:
 
 ```
-FileReader (String)  →  Read GeoJSON  →  Count            a small file
+FileReader (String)  →  FromGeoJSON  →  Count            a small file
 GeoJSONReader (Reactive)  →  HoldLatest  →  Count         a big one, read in the background
 ```
 
@@ -66,15 +70,15 @@ Six help patches, in the order the help browser shows them:
 |---|---|
 | **Explanation Overview of available nodes** | the front door — what the package is, its three nodes, and what it deliberately does not have |
 | **HowTo Read GeoJSON** | text in one box, features out. Break the text on purpose and watch `Status` |
-| **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `Read GeoJSON` for a small file, and when to reach for `GeoJSONReader (Reactive)` instead |
+| **HowTo Read a GeoJSON file** | `FileReader (String) [IO]` → `FromGeoJSON` for a small file, and when to reach for `GeoJSONReader (Reactive)` instead |
 | **HowTo Access properties** | `Split` and `GetAttribute` side by side, and what type each JSON value arrives as |
 | **HowTo Write GeoJSON** | a full round trip, and the ring-winding pin that decides whether it is exact |
-| **HowTo Handle a large GeoJSON file** | `GeoJSONReader (Reactive)` → `HoldLatest`, reading in the background, beside the blocking `FileReader` → `Read GeoJSON` |
+| **HowTo Handle a large GeoJSON file** | `GeoJSONReader (Reactive)` → `HoldLatest`, reading in the background, beside the blocking `FileReader` → `FromGeoJSON` |
 
 ```text
 GeoJSON text
      ↓
-Read GeoJSON            ← parses when the text CHANGES, not every frame
+FromGeoJSON            ← parses when the text CHANGES, not every frame
      ↓
 Features (Spread) ─────────────────→ VL.Mapsui  FeatureLayer → Map
      ↓  GetSlice / Count / ForEach ── vvvv's own spread nodes
@@ -91,21 +95,21 @@ calls the same table *attributes*, and the nodes that open it use NetTopologySui
 
 | | |
 |---|---|
-| `Read GeoJSON` | text + `Factory` → `Features` (a Spread), `Success`, `Status`, `Parses` |
+| `FromGeoJSON` | text + `Factory` → `Features` (a Spread), `Success`, `Status`, `Parses` |
 | `GeoJSONReader (Reactive)` | `File Path` + `Read` + `Factory` → `Output` (an observable of the features; `HoldLatest` it), `Progress`, `In Progress`, `On Completed`, `Success`, `Status`. Reads and parses on another thread: a big file does not freeze vvvv |
-| `Write GeoJSON` | features + `Exact Round Trip` + `Indent` → text, `Success` |
+| `ToGeoJSON` | features + `Exact Round Trip` + `Indent` → text, `Success` |
 
 A feature is opened with **VL.NetTopologySuite's** `Split` (→ `Geometry`, `Attributes`) and
 `GetAttribute` (→ one by name, with `Success`, never throws). That package installs with this one.
 
 Deliberately absent, each for a reason worth reading:
 
-- **A `FeatureCollection` type**, and therefore any node to open one. `Read GeoJSON` hands back the
+- **A `FeatureCollection` type**, and therefore any node to open one. `FromGeoJSON` hands back the
   features directly, the way `XMLReader` and `JSONReader` hand back an `XElement` rather than a
   document. [Why](docs/ARCHITECTURE.md#there-is-no-featurecollection).
 - **`Count`** — the result is a `Spread`, so `Count [Collections.Spread]` already works on it, as do
   `GetSlice` and a `ForEach` region.
-- **A blocking file node** — `FileReader (String) [IO]` → `Read GeoJSON` is one. The one file node
+- **A blocking file node** — `FileReader (String) [IO]` → `FromGeoJSON` is one. The one file node
   here reads in the background, because a big file must not freeze vvvv.
   [Why](docs/ARCHITECTURE.md#geojsonreader-reactive--the-one-file-node-2026-10-18).
 
@@ -117,14 +121,14 @@ text is parsed when it changes; watch the `Parses` pin settle at 1.
 
 **Decoded geometry gets SRID 4326.** RFC 7946 §4 mandates WGS84 longitude and latitude, and the
 upstream library stamps it unaided — so this is a fact about the format, not a guess about the
-data. **It differs from `Read WKT` right beside it, which gives 0**, because WKT carries no CRS
+data. **It differs from `FromWKT` right beside it, which gives 0**, because WKT carries no CRS
 semantics. NTS **never throws on mixed SRIDs**, so if a patch combines both, make them agree
 through the `Factory` pin. Setting an SRID is a label, never a reprojection — nothing here
 reprojects anything.
 
 ## Requirements
 
-vvvv gamma 7.2 or newer (.NET 8). Depends on **VL.NetTopologySuite 0.0.4-alpha**, NetTopologySuite
+vvvv gamma 7.2 or newer (.NET 8). Depends on **VL.NetTopologySuite 0.0.6-alpha**, NetTopologySuite
 2.6.0, NetTopologySuite.Features 2.1.0 and NetTopologySuite.IO.GeoJSON4STJ 4.0.0 — the same NTS
 versions the sibling packages pin, so a vvvv loading all of them sees one assembly identity.
 

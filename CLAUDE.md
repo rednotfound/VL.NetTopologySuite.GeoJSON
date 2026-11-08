@@ -16,6 +16,15 @@ own `Split`, and joined `NetTopologySuite.IO`. The reasons are in
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#2026-10-18-vlgeojson-became-vlnettopologysuitegeojson);
 do not undo any of it without reading them. The GitHub repository is renamed by the maintainer.
 
+**2026-11-08: `Read GeoJSON` / `Write GeoJSON` became `FromGeoJSON` / `ToGeoJSON`** (no alias,
+BREAKING, `0.0.2-alpha`), in step with VL.NetTopologySuite 0.0.6-alpha's `FromWKT` / `ToWKT`: the
+family names a conversion after what you get, as VL names `FromHSL` or `ToString`, and keeps *Read*
+for a file or a stream - which is why `GeoJSONReader (Reactive)` keeps its name. The help patch
+*files* keep theirs (`HowTo Read GeoJSON`, `HowTo Write GeoJSON`: a task, not a node, as the
+sibling's `HowTo Read and write WKT`). Dated history below keeps the names things had then. The
+dependency is raised to VL.NetTopologySuite 0.0.6-alpha so the whole family moves to the new names
+together; VL.Mapsui and VL.Overworld follow in the same round.
+
 **Current state (2026-10-18): 3 nodes, 86 tests + 4 load tests, 6 help patches. Static checks and a
 headless `vvvvc` compile of every patch are green; the category is proved (`NetTopologySuite.IO`)
 and the changed help patches were run in the vvvv GUI and photographed on 2026-10-18.** **0.0.1-alpha is on nuget.org (2026-10-18)**, byte-identical to the local pack and installed back from nuget.org alone (`tools\Test-Install.ps1 -FromNuGetOrg`, both packages signed). It depends on
@@ -78,7 +87,7 @@ skips `VL.*` NugetDependencies (they normally ship inside vvvv), so the help nee
 built and packed — `Compile-HelpPatches.ps1` adds its `dist\` and `dist\feed\` itself.
 
 And: **a `public static` method is a node evaluated sixty times a second from the moment the
-document opens.** That is why `Read GeoJSON` is a `[ProcessNode]` — see below.
+document opens.** That is why `FromGeoJSON` is a `[ProcessNode]` — see below.
 
 ## The two things this package adds to the upstream library
 
@@ -114,7 +123,7 @@ Do not "simplify" this away.
 Inside vvvv it is worse: the shipped 7,342 cities freeze the whole of vvvv for **0.56 s**, and a
 1.2-million-feature file for 12.9 s. The cache only stops it happening *every* frame; for a big
 file the answer is reading in the background — `FileReader (String Reactive)` → `ForEach [Reactive]`
-around `Read GeoJSON` → `HoldLatest`, measured at 60 fps throughout with the existing node. See
+around `FromGeoJSON` → `HoldLatest`, measured at 60 fps throughout with the existing node. See
 `docs/MEASUREMENTS.md`, "Large files inside vvvv".
 `ReadGeoJsonNode` caches on (text, factory) and returns **the same instance** in between — identity
 is the only "has this changed" signal VL has. Negative-tested: removing the cache check turns **4
@@ -129,7 +138,7 @@ Full table with dates in [`docs/MEASUREMENTS.md`](docs/MEASUREMENTS.md). The loa
 | Both GeoJSON packages | resolve **`NetTopologySuite.Features 2.1.0`** — the exact version VL.Mapsui pins. No conflict anywhere |
 | Default SRID from `new GeoJsonConverterFactory()` | **4326.** Upstream stamps it; RFC 7946 §4 mandates WGS84 lon/lat |
 | `GeoJsonConverterFactory(factory)` | adopts the factory's SRID exactly, 0 included |
-| Mixing SRIDs in NTS | **never throws.** `Read WKT` gives 0 and `Read GeoJSON` gives 4326 — a real hazard, documented on both |
+| Mixing SRIDs in NTS | **never throws.** `FromWKT` gives 0 and `FromGeoJSON` gives 4326 — a real hazard, documented on both |
 | Legacy `crs` member | accepted and **silently ignored** |
 | Ring orientation | **not** touched on read; **rewound** on write by default. Round trip is `EqualsTopologically` but not `EqualsExact` unless `DoNotModify` |
 | `{"hello":"world"}` | **succeeds with 0 features.** The count is the only signal — hence `Status` |
@@ -169,8 +178,8 @@ These cost a full survey; do not re-derive them.
 | `tools\Test-Install.ps1` | the packed package installs **with VL.NetTopologySuite 0.0.4-alpha from nuget.org** (2026-10-18: cache evicted first; the copy it pulled is byte-identical to nuget.org's signed package), and all six help patches compile from the install | ✅ 2026-10-18, with that version evicted from every local cache first; needs `-NoHttpCache` (now in the script) for a just-published dependency |
 | a **category-constrained probe** (below) | **which category a node is in** | ✅ 2026-10-18: `NetTopologySuite.IO` resolves, the old `GeoJSON` gives `Not found` |
 | the vvvv **NodeBrowser** | the same, as a user sees it | ❌ not looked at — the probe is the stronger evidence |
-| the vvvv **GUI, running** | the patch computes the right value | ✅ 2026-10-18, vvvv 7.4: Access properties, Read GeoJSON, Write GeoJSON, Explanation — values read off PrintWindow captures (2 features, Parses 1, round trip 2 = 2, `TryGetValue` and `GetAttribute` both "Tokyo") |
-| **F1** on `Read GeoJSON` / `Write GeoJSON` | the node opens its help | ❌ not pressed |
+| the vvvv **GUI, running** | the patch computes the right value | ✅ 2026-10-18, vvvv 7.4: Access properties, FromGeoJSON, ToGeoJSON, Explanation — values read off PrintWindow captures (2 features, Parses 1, round trip 2 = 2, `TryGetValue` and `GetAttribute` both "Tokyo") |
+| **F1** on `FromGeoJSON` / `ToGeoJSON` | the node opens its help | ❌ not pressed |
 
 **The last three rows are three different claims, and this is where a false proof lives.**
 
@@ -180,10 +189,10 @@ These cost a full survey; do not re-derive them.
 **The category can be proved headlessly, and that is new (2026-10-18).** A `<CategoryReference>`
 inside a node's `NodeReference` is NOT a hint: vvvvc enforces it (it is what broke VL.Overworld's
 Tutorial 1.1 after the `NTS` -> `NetTopologySuite` rename, "Not found: Point"). So a scratch copy of
-a patch whose `Read GeoJSON` / `Write GeoJSON` carry
+a patch whose `FromGeoJSON` / `ToGeoJSON` carry
 `<CategoryReference Kind="Category" Name="IO" NeedsToBeDirectParent="true"><p:OuterCategoryReference Kind="Category" Name="NetTopologySuite" NeedsToBeDirectParent="true" /></CategoryReference>`
 generates C# with both nodes in it, and the same copy constrained to the old flat `GeoJSON` fails
-with `Not found: Read GeoJSON` - positive and negative from one probe, no GUI. (Both exit non-zero
+with `Not found: FromGeoJSON` - positive and negative from one probe, no GUI. (Both exit non-zero
 afterwards, at the export's NuGet restore, because a scratch folder has no feed - the C# is already
 written by then.)
 
@@ -255,10 +264,10 @@ vl-geojson/
 ├── src/VL.NetTopologySuite.GeoJSON/
 │   ├── AssemblyInfo.cs            # ImportAsIs(..., Category = "NetTopologySuite.IO")
 │   ├── Defaults.cs                # ⭐ the factory, the cached options, and Normalise
-│   ├── ReadNodes.cs               # [ProcessNode] Read GeoJSON - the lifetime-critical one
+│   ├── ReadNodes.cs               # [ProcessNode] FromGeoJSON - the lifetime-critical one
 │   ├── ReactiveNodes.cs           # [ProcessNode] GeoJSONReader (Reactive) - a file, in the background
 │   ├── GeoJsonFile.cs             # its parse: one feature at a time, cancellable, no string
-│   └── WriteNodes.cs              # Write GeoJSON
+│   └── WriteNodes.cs              # ToGeoJSON
 ├── test/VL.NetTopologySuite.GeoJSON.Tests/   # 86 xunit tests + 4 opt-in load tests, no network, no vvvv
 ├── test/fixtures/                 # A-points, B-polygons, C-multipolygon, D-mixed, E-malformed
 ├── help/VL.NetTopologySuite.GeoJSON/         # 6 help patches + Help.xml (ordering and tags)
@@ -296,7 +305,7 @@ public API** and must stay in the test project.
 
 ## Node categories
 
-**`NetTopologySuite.IO`** — VL.NetTopologySuite's own category, beside `Read WKT` and `Write WKT`:
+**`NetTopologySuite.IO`** — VL.NetTopologySuite's own category, beside `FromWKT` and `ToWKT`:
 
 ```csharp
 [assembly: ImportAsIs(Namespace = "VL.NetTopologySuite.GeoJSON", Category = "NetTopologySuite.IO")]
@@ -305,7 +314,7 @@ public API** and must stay in the test project.
 The namespace is stripped whole and the category named outright — the form `VL.Core.Commands`
 ships (`Namespace = "VL.Core", Category = "System"`), found by scanning the 7.4 pack assemblies.
 `[SkipCategory]` keeps `WriteNodes` from becoming a level of its own;
-`[ProcessNode(Name = "Read GeoJSON", Category = "NetTopologySuite.IO")]` places the process node,
+`[ProcessNode(Name = "FromGeoJSON", Category = "NetTopologySuite.IO")]` places the process node,
 and `[ProcessNode(Name = "GeoJSONReader (Reactive)", ...)]` the other — the version in parentheses
 is written into the name, and vvvvc resolves `Name="GeoJSONReader (Reactive)"` from a patch
 (checked 2026-10-18).
@@ -342,7 +351,7 @@ Answer these before writing it. If any answer is thin, it is a help patch rather
   `Count` node is absent for exactly this reason — the output is a `Spread`, so
   `Count [Collections.Spread]` already works on it.
 - **Does VL or VL.CoreLib already ship it?** A blocking file node is absent because
-  `FileReader (String) [IO]` → `Read GeoJSON` is one. `GeoJSONReader (Reactive)` exists because what
+  `FileReader (String) [IO]` → `FromGeoJSON` is one. `GeoJSONReader (Reactive)` exists because what
   it adds needs the parse itself — the reasoning is in `docs/ARCHITECTURE.md`, and it is the
   pattern for the next "should this be a node" question: measure what the composition costs in
   vvvv, then ask what only this package can do about it.
@@ -356,7 +365,7 @@ Answer these before writing it. If any answer is thin, it is a help patch rather
   must not grow a feature node either: anything that opens or builds a `Feature` belongs in
   VL.NetTopologySuite, whoever produced the feature.
 - **Three inputs is the target**; five means two decisions are wearing one node. Extra *outputs*
-  are free — `Read GeoJSON` has four.
+  are free — `FromGeoJSON` has four.
 
 ## Working style
 

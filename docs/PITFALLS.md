@@ -45,7 +45,7 @@ red**, 2 of them interop; making only `NormaliseValue` return the raw value turn
 ### The silent one
 
 `{"hello":"world"}` — valid JSON that is not GeoJSON — **parses successfully with zero features**.
-Nothing upstream objects. The count is the only signal a patch gets, which is why `Read GeoJSON`
+Nothing upstream objects. The count is the only signal a patch gets, which is why `FromGeoJSON`
 has a `Status` pin that says `0 features` rather than only a `Success` boolean.
 
 A legacy `crs` member is likewise **accepted and silently ignored**.

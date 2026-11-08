@@ -16,7 +16,7 @@ using VLPath = VL.Lib.IO.Path;
 namespace VL.NetTopologySuite.GeoJSON.Tests;
 
 /// <summary>
-/// <c>GeoJSONReader (Reactive)</c>: the same features as <c>Read GeoJSON</c>, off the main thread.
+/// <c>GeoJSONReader (Reactive)</c>: the same features as <c>FromGeoJSON</c>, off the main thread.
 /// </summary>
 /// <remarks>
 /// <para>The first group is the one that matters: the file reader parses one feature at a time

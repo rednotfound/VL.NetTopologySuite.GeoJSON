@@ -111,7 +111,7 @@ public class LoadTests(ITestOutputHelper output)
             output.WriteLine($"  B  Utf8JsonReader token scan only   {tTokens,8:F1} ms");
             output.WriteLine($"  C  GeoJSON to NTS  (B+C minus B)    {tWhole - tTokens - tNormalise,8:F1} ms");
             output.WriteLine($"  D  normalisation to Feature         {tNormalise,8:F1} ms");
-            output.WriteLine($"     Read GeoJSON node, total         {tWhole,8:F1} ms");
+            output.WriteLine($"     FromGeoJSON node, total         {tWhole,8:F1} ms");
             output.WriteLine($"     -> D is {tNormalise / tWhole * 100:F0}% of the node's cost");
         }
         finally { System.IO.File.Delete(path); }

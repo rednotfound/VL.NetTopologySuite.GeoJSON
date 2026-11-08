@@ -29,7 +29,7 @@ namespace VL.NetTopologySuite.GeoJSON;
 /// <para>Each feature still goes through the upstream converter
 /// (<c>JsonSerializer.Deserialize&lt;IFeature&gt;</c> with the same options) and through
 /// <see cref="Defaults.Normalise(FeatureCollection)"/>'s per-feature step, so a file read here and
-/// the same text through <c>Read GeoJSON</c> give identical features — the tests compare
+/// the same text through <c>FromGeoJSON</c> give identical features — the tests compare
 /// them.</para>
 /// </remarks>
 internal static class GeoJsonFile
@@ -48,7 +48,7 @@ internal static class GeoJsonFile
         {
             // A bare Utf8JsonReader throws the internal JsonReaderException where the serializer
             // wraps the same fault as JsonException. Status names the type, so say what
-            // Read GeoJSON says about the same bytes.
+            // FromGeoJSON says about the same bytes.
             throw new JsonException(exception.Message, exception);
         }
     }
@@ -69,7 +69,7 @@ internal static class GeoJsonFile
         var reader = new Utf8JsonReader(json);
         var length = Math.Max(1, json.Length);
 
-        // The document's own `null` reads as no features, as it does through Read GeoJSON.
+        // The document's own `null` reads as no features, as it does through FromGeoJSON.
         if (!reader.Read() || reader.TokenType == JsonTokenType.Null)
             return Spread<global::NetTopologySuite.Features.Feature>.Empty;
         if (reader.TokenType != JsonTokenType.StartObject)
@@ -101,13 +101,13 @@ internal static class GeoJsonFile
             }
             else
             {
-                // bbox, a legacy crs, foreign members: Read GeoJSON ignores them too.
+                // bbox, a legacy crs, foreign members: FromGeoJSON ignores them too.
                 reader.Read();
                 reader.Skip();
             }
         }
 
-        // Read GeoJSON says the same about a bare geometry or a single Feature at the root. The
+        // FromGeoJSON says the same about a bare geometry or a single Feature at the root. The
         // member may come after "features", so it can only be judged at the end.
         if (type is not null && type != "FeatureCollection")
             throw new JsonException($"A GeoJSON file must hold a FeatureCollection, this one is a {type}.");

@@ -71,7 +71,7 @@ The nicer types are what `Defaults.Normalise` buys back, for 12% of the parse co
 | `null` literal | returns **`null`** |
 
 **The second row is the trap.** Valid JSON that is not GeoJSON produces an empty collection and no
-error, so the only signal a patch gets is the count. `Read GeoJSON` reports `0 features` on
+error, so the only signal a patch gets is the count. `FromGeoJSON` reports `0 features` on
 `Status` for exactly this reason.
 
 ---
@@ -94,7 +94,7 @@ Synthetic polygons, 20 vertices each, three properties.
 Cost is close to linear in feature count, and memory runs about **2.5× the text size**.
 
 **Around 1,000 features a single parse costs a whole frame.** That is the number that makes
-`Read GeoJSON` a process node rather than an operation — not a preference.
+`FromGeoJSON` a process node rather than an operation — not a preference.
 
 ### Stages separated (§13 of the brief), 10,000 polygons
 
@@ -104,7 +104,7 @@ Cost is close to linear in feature count, and memory runs about **2.5× the text
 | B | `Utf8JsonReader` token scan only | 54.0 |
 | C | GeoJSON → NTS geometry | 103.9 |
 | D | normalisation to concrete `Feature` | 22.3 |
-| | **`Read GeoJSON` node, total** | **180.2** |
+| | **`FromGeoJSON` node, total** | **180.2** |
 
 **D is 12% of the node's cost — on this synthetic fixture, with 3 properties per feature.** Geometry
 construction (C) dominates here, and raw JSON tokenising (B) is under a third of the total — so a
@@ -124,7 +124,7 @@ and promoting the objects the deserializer had *just* allocated, billed to the n
 allocated. A stage split of a .NET pipeline measures who triggered the collection, not who
 caused it.
 
-What did help, through `Read GeoJSON` itself, one file per process, median of 10 after a warm-up,
+What did help, through `FromGeoJSON` itself, one file per process, median of 10 after a warm-up,
 SHA-256 fingerprint of every feature's geometry and attributes **identical before and after**:
 
 | file | before | after | retained before | retained after |
@@ -160,7 +160,7 @@ help a document that is slow because it has a lot of *features*.
 ### Real open data — and properties cost too (2026-10-18)
 
 The synthetic fixture carries 3 properties per feature. Real files carry 26-41, and that shows:
-`Read GeoJSON`, Release build, median of three after a warm-up, same machine:
+`FromGeoJSON`, Release build, median of three after a warm-up, same machine:
 
 | file | features | properties each | size | parse ms | frames at 60 fps |
 |---|---:|---:|---:|---:|---:|
@@ -197,9 +197,9 @@ read off a capture. An idle patch's longest frame was 0.02 s. vvvv working set 0
 | Microsoft US building footprints, Delaware | 357,534 | 99 MB | **3.95 s** | 0.04 s | 3 |
 | Microsoft US building footprints, Connecticut | 1,215,624 | 340 MB | **12.91 s** | 0.04 s | 5 |
 
-- **Blocking** = `FileReader (String)` → `Read GeoJSON`, the chain the help taught until now.
+- **Blocking** = `FileReader (String)` → `FromGeoJSON`, the chain the help taught until now.
   The whole of vvvv freezes for one frame of that length.
-- **Background** = `FileReader (String Reactive)` → `ForEach [Reactive]` around `Read GeoJSON` →
+- **Background** = `FileReader (String Reactive)` → `ForEach [Reactive]` around `FromGeoJSON` →
   `HoldLatest` — The Gray Book's own recipe for JSON. **It works with the existing node, no code.**
   Connecticut arrived about 15 s after the trigger, at 60 fps throughout.
 - **The shipped 7,342 cities freeze vvvv for 0.56 s**, not the 220 ms the console measured — cold
@@ -217,7 +217,7 @@ frame 1800, the patch's per-frame `ForEach` unplugged):
 | file | features | longest frame | vvvv working set after |
 |---|---:|---:|---:|
 | Natural Earth roads 1:10m | 56,600 | 0.03 s | 0.8 GB |
-| Connecticut building footprints | 1,215,624 | 0.04 s | **1.9 GB** — against 3.8 GB through `FileReader` + `Read GeoJSON` |
+| Connecticut building footprints | 1,215,624 | 0.04 s | **1.9 GB** — against 3.8 GB through `FileReader` + `FromGeoJSON` |
 
 `Progress` read 0.90 on a capture taken mid-read. The halved memory is the text that is never made
 and never kept.

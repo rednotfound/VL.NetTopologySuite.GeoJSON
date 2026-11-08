@@ -152,7 +152,7 @@ public class PropertyTests
     public void A_features_bbox_is_not_written_back()
     {
         // Upstream writes a feature's bbox only with writeGeometryBBox, which also puts a bbox on
-        // every geometry. Write GeoJSON keeps that off, so the bbox is read but not written. This
+        // every geometry. ToGeoJSON keeps that off, so the bbox is read but not written. This
         // pins the limitation down: if it changes, the docs saying so must change with it.
         var features = new ReadGeoJsonNode().Update(out _, out _, out _, WithBoundingBox);
 

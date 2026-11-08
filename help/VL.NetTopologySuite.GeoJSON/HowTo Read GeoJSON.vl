@@ -15,7 +15,7 @@
       </p:NodeReference>
       <Patch Id="BRT518VC14xmQN4b4LR1ZY">
         <Canvas Id="UxwUCWOXgx8XY6IqTGB9id" CanvasType="Group">
-          <Pad Id="Nyx8A3Bd4HazcoHOsxDx9w" Bounds="760,55,582,503" ShowValueBox="true" isIOBox="true" Value="Start here&#xD;&#xA;&#xD;&#xA;Edit the text and everything below follows. Then try breaking it on purpose:&#xD;&#xA;&#xD;&#xA;  delete a closing brace        Status says JsonException&#xD;&#xA;  change Point to Rhombus       Status names the type it did not know&#xD;&#xA;  remove a properties object    the feature still reads, with no properties&#xD;&#xA;  replace it all with {}        Success stays TRUE and you get 0 features&#xD;&#xA;&#xD;&#xA;That last one is worth dwelling on. Valid JSON that simply is not GeoJSON is not an error to the parser - so the COUNT is the only thing that tells you. Nothing throws either way: half-typed text is the normal state of a box somebody is editing.&#xD;&#xA;&#xD;&#xA;Read GeoJSON hands back the features directly. There is no collection object to open first, which is how vvvv's own XML and JSON readers work too - they never give a patch a &quot;document&quot; to unwrap.&#xD;&#xA;&#xD;&#xA;Because it is a Spread, everything VL already knows about spreads works on it: Count and GetSlice below are vvvv's own nodes, not ours.">
+          <Pad Id="Nyx8A3Bd4HazcoHOsxDx9w" Bounds="760,55,582,503" ShowValueBox="true" isIOBox="true" Value="Start here&#xD;&#xA;&#xD;&#xA;Edit the text and everything below follows. Then try breaking it on purpose:&#xD;&#xA;&#xD;&#xA;  delete a closing brace        Status says JsonException&#xD;&#xA;  change Point to Rhombus       Status names the type it did not know&#xD;&#xA;  remove a properties object    the feature still reads, with no properties&#xD;&#xA;  replace it all with {}        Success stays TRUE and you get 0 features&#xD;&#xA;&#xD;&#xA;That last one is worth dwelling on. Valid JSON that simply is not GeoJSON is not an error to the parser - so the COUNT is the only thing that tells you. Nothing throws either way: half-typed text is the normal state of a box somebody is editing.&#xD;&#xA;&#xD;&#xA;FromGeoJSON hands back the features directly. There is no collection object to open first, which is how vvvv's own XML and JSON readers work too - they never give a patch a &quot;document&quot; to unwrap.&#xD;&#xA;&#xD;&#xA;Because it is a Spread, everything VL already knows about spreads works on it: Count and GetSlice below are vvvv's own nodes, not ours.">
             <p:TypeAnnotation LastCategoryFullName="Primitive" LastDependency="VL.CoreLib.vl">
               <Choice Kind="TypeFlag" Name="String" />
             </p:TypeAnnotation>
@@ -32,7 +32,7 @@
           <Node Bounds="60,145,110,26" Id="Hp5yah52Q51HVw0PawB6mu">
             <p:NodeReference LastCategoryFullName="NetTopologySuite.IO" LastDependency="VL.NetTopologySuite.GeoJSON.vl">
               <Choice Kind="NodeFlag" Name="Node" Fixed="true" />
-              <Choice Kind="ProcessAppFlag" Name="Read GeoJSON" />
+              <Choice Kind="ProcessAppFlag" Name="FromGeoJSON" />
             </p:NodeReference>
             <Pin Id="HAvExaC0zoolpESJixbnUZ" Name="GeoJSON" Kind="InputPin" />
             <Pin Id="C99iRm7iiiRu5QzuhWCSAh" Name="Factory" Kind="InputPin" />
@@ -103,5 +103,5 @@
     </Node>
   </Patch>
   <NugetDependency Id="Juswb0LcGo1ezrAwD7IOhj" Location="VL.NetTopologySuite.GeoJSON" Version="0.0.0" />
-  <NugetDependency Id="Hq4WkZtR8sYcN2fLb7DmVe" Location="VL.NetTopologySuite" Version="0.0.4-alpha" />
+  <NugetDependency Id="Hq4WkZtR8sYcN2fLb7DmVe" Location="VL.NetTopologySuite" Version="0.0.6-alpha" />
 </Document>

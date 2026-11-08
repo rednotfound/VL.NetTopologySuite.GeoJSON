@@ -69,7 +69,7 @@ public class InteropTests
     public void A_Spread_is_what_VL_patches_with_and_it_still_satisfies_the_pin()
     {
         // Spread<T> is an IReadOnlyList<T>, so it costs nothing at the package boundary while
-        // giving a patch GetSlice, Count and ForEach for free. That is why Read GeoJSON returns
+        // giving a patch GetSlice, Count and ForEach for free. That is why FromGeoJSON returns
         // one rather than a bare sequence or a FeatureCollection.
         var features = new ReadGeoJsonNode().Update(out _, out _, out _, Fixtures.Read(Fixtures.Points));
 
