@@ -13,24 +13,8 @@
          is packed to docs\ below), and nuget pack refuses to pack if it is not in <files>. Same as
          VL.NetTopologySuite and VL.Mapsui. -->
     <readme>docs\README.md</readme>
-    <description>
-      EARLY - not ready for real work yet.
-
-      GeoJSON for VL.NetTopologySuite. Read GeoJSON turns GeoJSON text into a spread of
-      NetTopologySuite features; Write GeoJSON turns features back into text. GeoJSONReader
-      (Reactive) reads a file on another thread, with progress and cancellation, so a big file
-      does not freeze vvvv. All three sit in NetTopologySuite.IO, beside Read WKT and Write WKT.
-
-      The features are NetTopologySuite's own Feature type, not a wrapper. VL.NetTopologySuite
-      (installed with this package) opens them with Split and GetAttribute and operates on their
-      geometry; VL.Mapsui draws them on a map. No adapter anywhere in that chain.
-
-      Reads RFC 7946 GeoJSON. Decoded geometry gets SRID 4326, which the format mandates; a
-      Factory pin overrides it. Nothing here reprojects anything.
-
-      Requires vvvv gamma 7.2 or newer (.NET 8).
-    </description>
-    <summary>GeoJSON reading and writing for VL.NetTopologySuite, as nodes for vvvv gamma.</summary>
+    <description>Read and write GeoJSON in VL, as NetTopologySuite features.</description>
+    <summary>Read and write GeoJSON in VL, as NetTopologySuite features.</summary>
     <releaseNotes>
       0.0.3-alpha - In development, not published.
 
