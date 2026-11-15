@@ -4,8 +4,8 @@
     <id>VL.NetTopologySuite.GeoJSON</id>
     <version>0.0.3-alpha</version>
     <title>VL.NetTopologySuite.GeoJSON — GeoJSON for NetTopologySuite in vvvv gamma</title>
-    <authors>VL.NetTopologySuite.GeoJSON Contributors</authors>
-    <owners>VL.NetTopologySuite.GeoJSON Contributors</owners>
+    <authors>red</authors>
+    <owners>red</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
     <projectUrl>https://github.com/rednotfound/VL.NetTopologySuite.GeoJSON</projectUrl>
