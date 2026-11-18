@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
   <metadata>
     <id>VL.NetTopologySuite.GeoJSON</id>
-    <version>0.0.3-alpha</version>
+    <version>0.0.4-alpha</version>
     <title>VL.NetTopologySuite.GeoJSON — GeoJSON for NetTopologySuite in vvvv gamma</title>
     <authors>red</authors>
     <owners>red</owners>
@@ -16,6 +16,8 @@
     <description>Read and write GeoJSON in VL, as NetTopologySuite features.</description>
     <summary>Read and write GeoJSON in VL, as NetTopologySuite features.</summary>
     <releaseNotes>
+      0.0.4-alpha - In development, not published.
+
       0.0.3-alpha (2026-11-18) - No node changed. The package page: a short README in the shape
       vvvv libraries use, one sentence of description, authors and owners "red", and the LICENSE
       and the third-party notices inside the package.
