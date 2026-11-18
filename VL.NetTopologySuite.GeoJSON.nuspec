@@ -16,7 +16,9 @@
     <description>Read and write GeoJSON in VL, as NetTopologySuite features.</description>
     <summary>Read and write GeoJSON in VL, as NetTopologySuite features.</summary>
     <releaseNotes>
-      0.0.3-alpha - In development, not published.
+      0.0.3-alpha (2026-11-18) - No node changed. The package page: a short README in the shape
+      vvvv libraries use, one sentence of description, authors and owners "red", and the LICENSE
+      and the third-party notices inside the package.
 
       0.0.2-alpha (2026-11-08) - BREAKING: Read GeoJSON and Write GeoJSON are
       now FromGeoJSON and ToGeoJSON, in the same category, with no alias - named after what you
